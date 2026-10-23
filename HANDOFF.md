@@ -19,15 +19,23 @@ Aplikasi cycling computer (cyclocomp) yang berjalan di HP Android lawas:
 | Hal | Status |
 |---|---|
 | Kerangka proyek lengkap (Gradle, manifest, resource, 7 kelas Java) | Selesai |
-| Dikompilasi | **BELUM**. Ditulis tanpa Android SDK; kemungkinan ada error kecil saat sync/build pertama |
-| Diuji di perangkat | **BELUM** |
+| Dikompilasi | **SUDAH** — build pertama lolos 23 Okt 2026 (run CI `39959658581`) |
+| APK hasil | `app-debug.apk` 29 KB, rilis GitHub `v0.1.0` |
+| Diuji di perangkat | **BELUM** — ini langkah berikutnya |
 | Unit test | Belum ada |
 | Sensor BLE, pengaturan, peta, ekspor/bagikan | Belum (lihat roadmap, bagian 12) |
 | Ikon launcher | Memakai ikon bawaan sistem (`@android:drawable/ic_menu_compass`), belum ada ikon sendiri |
-| `gradlew` / `gradle-wrapper.jar` | Tidak disertakan. Android Studio membuatnya otomatis, atau jalankan `gradle wrapper` |
+| Build APK | **GitHub Actions** (bukan lokal): host pengembangan adalah ARM/aarch64, dan `aapt2` build-tools resmi hanya tersedia untuk x86_64, jadi build lokal Android tidak mungkin. Workflow `.github/workflows/build-apk.yml`; repo `github.com/AltairKaslana/cyclocomp` |
 
-Langkah pertama yang disarankan: build, perbaiki error kompilasi (jika ada), jalankan di 1 HP KitKat
-dan 1 HP Android 7+, lalu kerjakan checklist di bagian 10.
+Langkah pertama yang disarankan sekarang: **uji di perangkat** (bagian 10), mulai dari 1 HP KitKat dan
+1 HP Android 7+. Setelah itu roadmap nomor 1–3.
+
+### Satu-satunya perbaikan yang diperlukan agar lolos kompilasi
+
+`RideService.onStatusChanged` kehilangan anotasi `@Override`. Method itu sudah usang dan
+**dikeluarkan dari antarmuka `LocationListener` sejak API 30**, jadi dengan `compileSdk 34`
+compiler menolaknya (`method does not override or implement a method from a supertype`).
+Anotasi dibuang; badan method dibiarkan kosong dan tetap aman.
 
 ## 3. Struktur proyek
 
@@ -185,12 +193,25 @@ sehingga bisa beda puluhan meter dari ketinggian sebenarnya).
 
 ## 8. Build dan run
 
-Prasyarat: Android Studio Giraffe/Hedgehog+ , JDK 17, Android SDK 34, koneksi internet untuk unduh Gradle.
-1. Buka folder `cyclocomp/` di Android Studio → Sync.
-2. Colok HP (USB debugging) → Run `app`.
-3. CLI: `gradle wrapper` (sekali) → `./gradlew assembleDebug` → `app/build/outputs/apk/debug/app-debug.apk`.
-4. Rilis: `minifyEnabled true` sudah aktif; belum ada signing config dan belum diuji dengan R8 (kelas
-   proyek ini tidak memakai refleksi, seharusnya aman).
+**Penting: host pengembangan adalah ARM/aarch64, dan build Android lokal tidak mungkin di sana**
+(`aapt2` build-tools resmi hanya x86_64). Karena itu APK dibangun lewat GitHub Actions:
+
+```
+push ke main  →  .github/workflows/build-apk.yml  →  artefak cyclocomp-debug-apk
+gh run watch <id> --exit-status --interval 20      # tunggu run selesai
+gh run download <id> -n cyclocomp-debug-apk -D /tmp/apk
+gh release create vX.Y.Z app-debug.apk             # tautan unduh stabil
+```
+
+Rantai versi yang sudah terbukti cocok untuk proyek ini: **AGP 8.2.2 → Gradle 8.2 → JDK 17**,
+`platforms;android-34` + `build-tools;34.0.0`. Jangan pakai
+`android-actions/setup-android@v3` (ia memanggil `sdkmanager tools`, paket itu sudah dihapus).
+
+Di PC dengan Android Studio (x86_64), build lokal tetap seperti biasa: buka folder, Sync,
+colok HP (USB debugging) → Run. CLI: `gradle wrapper` sekali, lalu `./gradlew assembleDebug`.
+
+Rilis: `minifyEnabled true` sudah aktif; belum ada signing config dan belum diuji dengan R8 (kelas
+proyek ini tidak memakai refleksi, seharusnya aman).
 
 ## 9. Hal yang perlu diverifikasi / risiko yang diketahui
 
