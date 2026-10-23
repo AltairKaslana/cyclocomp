@@ -49,11 +49,29 @@ public class HistoryActivity extends Activity {
         String[] items = new String[rows.size()];
         for (int i = 0; i < items.length; i++) {
             RideDb.Row r = rows.get(i);
+            java.util.List<RideService.Lap> lp = RideService.decodeLaps(r.laps);
             items[i] = df.format(new Date(r.startMs)) + "\n"
                     + Fmt.km(r.distanceM) + " km  •  " + Fmt.duration(r.movingMs)
-                    + "  •  " + Fmt.speed(r.avgSpeedMs()) + " km/j";
+                    + "  •  " + Fmt.speed(r.avgSpeedMs()) + " km/j"
+                    + (lp.isEmpty() ? "" : "  •  " + lp.size() + " lap");
         }
         list.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items));
+    }
+
+    /** Ringkasan lap: tiap baris jarak + waktu. Dibatasi 8 lap supaya dialog tidak terlalu panjang. */
+    private String lapSummary(java.util.List<RideService.Lap> laps) {
+        if (laps == null || laps.isEmpty()) return "";
+        StringBuilder sb = new StringBuilder("Lap:");
+        int n = 0;
+        for (RideService.Lap l : laps) {
+            if (n >= 8) { sb.append("\n… dan ").append(laps.size() - n).append(" lap lagi"); break; }
+            sb.append("\n  ").append(l.index).append(". ")
+              .append(Fmt.km(l.distanceM)).append(" km  ")
+              .append(Fmt.shortDuration(l.elapsedMs)).append("  ")
+              .append(Fmt.speed(l.avgSpeedMs())).append(" km/j");
+            n++;
+        }
+        return sb.toString();
     }
 
     private void showDetail(final RideDb.Row r) {
@@ -63,7 +81,8 @@ public class HistoryActivity extends Activity {
                 + "Rata-rata: " + Fmt.speed(r.avgSpeedMs()) + " km/j\n"
                 + "Maks: " + Fmt.speed((float) r.maxSpeedMs) + " km/j\n"
                 + "Tanjakan: " + Fmt.meters(r.elevGainM) + " m\n\n"
-                + "File GPX:\n" + r.gpxPath;
+                + lapSummary(RideService.decodeLaps(r.laps))
+                + "\nFile GPX:\n" + r.gpxPath;
         new AlertDialog.Builder(this)
                 .setTitle(df.format(new Date(r.startMs)))
                 .setMessage(msg)

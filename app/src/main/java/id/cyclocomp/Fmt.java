@@ -18,8 +18,20 @@ final class Fmt {
         return String.format(Locale.getDefault(), "%.0f", m);
     }
 
+    /** Gradien persen, selalu positif (arahnya sudah ditunjukkan panah terpisah). */
+    static String grade(double percent) {
+        return String.format(Locale.getDefault(), "%.1f", percent);
+    }
+
     static String duration(long ms) {
         long s = ms / 1000;
+        return String.format(Locale.US, "%d:%02d:%02d", s / 3600, (s % 3600) / 60, s % 60);
+    }
+
+    /** Durasi ringkas untuk lap: m:ss di bawah satu jam, h:mm:ss di atasnya. */
+    static String shortDuration(long ms) {
+        long s = Math.max(0, ms / 1000);
+        if (s < 3600) return String.format(Locale.US, "%d:%02d", s / 60, s % 60);
         return String.format(Locale.US, "%d:%02d:%02d", s / 3600, (s % 3600) / 60, s % 60);
     }
 }

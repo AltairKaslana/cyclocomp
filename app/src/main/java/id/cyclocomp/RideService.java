@@ -18,6 +18,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
@@ -38,6 +40,7 @@ public class RideService extends Service implements LocationListener {
     public static final String ACTION_PAUSE = "id.cyclocomp.PAUSE";
     public static final String ACTION_RESUME = "id.cyclocomp.RESUME";
     public static final String ACTION_STOP = "id.cyclocomp.STOP";
+    public static final String ACTION_LAP  = "id.cyclocomp.LAP";
 
     private static final int NOTIF_ID = 1;
     private static final String CHANNEL_ID = "ride";
@@ -71,11 +74,29 @@ public class RideService extends Service implements LocationListener {
     private float lastAccuracy;
     private int tick;
 
+    // auto-pause
+    private long lowSpeedSince;          // sejak kapan kecepatan di bawah ambang (0 = tidak)
+
+    // lap
+    private final java.util.List<Lap> laps = new java.util.ArrayList<Lap>();
+    private long lapStartElapsed;        // waktu mulai lap yang sedang berjalan
+
+    // peringatan
+    private long lastAlertKmStep;        // kelipatan km terakhir yang sudah diberitahu
+    private long lastAlertMinStep;       // kelipatan menit terakhir yang sudah diberitahu
+
+    private ToneGenerator tone;
+
     private final Runnable ticker = new Runnable() {
         @Override
         public void run() {
             if (state == State.IDLE) return;
             if (++tick % 5 == 0) updateNotification();
+            if (state == State.RECORDING) {
+                checkAutoPause();
+                checkAutoLap();
+                checkAlerts();
+            }
             notifyUi();
             handler.postDelayed(this, 1000);
         }
@@ -102,6 +123,7 @@ public class RideService extends Service implements LocationListener {
         else if (ACTION_PAUSE.equals(a)) pauseRide();
         else if (ACTION_RESUME.equals(a)) resumeRide();
         else if (ACTION_STOP.equals(a)) stopRide();
+        else if (ACTION_LAP.equals(a)) markLap();
         return START_NOT_STICKY;
     }
 
@@ -111,6 +133,7 @@ public class RideService extends Service implements LocationListener {
         try { lm.removeUpdates(this); } catch (Exception ignored) { }
         if (gpx != null) { gpx.close(); gpx = null; }
         releaseWakeLock();
+        if (tone != null) { tone.release(); tone = null; }
         db.close();
         super.onDestroy();
     }
@@ -121,6 +144,16 @@ public class RideService extends Service implements LocationListener {
     public State getState() { return state; }
     public RideStats getStats() { return stats; }
     public float getLastAccuracy() { return lastAccuracy; }
+    public java.util.List<Lap> getLaps() { return laps; }
+    public Lap getCurrentLap() {
+        if (state != State.RECORDING && state != State.PAUSED) return null;
+        Lap l = new Lap();
+        l.index = stats.lapIndex;
+        l.distanceM = stats.lapDistanceM;
+        l.movingMs = stats.lapMovingMs;
+        l.elapsedMs = Math.max(0, SystemClock.elapsedRealtime() - lapStartElapsed);
+        return l;
+    }
 
     /** Umur fix GPS terakhir dalam ms, atau -1 kalau belum pernah dapat fix. */
     public long getFixAgeMs() {
@@ -168,6 +201,12 @@ public class RideService extends Service implements LocationListener {
         pausedTotal = 0;
         finalElapsed = 0;
         tick = 0;
+        lowSpeedSince = 0;
+        laps.clear();
+        stats.startLap();                 // lap 1 mulai sekarang
+        lapStartElapsed = startElapsed;
+        lastAlertKmStep = 0;
+        lastAlertMinStep = 0;
         state = State.RECORDING;
         acquireWakeLock();
         handler.removeCallbacks(ticker);
@@ -194,6 +233,7 @@ public class RideService extends Service implements LocationListener {
             return;
         }
         pausedTotal += SystemClock.elapsedRealtime() - pauseStart;
+        lowSpeedSince = 0;
         state = State.RECORDING;
         updateNotification();
         notifyUi();
@@ -211,6 +251,11 @@ public class RideService extends Service implements LocationListener {
         if (gpx != null) { gpx.close(); gpx = null; }
 
         if (stats.distanceM >= 20) {
+            // lap yang masih berjalan ikut dicatat, supaya jumlah lap = jarak penuh
+            Lap cur = getCurrentLap();
+            if (cur != null && cur.distanceM > 1) laps.add(cur);
+            stats.startLap();
+
             RideDb.Row r = new RideDb.Row();
             r.startMs = startWall;
             r.durationMs = finalElapsed;
@@ -219,6 +264,7 @@ public class RideService extends Service implements LocationListener {
             r.maxSpeedMs = stats.maxSpeedMs;
             r.elevGainM = stats.elevGainM;
             r.gpxPath = gpxFile.getAbsolutePath();
+            r.laps = encodeLaps(laps);
             db.insert(r);
         } else if (gpxFile != null) {
             //noinspection ResultOfMethodCallIgnored
@@ -231,12 +277,138 @@ public class RideService extends Service implements LocationListener {
         notifyUi();
     }
 
+    // ---------- auto-pause ----------
+
+    /**
+     * Jeda otomatis saat berhenti. Memakai penanda waktu dari fix GPS supaya responsif,
+     * dan hanya menjeda sekali (lowSpeedSince dinolkan setelah jeda).
+     */
+    private void checkAutoPause() {
+        if (!Settings.autoPause(this) || lowSpeedSince == 0) return;
+        long berhenti = SystemClock.elapsedRealtime() - lowSpeedSince;
+        if (berhenti >= Settings.autoPauseDelayMs(this)) {
+            lowSpeedSince = 0;
+            pauseRide();
+            toast(R.string.autopause_on);
+        }
+    }
+
+    // ---------- lap ----------
+
+    /** Lap manual: dari tombol atau notifikasi. */
+    private void markLap() {
+        if (state != State.RECORDING && state != State.PAUSED) return;
+        closeLap();
+        beep();
+        updateNotification();
+        notifyUi();
+    }
+
+    private void checkAutoLap() {
+        int mode = Settings.lapMode(this);
+        if (mode == Settings.LAP_DISTANCE) {
+            if (stats.lapDistanceM >= Settings.lapDistanceM(this)) { closeLap(); beep(); }
+        } else if (mode == Settings.LAP_TIME) {
+            long lapMs = SystemClock.elapsedRealtime() - lapStartElapsed;
+            if (lapMs >= Settings.lapTimeMs(this)) { closeLap(); beep(); }
+        }
+    }
+
+    /** Simpan lap yang sedang berjalan lalu mulai lap baru. */
+    private void closeLap() {
+        Lap l = getCurrentLap();
+        if (l != null) laps.add(l);
+        stats.startLap();
+        lapStartElapsed = SystemClock.elapsedRealtime();
+    }
+
+    // ---------- peringatan ----------
+
+    private void checkAlerts() {
+        float kmTarget = Settings.alertKm(this);
+        if (kmTarget > 0) {
+            long step = (long) (stats.distanceM / (kmTarget * 1000.0));
+            if (step > lastAlertKmStep) {
+                lastAlertKmStep = step;
+                toast(getString(R.string.alert_km, Fmt.km(step * kmTarget * 1000.0)));
+                beep();
+            }
+        }
+        int minTarget = Settings.alertMin(this);
+        if (minTarget > 0) {
+            long step = getElapsedMs() / (minTarget * 60000L);
+            if (step > lastAlertMinStep) {
+                lastAlertMinStep = step;
+                toast(getString(R.string.alert_min, step * minTarget));
+                beep();
+            }
+        }
+    }
+
+    private void beep() {
+        if (!Settings.beep(this)) return;
+        try {
+            if (tone == null) tone = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80);
+            tone.startTone(ToneGenerator.TONE_PROP_BEEP, 150);
+        } catch (Throwable ignored) { }
+    }
+
+    private void toast(int resId, Object... args) {
+        final String msg = args.length == 0 ? getString(resId)
+                : getString(resId, args);
+        handler.post(new Runnable() {
+            @Override public void run() {
+                Toast.makeText(RideService.this, msg, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /** Lap -> teks ringkas untuk satu kolom DB (tanpa tabel tambahan). */
+    static String encodeLaps(java.util.List<Lap> list) {
+        if (list == null || list.isEmpty()) return null;
+        StringBuilder sb = new StringBuilder();
+        for (Lap l : list) {
+            if (sb.length() > 0) sb.append('|');
+            sb.append(l.index).append(';')
+              .append((long) l.distanceM).append(';')
+              .append(l.movingMs).append(';')
+              .append(l.elapsedMs);
+        }
+        return sb.toString();
+    }
+
+    /** Kebalikan encodeLaps; mengembalikan daftar kosong kalau teks rusak/kosong. */
+    static java.util.List<Lap> decodeLaps(String s) {
+        java.util.List<Lap> out = new java.util.ArrayList<Lap>();
+        if (s == null || s.isEmpty()) return out;
+        for (String part : s.split("\\|")) {
+            String[] f = part.split(";");
+            if (f.length < 4) continue;
+            try {
+                Lap l = new Lap();
+                l.index = Integer.parseInt(f[0]);
+                l.distanceM = Double.parseDouble(f[1]);
+                l.movingMs = Long.parseLong(f[2]);
+                l.elapsedMs = Long.parseLong(f[3]);
+                out.add(l);
+            } catch (NumberFormatException ignored) { }
+        }
+        return out;
+    }
+
     // ---------- LocationListener ----------
 
     @Override
     public void onLocationChanged(Location loc) {
         if (state != State.RECORDING) return;
         lastFixElapsed = SystemClock.elapsedRealtime();
+        // Penanda kecepatan rendah di sini (bukan di ticker) supaya responsif:
+        // fix GPS datang 1x/detik, jadi tidak perlu menunggu tick berikutnya.
+        if (stats.currentSpeedMs < Settings.autoPauseSpeedMs(this)) {
+            if (lowSpeedSince == 0) lowSpeedSince = SystemClock.elapsedRealtime();
+        } else {
+            lowSpeedSince = 0;
+        }
         lastAccuracy = loc.hasAccuracy() ? loc.getAccuracy() : 0f;
         if (stats.onLocation(loc) && gpx != null) {
             try {
@@ -311,7 +483,10 @@ public class RideService extends Service implements LocationListener {
                 .setContentTitle(getString(R.string.notif_title))
                 .setContentText(text)
                 .setContentIntent(pi)
-                .setOngoing(true);
+                .setOngoing(true)
+                .addAction(0, getString(R.string.notif_lap),
+                        PendingIntent.getService(this, 10,
+                                new Intent(this, RideService.class).setAction(ACTION_LAP), pf));
         return b.build();
     }
 }

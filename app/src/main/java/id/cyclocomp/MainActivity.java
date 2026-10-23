@@ -16,22 +16,49 @@ import android.os.IBinder;
 import android.net.Uri;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Dashboard. Hanya menampilkan dan mengirim perintah; semua state ada di RideService.
+ *
+ * Tiga halaman data digeser: SEKILAS (angka dominan), DETAIL (kisi metrik), LAP.
+ * Tanpa ViewPager (proyek tanpa dependency): geser ditangani GestureDetector dan
+ * halaman digeser dengan TranslateAnimation.
+ */
 public class MainActivity extends Activity implements RideService.Listener {
     private static final int REQ_PERM = 1;
+    private static final int PAGE_COUNT = 3;
+    private static final int ANIM_MS = 180;
 
-    private TextView tvSpeed, tvDist, tvTime, tvAvg, tvMax, tvElev, tvAlt, tvStatus;
-    private Button btnStartPause, btnStop;
+    private TextView tvStatus, tvLapBadge;
+    private TextView tvSpeed, tvDist, tvTime, tvAvg, tvMax, tvElev, tvAlt, tvGrade, tvGradeArrow;
+    private TextView tvSpeed2, tvDist2, tvTime2, tvAvg2, tvMax2, tvElev2, tvAlt2;
+    private TextView tvMoving, tvTotal, tvLapDist, tvLapTime, tvLapAvg, tvLapMoving, tvLapTitle;
+    private ListView lapList;
+    private TextView lapEmpty;
+    private Button btnStartPause, btnStop, btnLap;
+    private ViewGroup pages;
+    private LinearLayout dots;
     private RideService service;
     private boolean bound;
+    private int page;
+
+    private final GestureDetector gestures;
 
     private final ServiceConnection conn = new ServiceConnection() {
         @Override
@@ -47,21 +74,60 @@ public class MainActivity extends Activity implements RideService.Listener {
         }
     };
 
+    public MainActivity() {
+        gestures = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override public boolean onFling(MotionEvent a, MotionEvent b, float vx, float vy) {
+                if (a == null || b == null) return false;
+                float dx = b.getX() - a.getX(), dy = b.getY() - a.getY();
+                if (Math.abs(dx) < 90 || Math.abs(dx) < Math.abs(dy)) return false;  // geser mendatar saja
+                if (dx < 0) showPage(page + 1);
+                else showPage(page - 1);
+                return true;
+            }
+        });
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        pages = (ViewGroup) findViewById(R.id.pages);
+        dots = (LinearLayout) findViewById(R.id.dots);
+
         tvStatus = (TextView) findViewById(R.id.tvStatus);
+        tvLapBadge = (TextView) findViewById(R.id.tvLapBadge);
+
+        // halaman SEKILAS
         tvSpeed = (TextView) findViewById(R.id.tvSpeed);
         tvDist = (TextView) findViewById(R.id.tvDist);
         tvTime = (TextView) findViewById(R.id.tvTime);
         tvAvg = (TextView) findViewById(R.id.tvAvg);
-        tvMax = (TextView) findViewById(R.id.tvMax);
-        tvElev = (TextView) findViewById(R.id.tvElev);
-        tvAlt = (TextView) findViewById(R.id.tvAlt);
+        tvGrade = (TextView) findViewById(R.id.tvGrade);
+        tvGradeArrow = (TextView) findViewById(R.id.tvGradeArrow);
+
+        // halaman DETAIL
+        tvSpeed2 = (TextView) findViewById(R.id.tvSpeed2);
+        tvDist2 = (TextView) findViewById(R.id.tvDist2);
+        tvAvg2 = (TextView) findViewById(R.id.tvAvg2);
+        tvMax2 = (TextView) findViewById(R.id.tvMax2);
+        tvMoving = (TextView) findViewById(R.id.tvMoving);
+        tvTotal = (TextView) findViewById(R.id.tvTotal);
+        tvElev2 = (TextView) findViewById(R.id.tvElev2);
+        tvAlt2 = (TextView) findViewById(R.id.tvAlt2);
+
+        // halaman LAP
+        tvLapTitle = (TextView) findViewById(R.id.tvLapTitle);
+        tvLapDist = (TextView) findViewById(R.id.tvLapDist);
+        tvLapTime = (TextView) findViewById(R.id.tvLapTime);
+        tvLapAvg = (TextView) findViewById(R.id.tvLapAvg);
+        tvLapMoving = (TextView) findViewById(R.id.tvLapMoving);
+        lapList = (ListView) findViewById(R.id.lapList);
+        lapEmpty = (TextView) findViewById(R.id.lapEmpty);
+
         btnStartPause = (Button) findViewById(R.id.btnStartPause);
         btnStop = (Button) findViewById(R.id.btnStop);
+        btnLap = (Button) findViewById(R.id.btnLap);
 
         btnStartPause.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { onStartPause(); }
@@ -78,11 +144,74 @@ public class MainActivity extends Activity implements RideService.Listener {
                 return true;
             }
         });
+        btnLap.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { send(RideService.ACTION_LAP); }
+        });
         findViewById(R.id.btnHistory).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, HistoryActivity.class));
             }
         });
+        findViewById(R.id.btnSettings).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+            }
+        });
+
+        buildDots();
+        showPage(0);
+    }
+
+    // ---------- halaman bergeser ----------
+
+    private void buildDots() {
+        dots.removeAllViews();
+        for (int i = 0; i < PAGE_COUNT; i++) {
+            TextView d = new TextView(this);
+            d.setText("●");
+            d.setTextSize(9);
+            d.setPadding(6, 0, 6, 0);
+            d.setTextColor(getResources().getColor(R.color.label));
+            dots.addView(d);
+        }
+    }
+
+    private void paintDots() {
+        for (int i = 0; i < dots.getChildCount(); i++) {
+            TextView d = (TextView) dots.getChildAt(i);
+            d.setTextColor(getResources().getColor(i == page ? R.color.accent : R.color.label));
+            d.setAlpha(i == page ? 1f : 0.35f);
+        }
+    }
+
+    private void showPage(int target) {
+        if (target < 0 || target >= PAGE_COUNT || target == page) return;
+        final boolean keKiri = target > page;
+        page = target;
+
+        float from = keKiri ? pages.getWidth() : -pages.getWidth();
+        Animation a = new TranslateAnimation(from, 0f, 0f, 0f);
+        a.setDuration(ANIM_MS);
+        a.setFillAfter(true);
+        pages.startAnimation(a);
+        pages.postDelayed(new Runnable() {
+            @Override public void run() {
+                pages.clearAnimation();
+                refresh();
+            }
+        }, ANIM_MS);
+
+        paintDots();
+        refresh();
+    }
+
+    @Override public boolean onTouchEvent(MotionEvent ev) {
+        return gestures.onTouchEvent(ev) || super.onTouchEvent(ev);
+    }
+
+    @Override public boolean dispatchTouchEvent(MotionEvent ev) {
+        gestures.onTouchEvent(ev);
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override
@@ -208,14 +337,36 @@ public class MainActivity extends Activity implements RideService.Listener {
         RideStats s = service == null ? new RideStats() : service.getStats();
         long elapsed = service == null ? 0 : service.getElapsedMs();
 
+        // ---------- SEKILAS ----------
         tvSpeed.setText(Fmt.speed(s.currentSpeedMs));
         tvDist.setText(Fmt.km(s.distanceM));
         tvTime.setText(Fmt.duration(s.movingMs));
         tvAvg.setText(Fmt.speed(s.avgSpeedMs()));
-        tvMax.setText(Fmt.speed(s.maxSpeedMs));
-        tvElev.setText(Fmt.meters(s.elevGainM));
-        tvAlt.setText(Double.isNaN(s.altitudeM) ? "--" : Fmt.meters(s.altitudeM));
 
+        // gradien: panah arah + angka, supaya terbaca sekilas tanpa memikirkan tanda
+        double g = s.gradePercent;
+        if (Math.abs(g) < 0.15) {
+            tvGradeArrow.setText("→");
+            tvGrade.setText("0.0");
+        } else if (g > 0) {
+            tvGradeArrow.setText("▲");
+            tvGrade.setText(Fmt.grade(g));
+        } else {
+            tvGradeArrow.setText("▼");
+            tvGrade.setText(Fmt.grade(-g));
+        }
+
+        // ---------- DETAIL ----------
+        tvSpeed2.setText(Fmt.speed(s.currentSpeedMs));
+        tvDist2.setText(Fmt.km(s.distanceM));
+        tvAvg2.setText(Fmt.speed(s.avgSpeedMs()));
+        tvMax2.setText(Fmt.speed(s.maxSpeedMs));
+        tvMoving.setText(Fmt.duration(s.movingMs));
+        tvTotal.setText(Fmt.duration(elapsed));
+        tvElev2.setText(Fmt.meters(s.elevGainM));
+        tvAlt2.setText(Double.isNaN(s.altitudeM) ? "--" : Fmt.meters(s.altitudeM));
+
+        // ---------- status ----------
         switch (st) {
             case IDLE:
                 btnStartPause.setText(R.string.btn_start);
@@ -232,13 +383,62 @@ public class MainActivity extends Activity implements RideService.Listener {
                 else tvStatus.setText(getString(R.string.status_ok, Math.round(service.getLastAccuracy())));
                 break;
         }
+
+        // ---------- lap ----------
+        refreshLap(st);
+
         btnStop.setEnabled(st != RideService.State.IDLE);
+        btnLap.setEnabled(st != RideService.State.IDLE);
 
         if (st == RideService.State.IDLE) {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
-        // 'elapsed' (total termasuk berhenti) belum ditampilkan; tambahkan field kalau perlu
+    }
+
+    private void refreshLap(RideService.State st) {
+        if (service == null || st == RideService.State.IDLE) {
+            tvLapBadge.setVisibility(View.GONE);
+            tvLapTitle.setText(R.string.lap_current);
+            tvLapDist.setText(Fmt.km(0));
+            tvLapTime.setText("0:00");
+            tvLapAvg.setText(Fmt.speed(0));
+            tvLapMoving.setText("0:00");
+            lapList.setAdapter(null);
+            lapEmpty.setVisibility(View.VISIBLE);
+            lapEmpty.setText(R.string.lap_none);
+            return;
+        }
+
+        RideService.Lap cur = service.getCurrentLap();
+        int idx = cur == null ? 1 : cur.index;
+        double d = cur == null ? 0 : cur.distanceM;
+        long mv = cur == null ? 0 : cur.movingMs;
+
+        tvLapBadge.setVisibility(View.VISIBLE);
+        tvLapBadge.setText("LAP " + idx);
+        tvLapTitle.setText(getString(R.string.lap_current) + " " + idx);
+        tvLapDist.setText(Fmt.km(d));
+        tvLapTime.setText(Fmt.shortDuration(cur == null ? 0 : cur.elapsedMs));
+        tvLapAvg.setText(Fmt.speed(mv > 0 ? (float) (d / (mv / 1000.0)) : 0f));
+        tvLapMoving.setText(Fmt.shortDuration(mv));
+
+        List<RideService.Lap> done = service.getLaps();
+        if (done.isEmpty()) {
+            lapList.setAdapter(null);
+            lapEmpty.setVisibility(View.VISIBLE);
+            lapEmpty.setText(R.string.lap_none);
+        } else {
+            lapEmpty.setVisibility(View.GONE);
+            List<String> rows = new ArrayList<String>();
+            for (RideService.Lap l : done) {
+                rows.add("Lap " + l.index + "   " + Fmt.km(l.distanceM) + " km   "
+                        + Fmt.shortDuration(l.elapsedMs) + "   "
+                        + Fmt.speed(l.avgSpeedMs()) + " km/j");
+            }
+            lapList.setAdapter(new ArrayAdapter<String>(this,
+                    android.R.layout.simple_list_item_1, rows));
+        }
     }
 }

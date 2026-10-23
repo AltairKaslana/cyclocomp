@@ -1,33 +1,95 @@
 <resources>
     <string name="app_name">Cyclocomp</string>
+
+    <!-- satuan -->
     <string name="unit_speed">km/jam</string>
-    <string name="label_distance">JARAK (km)</string>
+    <string name="unit_grade">%</string>
+
+    <!-- label -->
+    <string name="label_speed">KECEPATAN</string>
+    <string name="label_distance">JARAK</string>
     <string name="label_time">WAKTU GERAK</string>
+    <string name="label_moving">WAKTU GERAK</string>
+    <string name="label_total">WAKTU TOTAL</string>
     <string name="label_avg">RATA-RATA</string>
     <string name="label_max">MAKS</string>
-    <string name="label_elev">TANJAKAN (m)</string>
-    <string name="label_alt">KETINGGIAN (m)</string>
+    <string name="label_elev">TANJAKAN</string>
+    <string name="label_alt">KETINGGIAN</string>
+
+    <!-- tombol -->
     <string name="btn_start">MULAI</string>
     <string name="btn_pause">JEDA</string>
     <string name="btn_resume">LANJUT</string>
     <string name="btn_stop">BERHENTI</string>
+    <string name="btn_lap">LAP</string>
     <string name="btn_history">RIWAYAT</string>
+    <string name="btn_settings">PENGATURAN</string>
+
+    <!-- status -->
     <string name="status_idle">Siap gowes</string>
     <string name="status_paused">Dijeda</string>
     <string name="status_search">Mencari sinyal GPS…</string>
     <string name="status_ok">GPS OK (±%d m)</string>
+    <string name="status_autopaused">Dijeda otomatis</string>
+
+    <!-- halaman data -->
+    <string name="page_detail">DETAIL</string>
+    <string name="page_glance">SEKILAS</string>
+    <string name="page_lap">LAP</string>
+    <string name="lap_current">LAP SEKARANG</string>
+    <string name="lap_done">LAP SELESAI</string>
+    <string name="lap_none">Belum ada lap. Tekan LAP untuk menandai.</string>
+    <string name="label_lap_time">WAKTU</string>
+    <string name="label_lap_avg">RATA-RATA</string>
+    <string name="label_lap_moving">WAKTU GERAK</string>
+
+    <!-- pesan -->
     <string name="hint_stop">Tahan tombol BERHENTI untuk mengakhiri</string>
     <string name="gps_off">GPS mati. Aktifkan dulu di pengaturan.</string>
     <string name="perm_denied">Izin lokasi diperlukan untuk merekam.</string>
     <string name="start_failed">Gagal memulai perekaman GPS.</string>
+    <string name="autopause_on">Dijeda otomatis (berhenti)</string>
+
+    <!-- peringatan -->
+    <string name="alert_km">Sudah %s km</string>
+    <string name="alert_min">Sudah %d menit</string>
+
+    <!-- riwayat -->
     <string name="title_history">Riwayat</string>
     <string name="history_empty">Belum ada rekaman.</string>
     <string name="delete">Hapus</string>
     <string name="close">Tutup</string>
+
+    <!-- notifikasi -->
     <string name="notif_channel">Perekaman gowes</string>
     <string name="notif_title">Cyclocomp merekam</string>
+    <string name="notif_lap">LAP</string>
+
+    <!-- baterai -->
     <string name="batt_title">Biarkan aplikasi merekam terus</string>
     <string name="batt_msg">Android bisa menghentikan perekaman di latar belakang untuk menghemat baterai.\n\nPilih "Buka pengaturan" lalu setel Cyclocomp menjadi "Tidak dibatasi" (atau "Jangan optimalkan"). Kalau dilewati, rekaman tetap jalan tapi berisiko terhenti sendiri.</string>
     <string name="batt_open">Buka pengaturan</string>
     <string name="batt_skip">Lewati</string>
+
+    <!-- pengaturan -->
+    <string name="settings_title">Pengaturan</string>
+    <string name="settings_autopause">Jeda otomatis</string>
+    <string name="settings_ap_speed">Ambang berhenti</string>
+    <string name="settings_ap_delay">Jeda setelah berhenti</string>
+    <string name="settings_lap">Lap otomatis</string>
+    <string name="settings_lap_dist">Jarak per lap</string>
+    <string name="settings_lap_time">Waktu per lap</string>
+    <string name="settings_alert_km">Ingat tiap (km)</string>
+    <string name="settings_alert_min">Ingat tiap (menit)</string>
+    <string name="settings_beep">Bunyi bip</string>
+    <string name="settings_reset">Kembalikan ke bawaan</string>
+    <string name="settings_on">Aktif</string>
+    <string name="settings_off">Mati</string>
+    <string name="settings_manual">Manual saja</string>
+    <string name="settings_by_distance">Per jarak</string>
+    <string name="settings_by_time">Per waktu</string>
+    <string name="settings_none">Mati</string>
+    <string name="settings_seconds">%d detik</string>
+    <string name="settings_minutes">%d menit</string>
+    <string name="settings_km">%.1f km</string>
 </resources>

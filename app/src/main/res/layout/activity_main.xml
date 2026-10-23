@@ -1,147 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+  Halaman utama: wadah berisi 3 halaman data yang digeser.
+  Tanpa ViewPager (tanpa dependency): geser ditangani GestureDetector + animasi
+  translate. Cukup untuk 3 halaman dan tetap ringan.
+
+  Susunan (dari atas): bilah status, wadah halaman, indikator titik, tombol aksi.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="12dp">
+    android:background="@color/bg">
 
-    <TextView
-        android:id="@+id/tvStatus"
-        style="@style/Label"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="15sp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1.3"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/tvSpeed"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0.0"
-            android:textColor="@color/accent"
-            android:textSize="110sp"
-            android:textStyle="bold" />
-
-        <TextView
-            style="@style/Label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/unit_speed"
-            android:textSize="18sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_distance" />
-            <TextView android:id="@+id/tvDist" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.00" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_time" />
-            <TextView android:id="@+id/tvTime" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0:00:00" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_avg" />
-            <TextView android:id="@+id/tvAvg" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_max" />
-            <TextView android:id="@+id/tvMax" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_elev" />
-            <TextView android:id="@+id/tvElev" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_alt" />
-            <TextView android:id="@+id/tvAlt" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="--" />
-        </LinearLayout>
-    </LinearLayout>
-
+    <!-- ===== bilah status atas ===== -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="6dp">
+
+        <TextView
+            android:id="@+id/tvStatus"
+            style="@style/StatusBar"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvLapBadge"
+            style="@style/StatusBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- ===== wadah halaman (digeser) ===== -->
+    <FrameLayout
+        android:id="@+id/pages"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="34dp"
+        android:layout_marginBottom="92dp">
+
+        <include
+            android:id="@+id/page0"
+            layout="@layout/page_glance"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <include
+            android:id="@+id/page1"
+            layout="@layout/page_grid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <include
+            android:id="@+id/page2"
+            layout="@layout/page_lap"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <!-- ===== indikator halaman ===== -->
+    <LinearLayout
+        android:id="@+id/dots"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="74dp" />
+
+    <!-- ===== tombol aksi ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="14dp"
+        android:layout_gravity="bottom">
+
+        <Button
+            android:id="@+id/btnLap"
+            style="@style/ActionBtn"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="56dp"
+            android:text="@string/btn_lap" />
 
         <Button
             android:id="@+id/btnStartPause"
+            style="@style/ActionBtnPrimary"
             android:layout_width="0dp"
-            android:layout_height="80dp"
-            android:layout_weight="2"
-            android:text="@string/btn_start"
-            android:textSize="22sp" />
+            android:layout_weight="1.4"
+            android:layout_height="56dp"
+            android:layout_marginLeft="8dp"
+            android:text="@string/btn_start" />
 
         <Button
             android:id="@+id/btnStop"
+            style="@style/ActionBtn"
             android:layout_width="0dp"
-            android:layout_height="80dp"
-            android:layout_weight="1.4"
-            android:text="@string/btn_stop"
-            android:textSize="16sp" />
+            android:layout_weight="1"
+            android:layout_height="56dp"
+            android:layout_marginLeft="8dp"
+            android:text="@string/btn_stop" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btnHistory"
-        android:layout_width="match_parent"
+    <!-- ===== riwayat & pengaturan ===== -->
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/btn_history" />
-</LinearLayout>
+        android:orientation="horizontal"
+        android:layout_gravity="top|right"
+        android:layout_marginTop="6dp"
+        android:layout_marginRight="8dp">
+
+        <Button
+            android:id="@+id/btnHistory"
+            style="@style/TinyBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_history" />
+
+        <Button
+            android:id="@+id/btnSettings"
+            style="@style/TinyBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="6dp"
+            android:text="@string/btn_settings" />
+    </LinearLayout>
+</FrameLayout>

@@ -12,12 +12,13 @@ import java.util.List;
 /** Ringkasan tiap rekaman. Titik detailnya ada di file GPX. */
 public class RideDb extends SQLiteOpenHelper {
     private static final String NAME = "cyclocomp.db";
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
 
     public static class Row {
         public long id, startMs, durationMs, movingMs;
         public double distanceM, maxSpeedMs, elevGainM;
         public String gpxPath;
+        public String laps;      // "jarak;gerak;total|jarak;gerak;total|..."
 
         public float avgSpeedMs() {
             return movingMs > 0 ? (float) (distanceM / (movingMs / 1000.0)) : 0f;
@@ -33,12 +34,18 @@ public class RideDb extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE rides ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + "start_ms INTEGER, duration_ms INTEGER, moving_ms INTEGER,"
-                + "distance_m REAL, max_speed REAL, elev_gain REAL, gpx_path TEXT)");
+                + "distance_m REAL, max_speed REAL, elev_gain REAL, gpx_path TEXT,"
+                + "laps TEXT)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldV, int newV) {
-        // TODO: migrasi saat skema berubah
+        if (oldV < 2) {
+            // v2: kolom laps. ALTER tidak bisa menambah NOT NULL, dan TEXT biasa cukup.
+            try {
+                db.execSQL("ALTER TABLE rides ADD COLUMN laps TEXT");
+            } catch (Exception ignored) { }   // sudah ada (mis. downgrade-upgrade)
+        }
     }
 
     public long insert(Row r) {
@@ -50,6 +57,7 @@ public class RideDb extends SQLiteOpenHelper {
         v.put("max_speed", r.maxSpeedMs);
         v.put("elev_gain", r.elevGainM);
         v.put("gpx_path", r.gpxPath);
+        v.put("laps", r.laps);
         return getWritableDatabase().insert("rides", null, v);
     }
 
@@ -67,6 +75,8 @@ public class RideDb extends SQLiteOpenHelper {
                 r.maxSpeedMs = c.getDouble(c.getColumnIndexOrThrow("max_speed"));
                 r.elevGainM = c.getDouble(c.getColumnIndexOrThrow("elev_gain"));
                 r.gpxPath = c.getString(c.getColumnIndexOrThrow("gpx_path"));
+                int li = c.getColumnIndex("laps");
+                r.laps = li >= 0 && !c.isNull(li) ? c.getString(li) : null;
                 out.add(r);
             }
         } finally {

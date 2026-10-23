@@ -13,6 +13,11 @@ public class RideStats {
     static final long MAX_GAP_MS = 10_000L;    // celah > 10 dtk = segmen baru
     static final double ELEV_STEP_M = 3.0;     // ambang noise ketinggian
 
+    // Gradien dihitung dari jendela, bukan sesaat: mulus dan tidak melompat karena
+    // noise altitude GPS. 25 m horizontal cukup responsif untuk tanjakan nyata.
+    private static final double GRADE_WINDOW_M = 25.0;
+    private static final double GRADE_MAX = 30.0;   // batas wajar, di luar ini noise
+
     public double distanceM;
     public long movingMs;
     public float currentSpeedMs;
@@ -20,12 +25,28 @@ public class RideStats {
     public double elevGainM;
     public double altitudeM = Double.NaN;
 
+    /** Kemiringan jalan dalam persen; positif = naik. */
+    public double gradePercent;
+
+    // ---------- lap ----------
+    public int lapIndex;          // lap sedang berjalan (1-based)
+    public double lapDistanceM;
+    public long lapMovingMs;
+
     private Location last;
     private double altRef = Double.NaN;
+    private double gradeRefDist, gradeRefAlt;
 
     public void resetLast() {
         last = null;
         currentSpeedMs = 0f;
+    }
+
+    /** Mulai lap baru: angka lap sebelumnya disimpan pemanggil, di sini mulai dari nol. */
+    public void startLap() {
+        lapIndex++;
+        lapDistanceM = 0;
+        lapMovingMs = 0;
     }
 
     public float avgSpeedMs() {
@@ -39,6 +60,8 @@ public class RideStats {
 
         if (last == null) {
             last = loc;
+            gradeRefDist = 0;
+            gradeRefAlt = loc.hasAltitude() ? loc.getAltitude() : 0;
             return true;
         }
         long dtMs = loc.getTime() - last.getTime();
@@ -53,6 +76,8 @@ public class RideStats {
         float v = loc.hasSpeed() ? loc.getSpeed() : d / (dtMs / 1000f);
         last = loc;
 
+        updateGrade();
+
         if (v < MOVING_SPEED_MS || d < MIN_STEP_M) {
             currentSpeedMs = 0f;
             return false;
@@ -60,6 +85,8 @@ public class RideStats {
         currentSpeedMs = v;
         distanceM += d;
         movingMs += dtMs;
+        lapDistanceM += d;
+        lapMovingMs += dtMs;
         if (v > maxSpeedMs) maxSpeedMs = v;
         return true;
     }
@@ -79,5 +106,22 @@ public class RideStats {
         } else if (diff <= -ELEV_STEP_M) {
             altRef = a;
         }
+    }
+
+    /**
+     * Kemiringan dari jendela jarak tetap. Menunggu sampai jendela terpenuhi supaya
+     * nilainya tidak bergoyang karena altitude GPS yang kasar.
+     */
+    private void updateGrade() {
+        if (Double.isNaN(altitudeM)) return;
+        double win = distanceM - gradeRefDist;
+        if (win < GRADE_WINDOW_M) return;
+        double rise = altitudeM - gradeRefAlt;
+        double g = (rise / win) * 100.0;
+        if (g > GRADE_MAX) g = GRADE_MAX;
+        else if (g < -GRADE_MAX) g = -GRADE_MAX;
+        gradePercent = g;
+        gradeRefDist = distanceM;
+        gradeRefAlt = altitudeM;
     }
 }

@@ -1,5 +1,8 @@
 <resources>
+    <!-- Latar hitam penuh + satu aksen hijau. Monokrom dengan satu warna aksen:
+         warna hanya dipakai untuk hal yang benar-benar butuh perhatian. -->
     <color name="bg">#000000</color>
+    <color name="surface">#141414</color>
     <color name="label">#9E9E9E</color>
     <color name="value">#FFFFFF</color>
     <color name="accent">#00C853</color>

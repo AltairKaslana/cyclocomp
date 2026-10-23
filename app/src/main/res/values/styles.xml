@@ -1,18 +1,86 @@
 <resources>
+    <!--
+      Tema gelap penuh: layar HP dipakai sebagai siklokomputer di luar ruangan,
+      dan tema hitam sekaligus menghemat baterai panel OLED.
+      Angka memakai "sans-serif-condensed" (Roboto Condensed, bawaan Android):
+      lebar per digit lebih sempit sehingga angka besar tetap muat dan mudah dibaca
+      sekilas - pendekatan yang sama dipakai siklokomputer Garmin/Wahoo.
+    -->
     <style name="AppTheme" parent="android:Theme.Holo.NoActionBar">
         <item name="android:windowBackground">@color/bg</item>
     </style>
 
+    <!-- label kecil di atas angka -->
     <style name="Label">
-        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textSize">11sp</item>
         <item name="android:textColor">@color/label</item>
+        <item name="android:letterSpacing">0.12</item>
         <item name="android:gravity">center</item>
     </style>
 
+    <!-- nilai utama (dipakai halaman SEKILAS) -->
     <style name="Value">
+        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textSize">34sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/value</item>
         <item name="android:gravity">center</item>
+    </style>
+
+    <!-- nilai sedang (baris 3 metrik kunci) -->
+    <style name="ValueSmall">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/value</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- nilai besar (halaman LAP) -->
+    <style name="ValueBig">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textSize">40sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/value</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- teks bilah status -->
+    <style name="StatusBar">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textColor">@color/label</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:letterSpacing">0.1</item>
+    </style>
+
+    <!-- tombol aksi utama (MULAI / JEDA / LANJUT) -->
+    <style name="ActionBtnPrimary">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/bg</item>
+        <item name="android:background">@color/accent</item>
+    </style>
+
+    <!-- tombol aksi sekunder (LAP / BERHENTI) -->
+    <style name="ActionBtn">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/value</item>
+        <item name="android:background">@color/surface</item>
+    </style>
+
+    <!-- tombol kecil pojok (RIWAYAT / PENGATURAN) -->
+    <style name="TinyBtn">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/label</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:minHeight">1dp</item>
+        <item name="android:minWidth">1dp</item>
+        <item name="android:paddingLeft">6dp</item>
+        <item name="android:paddingRight">6dp</item>
     </style>
 </resources>
