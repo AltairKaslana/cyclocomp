@@ -354,8 +354,10 @@ public class RideService extends Service implements LocationListener {
     }
 
     private void toast(int resId, Object... args) {
-        final String msg = args.length == 0 ? getString(resId)
-                : getString(resId, args);
+        toast(args.length == 0 ? getString(resId) : getString(resId, args));
+    }
+
+    private void toast(final String msg) {
         handler.post(new Runnable() {
             @Override public void run() {
                 Toast.makeText(RideService.this, msg, Toast.LENGTH_SHORT).show();

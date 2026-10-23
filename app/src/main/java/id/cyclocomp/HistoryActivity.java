@@ -49,7 +49,7 @@ public class HistoryActivity extends Activity {
         String[] items = new String[rows.size()];
         for (int i = 0; i < items.length; i++) {
             RideDb.Row r = rows.get(i);
-            java.util.List<RideService.Lap> lp = RideService.decodeLaps(r.laps);
+            java.util.List<Lap> lp = RideService.decodeLaps(r.laps);
             items[i] = df.format(new Date(r.startMs)) + "\n"
                     + Fmt.km(r.distanceM) + " km  •  " + Fmt.duration(r.movingMs)
                     + "  •  " + Fmt.speed(r.avgSpeedMs()) + " km/j"
@@ -59,11 +59,11 @@ public class HistoryActivity extends Activity {
     }
 
     /** Ringkasan lap: tiap baris jarak + waktu. Dibatasi 8 lap supaya dialog tidak terlalu panjang. */
-    private String lapSummary(java.util.List<RideService.Lap> laps) {
+    private String lapSummary(java.util.List<Lap> laps) {
         if (laps == null || laps.isEmpty()) return "";
         StringBuilder sb = new StringBuilder("Lap:");
         int n = 0;
-        for (RideService.Lap l : laps) {
+        for (Lap l : laps) {
             if (n >= 8) { sb.append("\n… dan ").append(laps.size() - n).append(" lap lagi"); break; }
             sb.append("\n  ").append(l.index).append(". ")
               .append(Fmt.km(l.distanceM)).append(" km  ")

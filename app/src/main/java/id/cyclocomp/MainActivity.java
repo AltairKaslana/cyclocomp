@@ -411,7 +411,7 @@ public class MainActivity extends Activity implements RideService.Listener {
             return;
         }
 
-        RideService.Lap cur = service.getCurrentLap();
+        Lap cur = service.getCurrentLap();
         int idx = cur == null ? 1 : cur.index;
         double d = cur == null ? 0 : cur.distanceM;
         long mv = cur == null ? 0 : cur.movingMs;
@@ -424,7 +424,7 @@ public class MainActivity extends Activity implements RideService.Listener {
         tvLapAvg.setText(Fmt.speed(mv > 0 ? (float) (d / (mv / 1000.0)) : 0f));
         tvLapMoving.setText(Fmt.shortDuration(mv));
 
-        List<RideService.Lap> done = service.getLaps();
+        List<Lap> done = service.getLaps();
         if (done.isEmpty()) {
             lapList.setAdapter(null);
             lapEmpty.setVisibility(View.VISIBLE);
@@ -432,7 +432,7 @@ public class MainActivity extends Activity implements RideService.Listener {
         } else {
             lapEmpty.setVisibility(View.GONE);
             List<String> rows = new ArrayList<String>();
-            for (RideService.Lap l : done) {
+            for (Lap l : done) {
                 rows.add("Lap " + l.index + "   " + Fmt.km(l.distanceM) + " km   "
                         + Fmt.shortDuration(l.elapsedMs) + "   "
                         + Fmt.speed(l.avgSpeedMs()) + " km/j");
