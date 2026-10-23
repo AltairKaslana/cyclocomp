@@ -1,0 +1,6 @@
+<resources>
+    <color name="bg">#000000</color>
+    <color name="label">#9E9E9E</color>
+    <color name="value">#FFFFFF</color>
+    <color name="accent">#00C853</color>
+</resources>

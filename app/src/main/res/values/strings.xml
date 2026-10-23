@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Cyclocomp</string>
+    <string name="unit_speed">km/jam</string>
+    <string name="label_distance">JARAK (km)</string>
+    <string name="label_time">WAKTU GERAK</string>
+    <string name="label_avg">RATA-RATA</string>
+    <string name="label_max">MAKS</string>
+    <string name="label_elev">TANJAKAN (m)</string>
+    <string name="label_alt">KETINGGIAN (m)</string>
+    <string name="btn_start">MULAI</string>
+    <string name="btn_pause">JEDA</string>
+    <string name="btn_resume">LANJUT</string>
+    <string name="btn_stop">BERHENTI</string>
+    <string name="btn_history">RIWAYAT</string>
+    <string name="status_idle">Siap gowes</string>
+    <string name="status_paused">Dijeda</string>
+    <string name="status_search">Mencari sinyal GPS…</string>
+    <string name="status_ok">GPS OK (±%d m)</string>
+    <string name="hint_stop">Tahan tombol BERHENTI untuk mengakhiri</string>
+    <string name="gps_off">GPS mati. Aktifkan dulu di pengaturan.</string>
+    <string name="perm_denied">Izin lokasi diperlukan untuk merekam.</string>
+    <string name="start_failed">Gagal memulai perekaman GPS.</string>
+    <string name="title_history">Riwayat</string>
+    <string name="history_empty">Belum ada rekaman.</string>
+    <string name="delete">Hapus</string>
+    <string name="close">Tutup</string>
+    <string name="notif_channel">Perekaman gowes</string>
+    <string name="notif_title">Cyclocomp merekam</string>
+</resources>

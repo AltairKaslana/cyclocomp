@@ -1,0 +1,33 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'id.cyclocomp'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "id.cyclocomp"
+        minSdk 19          // KitKat. Naikkan ke 24 jika hanya mau Android 7+
+        targetSdk 33
+        versionCode 1
+        versionName "0.1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+// Sengaja TANPA dependency (tanpa AndroidX / Play Services) supaya ringan
+// dan jalan di KitKat tanpa Google Play Services.
+dependencies {
+}

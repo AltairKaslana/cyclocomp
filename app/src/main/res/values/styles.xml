@@ -1,0 +1,18 @@
+<resources>
+    <style name="AppTheme" parent="android:Theme.Holo.NoActionBar">
+        <item name="android:windowBackground">@color/bg</item>
+    </style>
+
+    <style name="Label">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/label</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="Value">
+        <item name="android:textSize">34sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/value</item>
+        <item name="android:gravity">center</item>
+    </style>
+</resources>
