@@ -289,8 +289,9 @@ public class RideService extends Service implements LocationListener {
     private Notification buildNotification() {
         Intent open = new Intent(this, MainActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        int pf = PendingIntent.FLAG_UPDATE_CURRENT;
-        if (Build.VERSION.SDK_INT >= 23) pf |= PendingIntent.FLAG_IMMUTABLE;
+        // minSdk 23: FLAG_IMMUTABLE selalu bisa dipakai, dan WAJIB di Android 12+
+        // (tanpa flag mutable/immutable, PendingIntent melempar IllegalArgumentException).
+        int pf = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
         PendingIntent pi = PendingIntent.getActivity(this, 0, open, pf);
 
         Notification.Builder b;

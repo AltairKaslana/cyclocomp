@@ -2,15 +2,19 @@ package id.cyclocomp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.net.Uri;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.view.View;
 import android.view.WindowManager;
@@ -115,6 +119,7 @@ public class MainActivity extends Activity implements RideService.Listener {
                     startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                     return;
                 }
+                if (batteryOptimized()) { askIgnoreBatteryOptimization(); return; }
                 send(RideService.ACTION_START);
                 break;
             case RECORDING:
@@ -135,15 +140,48 @@ public class MainActivity extends Activity implements RideService.Listener {
         }
     }
 
+    // ---------- optimasi baterai ----------
+
+    /**
+     * True kalau aplikasi masih kena optimasi baterai (Doze / pembatasan pabrikan).
+     * Ini penyebab nomor satu rekaman berhenti sendiri di Android modern: foreground
+     * service tetap boleh jalan, tapi pabrikan sering membunuhnya lebih agresif.
+     */
+    private boolean batteryOptimized() {
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        return pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName());
+    }
+
+    private void askIgnoreBatteryOptimization() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.batt_title)
+                .setMessage(R.string.batt_msg)
+                .setPositiveButton(R.string.batt_open, new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface d, int w) {
+                        try {
+                            startActivity(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS));
+                        } catch (Exception e) {
+                            startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                    .setData(Uri.parse("package:" + getPackageName())));
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.batt_skip, new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface d, int w) {
+                        send(RideService.ACTION_START);   // tetap rekam meski belum di-whitelist
+                    }
+                })
+                .show();
+    }
+
     // ---------- izin ----------
 
     private boolean hasLocationPermission() {
-        return Build.VERSION.SDK_INT < 23
-                || checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        // minSdk 23: izin runtime selalu berlaku, tidak perlu guard versi
+        return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestPermissionsCompat() {
-        if (Build.VERSION.SDK_INT < 23) return;
         List<String> p = new ArrayList<String>();
         p.add(Manifest.permission.ACCESS_FINE_LOCATION);
         if (Build.VERSION.SDK_INT >= 33) p.add(Manifest.permission.POST_NOTIFICATIONS);

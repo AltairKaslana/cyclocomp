@@ -21,6 +21,7 @@ Aplikasi cycling computer (cyclocomp) yang berjalan di HP Android lawas:
 | Kerangka proyek lengkap (Gradle, manifest, resource, 7 kelas Java) | Selesai |
 | Dikompilasi | **SUDAH** — build pertama lolos 23 Okt 2026 (run CI `39959658581`) |
 | APK hasil | `app-debug.apk` 29 KB, rilis GitHub `v0.1.0` |
+| `minSdk` | **23 (Android 6.0+)** — diputuskan 23 Okt 2026, dulu 19 (KitKat) |
 | Diuji di perangkat | **BELUM** — ini langkah berikutnya |
 | Unit test | Belum ada |
 | Sensor BLE, pengaturan, peta, ekspor/bagikan | Belum (lihat roadmap, bagian 12) |
@@ -168,9 +169,10 @@ State machine:
 
 | Android | Hal yang berlaku | Sudah ditangani? |
 |---|---|---|
-| 4.4 (API 19) | Izin diberikan saat instal; `getExternalFilesDir` tanpa izin tulis | Ya |
-| 6.0 (23) | Izin lokasi runtime; Doze menghentikan jaringan/alarm saat diam | Izin: ya. Doze: tidak perlu untuk GPS aktif, tapi sarankan whitelist baterai |
+| 4.4 (API 19) | **Tidak lagi didukung** sejak 23 Okt 2026 (minSdk dinaikkan ke 23) | — |
+| 6.0 (23) | Izin lokasi runtime; Doze menghentikan jaringan/alarm saat diam | Izin: ya. Doze: **whitelist baterai ditawarkan** sebelum mulai rekam (`askIgnoreBatteryOptimization`) |
 | 7.0 (24) | `file://` URI antar-app dilarang (FileUriExposedException) | Belum relevan (belum ada share) — wajib FileProvider saat menambah share |
+| 12 (31) | `PendingIntent` **wajib** mutable atau immutable | Ya: `FLAG_IMMUTABLE` dipakai tanpa guard (minSdk 23 sudah cukup) |
 | 8.0 (26) | Wajib `startForegroundService` + notifikasi + channel | Ya |
 | 10 (29) | Perlu `foregroundServiceType="location"` | Ya (manifest + `startForeground` 3 argumen) |
 | 12 (31) | `exported` wajib di komponen dengan intent-filter; batasan start FGS dari background | Ya (MainActivity exported=true); start selalu dari Activity foreground |
@@ -280,13 +282,32 @@ Jalankan di minimal: 1 HP KitKat (API 19) dan 1 HP Android 7+ (idealnya juga And
 9. **Unit test `RideStats`** (butuh `Location` palsu → Robolectric atau refactor ke antarmuka titik sederhana).
 10. **Lokalisasi** (`values-en`) dan layout adaptif.
 
-## 13. Jika diputuskan minSdk 24 (Android 7+ saja)
+## 13. Keputusan minSdk: 23 (Android 6.0+) — sudah diambil
 
-- Ubah `minSdk 24` di `app/build.gradle`.
-- Hapus cabang `SDK_INT < 23` (izin runtime selalu berlaku) dan guard `>= 23` di `PendingIntent`.
-- Boleh pindah ke AndroidX/AppCompat + Material, `FusedLocationProvider` (jika Play Services dijamin ada),
-  Room, dan `FileProvider` bawaan androidx.
-- Guard `>= 26`, `>= 29`, `>= 33` tetap diperlukan.
+Diputuskan **23 Okt 2026**: `minSdk 23`, bukan 24 dan bukan 19. Alasan: pengguna ingin
+menguji di rentang Android 6 → 13+ (Tes di Tecno Spark 30C, Android 13), dan KitKat
+(Xperia E1) tidak lagi jadi target proyek ini.
+
+Yang berubah di kode:
+
+- `app/build.gradle`: `minSdk 19` → `minSdk 23`.
+- `MainActivity.hasLocationPermission()` / `requestPermissionsCompat()`: guard
+  `Build.VERSION.SDK_INT < 23` dibuang — izin runtime kini selalu berlaku.
+- `RideService.buildNotification()`: `FLAG_IMMUTABLE` dipakai **tanpa** guard versi.
+  Ini bukan sekadar bersih-bersih: di Android 12+ (API 31) `PendingIntent` tanpa flag
+  mutable/immutable melempar `IllegalArgumentException`, jadi guard lama
+  (`if (SDK_INT >= 23)`) sudah tidak menutup kasus itu.
+- Ditambah whitelist baterai: `MainActivity.batteryOptimized()` +
+  `askIgnoreBatteryOptimization()`, dipanggil sebelum `ACTION_START`. Di Android 6+
+  (khususnya 10+) Doze dan pembatasan pabrikan adalah penyebab nomor satu rekaman
+  berhenti sendiri; dialog ini menawarkan "Tidak dibatasi" tapi tetap memperbolehkan
+  rekam kalau dilewati. Izin `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` hanya untuk
+  dialog itu, tidak dipakai di background.
+- Guard yang **tetap diperlukan**: `startForegroundService` (>= 26), channel notifikasi
+  (>= 26), `FOREGROUND_SERVICE_TYPE_LOCATION` (>= 29), `POST_NOTIFICATIONS` (>= 33).
+
+Kalau suatu saat perlu menaikkan lagi ke 24: tidak ada yang perlu diubah selain angka
+`minSdk` — semua guard 23 sudah dibuang, sisanya guard >= 26 yang tetap dibutuhkan.
 
 ## 14. Troubleshooting
 
