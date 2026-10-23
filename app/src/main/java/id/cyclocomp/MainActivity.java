@@ -58,7 +58,7 @@ public class MainActivity extends Activity implements RideService.Listener {
     private boolean bound;
     private int page;
 
-    private final GestureDetector gestures;
+    private GestureDetector gestures;
 
     private final ServiceConnection conn = new ServiceConnection() {
         @Override
@@ -74,7 +74,13 @@ public class MainActivity extends Activity implements RideService.Listener {
         }
     };
 
-    public MainActivity() {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Dibuat di onCreate, BUKAN di konstruktor: konstruktor Activity jalan sebelum
+        // attachBaseContext(), jadi context-nya belum siap.
         gestures = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override public boolean onFling(MotionEvent a, MotionEvent b, float vx, float vy) {
                 if (a == null || b == null) return false;
@@ -85,12 +91,6 @@ public class MainActivity extends Activity implements RideService.Listener {
                 return true;
             }
         });
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         pages = (ViewGroup) findViewById(R.id.pages);
         dots = (LinearLayout) findViewById(R.id.dots);
@@ -210,7 +210,7 @@ public class MainActivity extends Activity implements RideService.Listener {
     }
 
     @Override public boolean dispatchTouchEvent(MotionEvent ev) {
-        gestures.onTouchEvent(ev);
+        if (gestures != null) gestures.onTouchEvent(ev);
         return super.dispatchTouchEvent(ev);
     }
 
