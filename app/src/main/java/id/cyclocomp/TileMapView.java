@@ -56,7 +56,7 @@ public class TileMapView extends RouteView {
     private final Rect srcRect = new Rect(0, 0, TILE, TILE);
     private final Rect dstRect = new Rect();
 
-    private final LruCache<String, Bitmap> mem;
+    private LruCache<String, Bitmap> mem;
     private final Set<String> gagal = new HashSet<String>();
     private final Set<String> diminta = new HashSet<String>();
     private final ExecutorService pool = Executors.newFixedThreadPool(MAX_PARALLEL);
