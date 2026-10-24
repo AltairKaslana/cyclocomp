@@ -86,6 +86,7 @@ public class RideService extends Service implements LocationListener {
     private long lastAlertMinStep;       // kelipatan menit terakhir yang sudah diberitahu
 
     private ToneGenerator tone;
+    private Baro baro;
 
     private final Runnable ticker = new Runnable() {
         @Override
@@ -112,6 +113,7 @@ public class RideService extends Service implements LocationListener {
         super.onCreate();
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         db = new RideDb(this);
+        baro = new Baro(this);
     }
 
     @Override
@@ -136,6 +138,7 @@ public class RideService extends Service implements LocationListener {
         try { lm.removeUpdates(this); } catch (Exception ignored) { }
         if (gpx != null) { gpx.close(); gpx = null; }
         releaseWakeLock();
+        if (baro != null) { baro.stop(); baro = null; }
         if (tone != null) { tone.release(); tone = null; }
         db.close();
         super.onDestroy();
@@ -147,6 +150,7 @@ public class RideService extends Service implements LocationListener {
     public State getState() { return state; }
     public RideStats getStats() { return stats; }
     public float getLastAccuracy() { return lastAccuracy; }
+    public boolean hasBaro() { return baro != null && baro.available(); }
     public java.util.List<Lap> getLaps() { return laps; }
     public Lap getCurrentLap() {
         if (state != State.RECORDING && state != State.PAUSED) return null;
@@ -211,6 +215,7 @@ public class RideService extends Service implements LocationListener {
         lastAlertKmStep = 0;
         lastAlertMinStep = 0;
         state = State.RECORDING;
+        if (baro != null) baro.start();
         saveSession();
         acquireWakeLock();
         handler.removeCallbacks(ticker);
@@ -278,6 +283,7 @@ public class RideService extends Service implements LocationListener {
             SessionRecovery.clear(this);
         }
         SessionRecovery.clear(this);
+        if (baro != null) baro.stop();
         releaseWakeLock();
         state = State.IDLE;
         stopForeground(true);
@@ -433,6 +439,12 @@ public class RideService extends Service implements LocationListener {
             lowSpeedSince = 0;
         }
         lastAccuracy = loc.hasAccuracy() ? loc.getAccuracy() : 0f;
+        // Barometer lebih halus daripada altitude GPS: pakai bila tersedia & terkalibrasi
+        if (baro != null && baro.ready()) {
+            double gpsAlt = loc.hasAltitude() ? loc.getAltitude() : Double.NaN;
+            double alt = baro.altitude(gpsAlt);
+            if (!Double.isNaN(alt)) stats.setBaroAltitude(alt);
+        }
         if (stats.onLocation(loc) && gpx != null) {
             try {
                 gpx.add(loc);

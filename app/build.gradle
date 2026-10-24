@@ -10,8 +10,8 @@ android {
         applicationId "id.cyclocomp"
         minSdk 23          // Android 6.0+ (diputuskan 23 Okt 2026)
         targetSdk 33
-        versionCode 9
-        versionName "0.5.0"
+        versionCode 10
+        versionName "0.6.0"
     }
 
     buildTypes {
@@ -30,4 +30,5 @@ android {
 // Sengaja TANPA dependency (tanpa AndroidX / Play Services) supaya ringan
 // dan jalan di KitKat tanpa Google Play Services.
 dependencies {
+    testImplementation 'junit:junit:4.13.2'
 }
