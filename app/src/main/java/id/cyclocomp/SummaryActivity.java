@@ -1,5 +1,7 @@
 package id.cyclocomp;
 
+import android.util.Log;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -69,15 +71,25 @@ public class SummaryActivity extends Activity {
         ((TextView) findViewById(R.id.tvMax)).setText(Fmt.speed((float) row.maxSpeedMs));
         ((TextView) findViewById(R.id.tvElev)).setText(Fmt.meters(row.elevGainM));
 
-        // rute
-        TileMapView rv = (TileMapView) findViewById(R.id.route);
-        rv.setMapEnabled(Settings.map(this));
-        File gpx = row.gpxPath == null ? null : new File(row.gpxPath);
-        List<GpxReader.P> track = GpxReader.read(gpx);
-        rv.setTrack(track);
+        // rute & peta: kalau gagal, angka di atas tetap tampil (rute tidak, itu saja)
+        try {
+            TileMapView rv = (TileMapView) findViewById(R.id.route);
+            rv.setMapEnabled(Settings.map(this));
+            File gpx = row.gpxPath == null ? null : new File(row.gpxPath);
+            List<GpxReader.P> track = GpxReader.read(gpx);
+            rv.setTrack(track);
+        } catch (Throwable t) {
+            Log.e("Summary", "rute gagal ditampilkan", t);
+        }
 
         // lap
-        List<Lap> laps = RideService.decodeLaps(row.laps);
+        List<Lap> laps;
+        try {
+            laps = RideService.decodeLaps(row.laps);
+        } catch (Throwable t) {
+            Log.e("Summary", "lap gagal dibaca", t);
+            laps = java.util.Collections.emptyList();
+        }
         LinearLayout wrap = (LinearLayout) findViewById(R.id.lapWrap);
         wrap.removeAllViews();
         if (laps.isEmpty()) {

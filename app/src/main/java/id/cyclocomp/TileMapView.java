@@ -57,6 +57,9 @@ public class TileMapView extends RouteView {
     private final Rect dstRect = new Rect();
 
     private LruCache<String, Bitmap> mem;
+    // Diminta dari thread UI (saat menggambar) DAN dari thread unduhan. Tanpa kunci,
+    // HashSet bisa rusak di tengah jalan -> ConcurrentModificationException -> crash.
+    private final Object tileLock = new Object();
     private final Set<String> gagal = new HashSet<String>();
     private final Set<String> diminta = new HashSet<String>();
     private final ExecutorService pool = Executors.newFixedThreadPool(MAX_PARALLEL);
@@ -189,6 +192,8 @@ public class TileMapView extends RouteView {
         int tx1 = (int) Math.floor((left + w) / TILE);
         int ty1 = (int) Math.floor((top + h) / TILE);
 
+        // Bitmap rusak/kelelahan memori tidak boleh menjatuhkan aplikasi:
+        // kalau ada ubin yang gagal, ubin itu dilewati dan rute tetap tergambar.
         for (int ty = ty0; ty <= ty1; ty++) {
             if (ty < 0 || ty >= n) continue;               // kutub: tidak ada ubin
             for (int tx = tx0; tx <= tx1; tx++) {
@@ -196,12 +201,14 @@ public class TileMapView extends RouteView {
                 Bitmap b = mem.get(key(wx, ty));
                 if (b == null) { request(wx, ty); continue; }
 
-                dstRect.set(
-                        (int) Math.round(tx * TILE - left),
-                        (int) Math.round(ty * TILE - top),
-                        (int) Math.round(tx * TILE - left) + TILE,
-                        (int) Math.round(ty * TILE - top) + TILE);
-                cv.drawBitmap(b, srcRect, dstRect, pTile);
+                try {
+                    dstRect.set(
+                            (int) Math.round(tx * TILE - left),
+                            (int) Math.round(ty * TILE - top),
+                            (int) Math.round(tx * TILE - left) + TILE,
+                            (int) Math.round(ty * TILE - top) + TILE);
+                    cv.drawBitmap(b, srcRect, dstRect, pTile);
+                } catch (Throwable ignored) { }
             }
         }
 
@@ -235,8 +242,10 @@ public class TileMapView extends RouteView {
     private void request(final int x, final int y) {
         final int z = zoom;
         final String k = key(x, y);
-        if (diminta.contains(k) || gagal.contains(k)) return;
-        diminta.add(k);
+        synchronized (tileLock) {
+            if (diminta.contains(k) || gagal.contains(k)) return;
+            diminta.add(k);
+        }
 
         pool.execute(new Runnable() {
             @Override public void run() {
@@ -251,10 +260,12 @@ public class TileMapView extends RouteView {
                 // 2. jaringan, hanya kalau belum ada di disk
                 if (b == null) b = download(z, x, y, f);
 
-                diminta.remove(k);
-                if (b == null) {
-                    gagal.add(k);
-                    return;
+                synchronized (tileLock) {
+                    diminta.remove(k);
+                    if (b == null) {
+                        gagal.add(k);
+                        return;
+                    }
                 }
                 final Bitmap got = b;
                 post(new Runnable() {
@@ -306,6 +317,13 @@ public class TileMapView extends RouteView {
             if (in != null) try { in.close(); } catch (Exception ignored) { }
             if (c != null) c.disconnect();
         }
+    }
+
+    /** Peta adalah hiasan: kegagalan di sini tidak boleh menjatuhkan aplikasi. */
+    @Override protected void onDraw(Canvas cv) {
+        try {
+            super.onDraw(cv);
+        } catch (Throwable ignored) { }
     }
 
     @Override public boolean onTouchEvent(MotionEvent e) {

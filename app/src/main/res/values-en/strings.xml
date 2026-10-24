@@ -195,6 +195,7 @@
     <string name="summary_laps">%d laps</string>
     <string name="summary_lap_row">Lap %1$d  •  %2$s km  •  %3$s  •  %4$s km/h</string>
     <string name="gpx_missing">GPX file missing</string>
+    <string name="save_failed">Ride saved only partially — check your storage space</string>
     <string name="share_subject">Ride recording %1$s</string>
     <string name="share_title">Share GPX route</string>
     <string name="no_share_app">No app available to share</string>

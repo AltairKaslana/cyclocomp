@@ -193,6 +193,7 @@
     <string name="summary_laps">%d lap</string>
     <string name="summary_lap_row">Lap %1$d  •  %2$s km  •  %3$s  •  %4$s km/jam</string>
     <string name="gpx_missing">Berkas GPX tidak ada</string>
+    <string name="save_failed">Rekaman tersimpan sebagian — periksa ruang penyimpanan</string>
     <string name="share_subject">Rekaman gowes %1$s</string>
     <string name="share_title">Bagikan rute GPX</string>
     <string name="no_share_app">Tidak ada aplikasi untuk membagikan</string>

@@ -263,23 +263,31 @@ public class RideService extends Service implements LocationListener {
         handler.removeCallbacks(ticker);
         if (gpx != null) { gpx.close(); gpx = null; }
 
+        // Menyimpan riwayat tidak boleh mematikan aplikasi: kalau gagal (penyimpanan
+        // penuh, DB terkunci), status tetap kembali ke IDLE dan pengguna dapat pesan.
+        boolean simpanGagal = false;
         if (stats.distanceM >= 20) {
-            // lap yang masih berjalan ikut dicatat, supaya jumlah lap = jarak penuh
-            Lap cur = getCurrentLap();
-            if (cur != null && cur.distanceM > 1) laps.add(cur);
-            stats.startLap();
+            try {
+                // lap yang masih berjalan ikut dicatat, supaya jumlah lap = jarak penuh
+                Lap cur = getCurrentLap();
+                if (cur != null && cur.distanceM > 1) laps.add(cur);
+                stats.startLap();
 
-            RideDb.Row r = new RideDb.Row();
-            r.startMs = startWall;
-            r.durationMs = finalElapsed;
-            r.movingMs = stats.movingMs;
-            r.distanceM = stats.distanceM;
-            r.maxSpeedMs = stats.maxSpeedMs;
-            r.elevGainM = stats.elevGainM;
-            r.gpxPath = gpxFile.getAbsolutePath();
-            r.laps = encodeLaps(laps);
-            long id = db.insert(r);
-            Settings.setLastRideId(this, id);
+                RideDb.Row r = new RideDb.Row();
+                r.startMs = startWall;
+                r.durationMs = finalElapsed;
+                r.movingMs = stats.movingMs;
+                r.distanceM = stats.distanceM;
+                r.maxSpeedMs = stats.maxSpeedMs;
+                r.elevGainM = stats.elevGainM;
+                r.gpxPath = gpxFile.getAbsolutePath();
+                r.laps = encodeLaps(laps);
+                long id = db.insert(r);
+                Settings.setLastRideId(this, id);
+            } catch (Throwable t) {
+                Log.e(TAG, "simpan riwayat gagal", t);
+                simpanGagal = true;
+            }
             SessionRecovery.clear(this);
         } else if (gpxFile != null) {
             //noinspection ResultOfMethodCallIgnored
@@ -287,6 +295,7 @@ public class RideService extends Service implements LocationListener {
             SessionRecovery.clear(this);
         }
         SessionRecovery.clear(this);
+        if (simpanGagal) toast(R.string.save_failed);
         if (baro != null) baro.stop();
         stopBle();
         releaseWakeLock();
