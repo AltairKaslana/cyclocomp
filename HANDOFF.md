@@ -259,7 +259,7 @@ Jalankan di minimal: 1 HP KitKat (API 19) dan 1 HP Android 7+ (idealnya juga And
 
 ## 12. Roadmap (urutan disarankan) dan petunjuk implementasi
 
-**Status per v0.9.0 (24 Okt 2026): 1 ✅ · 2 ✅ · 3 ✅ · 4 ✅ (detak jantung) · 5 ✅ · 6 ✅ · 7 ✅ (peta ubin OSM) · 8 ✅ · 9 ✅ · 10 ✅ (lokalisasi) — sisa: 4b (kadensi/kecepatan CSC), Strava API.**
+**Status per v0.9.2 (24 Okt 2026): 1 ✅ · 2 ✅ · 3 ✅ · 4 ✅ (detak jantung) · 5 ✅ · 6 ✅ · 7 ✅ (peta ubin OSM) · 8 ✅ · 9 ✅ · 10 ✅ (lokalisasi) — sisa: 4b (kadensi/kecepatan CSC), Strava API.**
 
 1. ✅ **Perbaikan dasar**: kompilasi, uji perangkat, hapus `elapsed` tak terpakai, konfirmasi hapus riwayat,
    ikon launcher sendiri.
@@ -281,6 +281,12 @@ Jalankan di minimal: 1 HP KitKat (API 19) dan 1 HP Android 7+ (idealnya juga And
    - Heart Rate: service `0x180D`, karakteristik `0x2A37`; flags bit0 = 0 → HR uint8, 1 → uint16.
    - Letakkan di kelas baru `BleSensors` dalam `RideService`; tambahkan field di `RideStats`
      (cadence, hr) dan `RideDb` (migrasi versi 2), plus ekstensi GPX (`gpxtpx:hr`, `gpxtpx:cad`).
+   - **Pelajaran v0.9.2 (crash NPE, dari laporan pengguna)**: `removeAllViews()` pada kontainer yang
+     **memuat view statis dari XML** menghancurkan view itu; `findViewById` berikutnya mengembalikan null.
+     Di sini `lapWrap` memuat `tvLapCount`, lalu `bind()` memanggil `wrap.removeAllViews()` dan langsung
+     memakai `tvLapCount` → NPE. **Aturan: kontainer yang dibersihkan harus kontainer kosong khusus**
+     (`lapRows`), bukan kartu yang memuat header. Gejala hanya muncul di cabang tertentu (ada lap),
+     jadi uji di satu perangkat bisa lolos sementara perangkat lain crash — selalu uji kedua cabang.
    - **Pelajaran v0.7.0**: jam/band hanya menyiarkan HR kalau ada mode "siarkan detak jantung";
      perangkat yang tidak punya service `0x180D` harus langsung dilepas (`wanted = false`),
      kalau tidak aplikasi berputar mencoba menyambung terus. Detak 0 = sensor belum kontak kulit,
