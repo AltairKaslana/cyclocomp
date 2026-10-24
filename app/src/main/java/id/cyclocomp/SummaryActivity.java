@@ -44,7 +44,14 @@ public class SummaryActivity extends Activity {
             finish();
             return;
         }
-        bind();
+        try {
+            bind();
+        } catch (Throwable t) {
+            // Layar Ringkasan bukan tempat untuk mati: angka tetap yang paling penting,
+            // dan kalau ada yang gagal, pengguna dapat pesan alih-alih aplikasi tertutup.
+            Log.e("Summary", "tampilan ringkasan gagal", t);
+            Toast.makeText(this, R.string.summary_broken, Toast.LENGTH_LONG).show();
+        }
 
         findViewById(R.id.btnClose).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { finish(); }
@@ -91,13 +98,20 @@ public class SummaryActivity extends Activity {
             laps = java.util.Collections.emptyList();
         }
         LinearLayout wrap = (LinearLayout) findViewById(R.id.lapWrap);
-        wrap.removeAllViews();
+        TextView lapCount = (TextView) findViewById(R.id.tvLapCount);
+        LinearLayout rows = (LinearLayout) findViewById(R.id.lapRows);
+        if (wrap == null || lapCount == null || rows == null) return;   // jangan crash
+
+        // Hanya wadah baris yang dibersihkan. Sebelumnya removeAllViews() dipanggil pada
+        // kartu lapWrap sendiri, sehingga header tvLapCount ikut terbuang dan pemanggilan
+        // berikutnya menemukan null -> NPE tepat saat layar Ringkasan dibuka.
+        rows.removeAllViews();
+
         if (laps.isEmpty()) {
             wrap.setVisibility(View.GONE);
         } else {
             wrap.setVisibility(View.VISIBLE);
-            ((TextView) findViewById(R.id.tvLapCount)).setText(
-                    getString(R.string.summary_laps, laps.size()));
+            lapCount.setText(getString(R.string.summary_laps, laps.size()));
             for (Lap l : laps) {
                 TextView t = new TextView(this);
                 t.setText(getString(R.string.summary_lap_row, l.index,
@@ -107,7 +121,7 @@ public class SummaryActivity extends Activity {
                 t.setTextSize(13);
                 t.setPadding(0, dp(6), 0, dp(6));
                 Ui.fonts(t, this);
-                wrap.addView(t);
+                rows.addView(t);
             }
         }
 

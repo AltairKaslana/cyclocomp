@@ -164,6 +164,14 @@
             android:letterSpacing="0.22"
             android:textColor="@color/accent"
             android:textSize="11sp" />
+
+        <!-- Baris lap dibuat di kode dan masuk ke sini. Sengaja dipisah dari kartu
+             lapWrap supaya header tvLapCount tidak ikut terbuang saat daftar dibersihkan. -->
+        <LinearLayout
+            android:id="@+id/lapRows"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
     </LinearLayout>
 
     <LinearLayout
