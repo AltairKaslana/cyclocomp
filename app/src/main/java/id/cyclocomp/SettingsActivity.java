@@ -299,8 +299,8 @@ public class SettingsActivity extends Activity {
             }
             case R_HR_FORGET: return "";
             case R_STRAVA_ID:
-                String id = StravaStore.clientId(this);
-                return id.isEmpty() ? "-" : id;
+                String cid = StravaStore.clientId(this);
+                return cid.isEmpty() ? "-" : cid;
             case R_STRAVA_SECRET:
                 // rahasia tidak pernah ditampilkan utuh; cukup tanda sudah terisi
                 return StravaStore.clientSecret(this).isEmpty() ? "-"
@@ -521,8 +521,9 @@ public class SettingsActivity extends Activity {
                     @Override public void run() {
                         pd.dismiss();
                         paint();
-                        Toast.makeText(SettingsActivity.this,
-                                err == null ? R.string.strava_authorized : err,
+                        String msg = err == null
+                                ? getString(R.string.strava_authorized) : err;
+                        Toast.makeText(SettingsActivity.this, msg,
                                 Toast.LENGTH_LONG).show();
                     }
                 });

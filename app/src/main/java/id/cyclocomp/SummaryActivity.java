@@ -227,8 +227,11 @@ public class SummaryActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override public void run() {
                         pd.dismiss();
-                        Toast.makeText(SummaryActivity.this,
-                                err == null ? R.string.strava_uploaded : err,
+                        // ternary tidak boleh mencampur int (R.string) dan String,
+                        // jadi pesannya dipilih dulu sebagai String
+                        String msg = err == null
+                                ? getString(R.string.strava_uploaded) : err;
+                        Toast.makeText(SummaryActivity.this, msg,
                                 err == null ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show();
                     }
                 });
