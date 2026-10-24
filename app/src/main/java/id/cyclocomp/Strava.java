@@ -316,9 +316,15 @@ final class Strava {
         return null;
     }
 
-    /** Dekode percent-encoding (UTF-8). */
+    /**
+     * Dekode percent-encoding (UTF-8) dan ubah '+' menjadi spasi.
+     *
+     * Jalan pintas hanya boleh dilewati kalau **kedua** penanda tidak ada. Dulu hanya
+     * memeriksa '%', sehingga "a+b" ikut kembar tidak berubah - kecil, tapi itu bentuk
+     * decoding query string yang salah.
+     */
     static String decode(String s) {
-        if (s == null || s.indexOf('%') < 0) return s;
+        if (s == null || (s.indexOf('%') < 0 && s.indexOf('+') < 0)) return s;
         ByteArrayOutputStream bo = new ByteArrayOutputStream();
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
