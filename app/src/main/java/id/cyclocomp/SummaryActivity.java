@@ -72,10 +72,10 @@ public class SummaryActivity extends Activity {
         ((TextView) findViewById(R.id.tvElev)).setText(Fmt.meters(row.elevGainM));
 
         // rute & peta: kalau gagal, angka di atas tetap tampil (rute tidak, itu saja)
+        File gpx = row.gpxPath == null ? null : new File(row.gpxPath);
         try {
             TileMapView rv = (TileMapView) findViewById(R.id.route);
             rv.setMapEnabled(Settings.map(this));
-            File gpx = row.gpxPath == null ? null : new File(row.gpxPath);
             List<GpxReader.P> track = GpxReader.read(gpx);
             rv.setTrack(track);
         } catch (Throwable t) {
