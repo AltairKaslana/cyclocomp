@@ -259,7 +259,7 @@ Jalankan di minimal: 1 HP KitKat (API 19) dan 1 HP Android 7+ (idealnya juga And
 
 ## 12. Roadmap (urutan disarankan) dan petunjuk implementasi
 
-**Status per v0.9.2 (24 Okt 2026): 1 ✅ · 2 ✅ · 3 ✅ · 4 ✅ (detak jantung) · 5 ✅ · 6 ✅ · 7 ✅ (peta ubin OSM) · 8 ✅ · 9 ✅ · 10 ✅ (lokalisasi) — sisa: 4b (kadensi/kecepatan CSC), Strava API.**
+**Status per v0.9.3 (24 Okt 2026): 1 ✅ · 2 ✅ · 3 ✅ · 4 ✅ (detak jantung) · 5 ✅ · 6 ✅ · 7 ✅ (peta ubin OSM) · 8 ✅ · 9 ✅ · 10 ✅ (lokalisasi) — sisa: 4b (kadensi/kecepatan CSC), Strava API.**
 
 1. ✅ **Perbaikan dasar**: kompilasi, uji perangkat, hapus `elapsed` tak terpakai, konfirmasi hapus riwayat,
    ikon launcher sendiri.
@@ -353,6 +353,24 @@ Mulai dari: **build → perbaiki error → uji perangkat (bagian 10) → roadmap
 Jangan ubah arsitektur (service sebagai pemilik state, Activity hanya view) tanpa alasan kuat;
 semua fitur berikutnya (sensor, lap, pemulihan) menempel di `RideService` dan `RideStats`.
 
+
+## 16b. Pelajaran dari v0.9.2 → v0.9.3
+
+- **GPX dengan tanggal ngawur**: Samsung SM-C710F (Android 7.1.1) melaporkan `Location.getTime()`
+  dengan jam/menit/detik benar tapi **tanggal 19 tahun terlampaui** (2007 alih-alih 2026). Jam sistem
+  HP sendiri benar. Berkas tetap terbuka, tapi kalau dibagikan ke Strava/Garmin gowesnya mendarat
+  di tahun yang salah. **Aturan: jangan percaya `Location.getTime()` buta** — bandingkan dengan
+  `System.currentTimeMillis()`, dan kalau menjauh > 1 hari hitung **satu** selisih koreksi lalu
+  pakai untuk titik berikutnya (bukan memberi semua titik waktu yang sama, supaya jarak antar titik
+  tetap akurat). Lihat `TimeFix.java` + `TimeFixTest.java`.
+- **Cara menemukannya**: minta pengguna kirim berkas GPX-nya, lalu hitung sendiri (jumlah titik,
+  selang antar titik, rentang lat/lon/ele, konsistensi tanggal). Kerusakan "tidak terlihat" di UI
+  karena layar Ringkasan memakai `startMs` dari jam sistem, bukan waktu GPS.
+- **Pelajaran v0.9.2 (NPE)**: `removeAllViews()` pada kontainer yang **memuat view statis dari XML**
+  menghancurkan view itu; `findViewById` berikutnya mengembalikan null. Kontainer yang dibersihkan
+  harus kontainer kosong khusus (`lapRows`), bukan kartu yang memakai header (`tvLapCount`).
+  Gejala hanya muncul di cabang tertentu (ada lap), jadi uji di satu perangkat bisa lolos
+  sementara perangkat lain crash — **selalu uji kedua cabang**.
 
 ## 16. Pelajaran dari v0.6.0 → v0.6.1
 
