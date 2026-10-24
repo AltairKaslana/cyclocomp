@@ -226,5 +226,4 @@
     <string name="card_failed">Gambar kartu gagal dibuat</string>
     <string name="card_share_title">Bagikan kartu gowes</string>
     <string name="card_share_subject">Kartu gowes %1$s</string>
-    <string name="no_share_app">Tidak ada aplikasi yang bisa menerima berkas ini</string>
 </resources>
