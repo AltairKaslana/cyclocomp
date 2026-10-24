@@ -53,35 +53,35 @@ public class SettingsActivity extends Activity {
     private void paint() {
         groups.removeAllViews();
 
-        group("PEREKAMAN");
-        switchRow(R_AUTOPAUSE, R.string.settings_autopause, "Jeda sendiri saat berhenti");
-        valueRow(R_AP_SPEED, R.string.settings_ap_speed, "Di bawah kecepatan ini dianggap berhenti");
-        valueRow(R_AP_DELAY, R.string.settings_ap_delay, "Lama berhenti sebelum dijeda");
-        switchRow(R_BEEP, R.string.settings_beep, "Bunyi saat lap dan peringatan");
+        group(getString(R.string.group_recording));
+        switchRow(R_AUTOPAUSE, R.string.settings_autopause, getString(R.string.sum_autopause));
+        valueRow(R_AP_SPEED, R.string.settings_ap_speed, getString(R.string.sum_ap_speed));
+        valueRow(R_AP_DELAY, R.string.settings_ap_delay, getString(R.string.sum_ap_delay));
+        switchRow(R_BEEP, R.string.settings_beep, getString(R.string.sum_beep));
 
-        group("LAP");
-        valueRow(R_LAP_MODE, R.string.settings_lap, "Cara lap baru dimulai");
+        group(getString(R.string.group_lap));
+        valueRow(R_LAP_MODE, R.string.settings_lap, getString(R.string.sum_lap));
         if (Settings.lapMode(this) == Settings.LAP_DISTANCE) {
-            valueRow(R_LAP_DIST, R.string.settings_lap_dist, "Panjang satu lap");
+            valueRow(R_LAP_DIST, R.string.settings_lap_dist, getString(R.string.sum_lap_dist));
         } else if (Settings.lapMode(this) == Settings.LAP_TIME) {
-            valueRow(R_LAP_TIME, R.string.settings_lap_time, "Durasi satu lap");
+            valueRow(R_LAP_TIME, R.string.settings_lap_time, getString(R.string.sum_lap_time));
         }
 
-        group("PERINGATAN");
-        valueRow(R_ALERT_KM, R.string.settings_alert_km, "Beri tahu tiap jarak tertentu");
-        valueRow(R_ALERT_MIN, R.string.settings_alert_min, "Beri tahu tiap selang waktu");
+        group(getString(R.string.group_alert));
+        valueRow(R_ALERT_KM, R.string.settings_alert_km, getString(R.string.sum_alert_km));
+        valueRow(R_ALERT_MIN, R.string.settings_alert_min, getString(R.string.sum_alert_min));
 
-        group("SENSOR");
-        valueRow(R_HR, R.string.settings_hr, "Jam, band, atau sabuk detak jantung BLE");
+        group(getString(R.string.group_sensor));
+        valueRow(R_HR, R.string.settings_hr, getString(R.string.sum_hr));
         if (!Settings.hrMac(this).isEmpty()) {
-            valueRow(R_HR_FORGET, R.string.settings_hr_forget, "Putuskan dan kosongkan pilihan");
+            valueRow(R_HR_FORGET, R.string.settings_hr_forget, getString(R.string.sum_hr_forget));
         }
 
-        group("PETA");
-        switchRow(R_MAP, R.string.settings_map, "Tampilkan peta di layar ringkasan");
+        group(getString(R.string.group_map));
+        switchRow(R_MAP, R.string.settings_map, getString(R.string.sum_map));
 
-        group("LAINNYA");
-        valueRow(R_RESET, R.string.settings_reset, "Kembalikan semua ke nilai bawaan");
+        group(getString(R.string.group_other));
+        valueRow(R_RESET, R.string.settings_reset, getString(R.string.sum_reset));
 
         TextView note = new TextView(this);
         note.setText(baroSensorText());
@@ -95,9 +95,7 @@ public class SettingsActivity extends Activity {
     private String baroSensorText() {
         SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
         boolean ada = sm != null && sm.getDefaultSensor(Sensor.TYPE_PRESSURE) != null;
-        return ada
-                ? "Barometer terdeteksi — tanjakan dihitung dari tekanan udara."
-                : "HP ini tanpa barometer — tanjakan memakai ketinggian GPS.";
+        return ada ? getString(R.string.baro_on) : getString(R.string.baro_off);
     }
 
     // ---------- pembangun baris ----------
@@ -174,10 +172,9 @@ public class SettingsActivity extends Activity {
         foundMacs.clear();
 
         scanDialog = new AlertDialog.Builder(this)
-                .setTitle("Mencari sensor…")
-                .setMessage("Pastikan jam atau band sudah dalam mode siarkan detak jantung.\n\n"
-                        + "Pencarian berjalan 8 detik.")
-                .setNegativeButton("Batal", null)
+                .setTitle(R.string.hr_scan_title)
+                .setMessage(R.string.hr_scan_msg)
+                .setNegativeButton(R.string.cancel, null)
                 .create();
         scanDialog.show();
 
@@ -185,7 +182,8 @@ public class SettingsActivity extends Activity {
             @Override public void onFound(String name, String mac, boolean hasHrService) {
                 // yang menyiarkan layanan detak jantung ditaruh paling atas
                 int at = hasHrService ? 0 : foundMacs.size();
-                foundNames.add(at, hasHrService ? name : name + "  (tanpa HR)");
+                foundNames.add(at, hasHrService ? name
+                        : name + getString(R.string.hr_no_hr_tag));
                 foundMacs.add(at, mac);
             }
 
@@ -200,14 +198,9 @@ public class SettingsActivity extends Activity {
 
     private void showNoSensor() {
         new AlertDialog.Builder(this)
-                .setTitle("Tidak ada sensor ditemukan")
-                .setMessage("Yang bisa dibaca Cyclocomp hanya perangkat yang menyiarkan "
-                        + "Heart Rate Service standar.\n\n"
-                        + "Cek: Bluetooth menyala, jam/band dalam mode \"siarkan detak jantung\" "
-                        + "(di Garmin: Sensor & Aksesori → Siarkan Detak Jantung; di Amazfit/Huawei: "
-                        + "pengaturan detak jantung → siarkan), dan jarak dekat dengan HP.\n\n"
-                        + "Sabuk detak jantung BLE apa pun langsung terbaca tanpa mode khusus.")
-                .setPositiveButton("Coba lagi", new DialogInterface.OnClickListener() {
+                .setTitle(R.string.hr_none_title)
+                .setMessage(R.string.hr_none_msg)
+                .setPositiveButton(R.string.hr_retry, new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface d, int w) { pickSensor(); }
                 })
                 .setNegativeButton("Tutup", null)
@@ -216,15 +209,15 @@ public class SettingsActivity extends Activity {
 
     private void showFound() {
         new AlertDialog.Builder(this)
-                .setTitle("Pilih sensor")
+                .setTitle(R.string.hr_pick_title)
                 .setItems(foundNames.toArray(new String[0]), new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface d, int which) {
                         Settings.setHrMac(SettingsActivity.this, foundMacs.get(which));
-                        String n = foundNames.get(which).replace("  (tanpa HR)", "");
+                        String n = foundNames.get(which).replace(getString(R.string.hr_no_hr_tag), "");
                         Settings.setHrName(SettingsActivity.this, n);
                         paint();
-                        Toast.makeText(SettingsActivity.this,
-                                "Sensor disimpan. Aktif saat gowes dimulai.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(SettingsActivity.this, R.string.hr_saved,
+                                Toast.LENGTH_LONG).show();
                     }
                 })
                 .show();
@@ -237,8 +230,7 @@ public class SettingsActivity extends Activity {
         boolean all = res.length > 0;
         for (int r : res) if (r != android.content.pm.PackageManager.PERMISSION_GRANTED) all = false;
         if (all) pickSensor();
-        else Toast.makeText(this, "Izin Bluetooth dibutuhkan untuk membaca sensor.",
-                Toast.LENGTH_LONG).show();
+        else Toast.makeText(this, R.string.hr_need_perm, Toast.LENGTH_LONG).show();
     }
 
     // ---------- nilai ----------
@@ -264,7 +256,8 @@ public class SettingsActivity extends Activity {
     private String valueOf(int id) {
         switch (id) {
             case R_AUTOPAUSE: return onOff(Settings.autoPause(this));
-            case R_AP_SPEED:  return String.format("%.0f km/j", Settings.autoPauseSpeed(this));
+            case R_AP_SPEED:  return getString(R.string.opt_speed,
+                    Math.round(Settings.autoPauseSpeed(this)));
             case R_AP_DELAY:  return getString(R.string.settings_seconds, Settings.autoPauseDelay(this));
             case R_LAP_MODE:
                 int m = Settings.lapMode(this);
@@ -283,7 +276,7 @@ public class SettingsActivity extends Activity {
             case R_MAP:       return onOff(Settings.map(this));
             case R_HR: {
                 String n = Settings.hrName(this);
-                return n.isEmpty() ? "Belum dipilih" : n;
+                return n.isEmpty() ? getString(R.string.hr_none) : n;
             }
             case R_HR_FORGET: return "";
             default:          return "";
@@ -301,7 +294,9 @@ public class SettingsActivity extends Activity {
             case R_AP_SPEED: {
                 final float[] vals = {2, 3, 5, 8, 10};
                 choose(R.string.settings_ap_speed,
-                        new String[]{"2 km/j", "3 km/j", "5 km/j", "8 km/j", "10 km/j"},
+                        new String[]{getString(R.string.opt_speed, 2), getString(R.string.opt_speed, 3),
+                                getString(R.string.opt_speed, 5), getString(R.string.opt_speed, 8),
+                                getString(R.string.opt_speed, 10)},
                         nearest(vals, Settings.autoPauseSpeed(this)),
                         new Pick() {
                             @Override public void set(int i) {
@@ -314,7 +309,9 @@ public class SettingsActivity extends Activity {
             case R_AP_DELAY: {
                 final int[] vals = {3, 5, 10, 15, 30};
                 choose(R.string.settings_ap_delay,
-                        new String[]{"3 detik", "5 detik", "10 detik", "15 detik", "30 detik"},
+                        new String[]{getString(R.string.opt_sec, 3), getString(R.string.opt_sec, 5),
+                                getString(R.string.opt_sec, 10), getString(R.string.opt_sec, 15),
+                                getString(R.string.opt_sec, 30)},
                         nearestInt(vals, Settings.autoPauseDelay(this)),
                         new Pick() {
                             @Override public void set(int i) {
@@ -340,7 +337,9 @@ public class SettingsActivity extends Activity {
             case R_LAP_DIST: {
                 final float[] vals = {1, 2, 5, 10, 20};
                 choose(R.string.settings_lap_dist,
-                        new String[]{"1 km", "2 km", "5 km", "10 km", "20 km"},
+                        new String[]{getString(R.string.opt_km, 1), getString(R.string.opt_km, 2),
+                                getString(R.string.opt_km, 5), getString(R.string.opt_km, 10),
+                                getString(R.string.opt_km, 20)},
                         nearest(vals, Settings.lapDistance(this)),
                         new Pick() {
                             @Override public void set(int i) {
@@ -353,7 +352,9 @@ public class SettingsActivity extends Activity {
             case R_LAP_TIME: {
                 final int[] vals = {5, 10, 20, 30, 60};
                 choose(R.string.settings_lap_time,
-                        new String[]{"5 menit", "10 menit", "20 menit", "30 menit", "60 menit"},
+                        new String[]{getString(R.string.opt_min, 5), getString(R.string.opt_min, 10),
+                                getString(R.string.opt_min, 20), getString(R.string.opt_min, 30),
+                                getString(R.string.opt_min, 60)},
                         nearestInt(vals, Settings.lapTime(this)),
                         new Pick() {
                             @Override public void set(int i) {
@@ -366,7 +367,9 @@ public class SettingsActivity extends Activity {
             case R_ALERT_KM: {
                 final float[] vals = {0, 5, 10, 20, 50};
                 choose(R.string.settings_alert_km,
-                        new String[]{getString(R.string.settings_off), "5 km", "10 km", "20 km", "50 km"},
+                        new String[]{getString(R.string.settings_off), getString(R.string.opt_km, 5),
+                                getString(R.string.opt_km, 10), getString(R.string.opt_km, 20),
+                                getString(R.string.opt_km, 50)},
                         nearest(vals, Settings.alertKm(this)),
                         new Pick() {
                             @Override public void set(int i) {
@@ -379,8 +382,9 @@ public class SettingsActivity extends Activity {
             case R_ALERT_MIN: {
                 final int[] vals = {0, 15, 30, 45, 60};
                 choose(R.string.settings_alert_min,
-                        new String[]{getString(R.string.settings_off), "15 menit", "30 menit",
-                                "45 menit", "60 menit"},
+                        new String[]{getString(R.string.settings_off), getString(R.string.opt_min, 15),
+                                getString(R.string.opt_min, 30), getString(R.string.opt_min, 45),
+                                getString(R.string.opt_min, 60)},
                         nearestInt(vals, Settings.alertMin(this)),
                         new Pick() {
                             @Override public void set(int i) {
@@ -396,9 +400,10 @@ public class SettingsActivity extends Activity {
             case R_HR_FORGET:
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.settings_hr_forget)
-                        .setMessage("Cyclocomp akan berhenti memakai sensor ini.")
-                        .setNegativeButton("Batal", null)
-                        .setPositiveButton("Putuskan", new DialogInterface.OnClickListener() {
+                        .setMessage(R.string.hr_forget_msg)
+                        .setNegativeButton(R.string.cancel, null)
+                        .setPositiveButton(R.string.hr_forget_btn,
+                                new DialogInterface.OnClickListener() {
                             @Override public void onClick(DialogInterface d, int w) {
                                 Settings.setHrMac(SettingsActivity.this, "");
                                 Settings.setHrName(SettingsActivity.this, "");
@@ -410,8 +415,9 @@ public class SettingsActivity extends Activity {
             case R_RESET:
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.settings_reset)
-                        .setMessage("Kembalikan semua pengaturan ke nilai bawaan?")
-                        .setPositiveButton("Ya", new DialogInterface.OnClickListener() {
+                        .setMessage(R.string.reset_msg)
+                        .setNegativeButton(R.string.cancel, null)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override public void onClick(DialogInterface d, int w) {
                                 Settings.setAutoPause(SettingsActivity.this, true);
                                 Settings.setAutoPauseSpeed(SettingsActivity.this, 3f);

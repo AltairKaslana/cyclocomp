@@ -1,0 +1,175 @@
+<resources>
+    <!-- Bahasa Inggris. Nilai bawaan (Indonesia) ada di res/values/strings.xml;
+         berkas ini hanya perlu memuat teks yang berbeda. -->
+    <string name="app_name">Cyclocomp</string>
+
+    <!-- satuan -->
+    <string name="unit_speed">km/h</string>
+    <string name="unit_grade">%</string>
+
+    <!-- label -->
+    <string name="label_speed">SPEED</string>
+    <string name="label_distance">DISTANCE</string>
+    <string name="label_time">MOVING TIME</string>
+    <string name="label_moving">MOVING TIME</string>
+    <string name="label_total">TOTAL TIME</string>
+    <string name="label_avg">AVERAGE</string>
+    <string name="label_max">MAX</string>
+    <string name="label_elev">ELEVATION</string>
+    <string name="label_alt">ALTITUDE</string>
+
+    <!-- tombol -->
+    <string name="btn_start">START</string>
+    <string name="btn_pause">PAUSE</string>
+    <string name="btn_resume">RESUME</string>
+    <string name="btn_stop">STOP</string>
+    <string name="btn_lap">LAP</string>
+    <string name="btn_history">HISTORY</string>
+    <string name="btn_settings">SETTINGS</string>
+
+    <!-- status -->
+    <string name="status_idle">Ready to ride</string>
+    <string name="status_paused">Paused</string>
+    <string name="status_search">Searching for GPS…</string>
+    <string name="status_ok">GPS OK (±%d m)</string>
+    <string name="status_autopaused">Auto-paused</string>
+
+    <!-- halaman data -->
+    <string name="page_detail">DETAIL</string>
+    <string name="page_glance">GLANCE</string>
+    <string name="page_lap">LAP</string>
+    <string name="lap_current">CURRENT LAP</string>
+    <string name="lap_done">LAP DONE</string>
+    <string name="lap_none">No laps yet. Press LAP to mark one.</string>
+    <string name="label_lap_time">TIME</string>
+    <string name="label_lap_avg">AVERAGE</string>
+    <string name="label_lap_moving">MOVING TIME</string>
+
+    <!-- pesan -->
+    <string name="hint_stop">Hold STOP to finish</string>
+    <string name="gps_off">GPS is off. Turn it on in settings first.</string>
+    <string name="perm_denied">Location permission is needed to record.</string>
+    <string name="start_failed">Could not start GPS recording.</string>
+    <string name="autopause_on">Auto-paused (stopped)</string>
+
+    <!-- peringatan -->
+    <string name="alert_km">%s km done</string>
+    <string name="alert_min">%d minutes done</string>
+
+    <!-- riwayat -->
+    <string name="title_history">History</string>
+    <string name="history_empty">No rides yet.</string>
+    <string name="delete">Delete</string>
+    <string name="close">Close</string>
+
+    <!-- peta -->
+    <string name="route_none">Route unavailable</string>
+    <string name="route_offline">Map not ready yet — the route is still drawn</string>
+    <string name="btn_share_gpx">SHARE GPX</string>
+    <string name="summary_title">RIDE DONE</string>
+
+    <!-- notifikasi -->
+    <string name="notif_channel">Ride recording</string>
+    <string name="notif_title">Cyclocomp is recording</string>
+    <string name="notif_lap">LAP</string>
+
+    <!-- baterai -->
+    <string name="batt_title">Let the app keep recording</string>
+    <string name="batt_msg">Android may stop background recording to save battery.\\n\\nChoose \\u0022Open settings\\u0022 and set Cyclocomp to \\u0022Unrestricted\\u0022 (or \\u0022Don\'t optimize\\u0022). If you skip it, recording still runs but may stop on its own.</string>
+    <string name="batt_open">Open settings</string>
+    <string name="batt_skip">Skip</string>
+
+    <!-- pengaturan -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_autopause">Auto-pause</string>
+    <string name="settings_ap_speed">Stop threshold</string>
+    <string name="settings_ap_delay">Pause delay</string>
+    <string name="settings_lap">Auto lap</string>
+    <string name="settings_lap_dist">Distance per lap</string>
+    <string name="settings_lap_time">Time per lap</string>
+    <string name="settings_alert_km">Alert every (km)</string>
+    <string name="settings_alert_min">Alert every (min)</string>
+    <string name="settings_beep">Beep</string>
+    <string name="settings_hr">Heart rate sensor</string>
+    <string name="settings_hr_forget">Forget sensor</string>
+    <string name="settings_map">OpenStreetMap</string>
+    <string name="settings_reset">Reset to defaults</string>
+    <string name="settings_on">On</string>
+    <string name="settings_off">Off</string>
+    <string name="settings_manual">Manual only</string>
+    <string name="settings_by_distance">By distance</string>
+    <string name="settings_by_time">By time</string>
+    <string name="settings_none">Off</string>
+    <string name="settings_seconds">%d sec</string>
+    <string name="settings_minutes">%d min</string>
+    <string name="settings_km">%.1f km</string>
+
+    <!-- nama grup kartu -->
+    <string name="group_recording">RECORDING</string>
+    <string name="group_lap">LAP</string>
+    <string name="group_alert">ALERTS</string>
+    <string name="group_sensor">SENSOR</string>
+    <string name="group_map">MAP</string>
+    <string name="group_other">OTHER</string>
+
+    <!-- ringkasan tiap baris pengaturan -->
+    <string name="sum_autopause">Pause by itself when you stop</string>
+    <string name="sum_ap_speed">Below this speed counts as stopped</string>
+    <string name="sum_ap_delay">How long stopped before pausing</string>
+    <string name="sum_beep">Beep on laps and alerts</string>
+    <string name="sum_lap">How a new lap starts</string>
+    <string name="sum_lap_dist">Length of one lap</string>
+    <string name="sum_lap_time">Duration of one lap</string>
+    <string name="sum_alert_km">Tell me every so many km</string>
+    <string name="sum_alert_min">Tell me every so many minutes</string>
+    <string name="sum_hr">Watch, band, or BLE heart-rate strap</string>
+    <string name="sum_hr_forget">Disconnect and clear the choice</string>
+    <string name="sum_map">Show the map on the summary screen</string>
+    <string name="sum_reset">Restore everything to defaults</string>
+
+    <!-- catatan barometer -->
+    <string name="baro_on">Barometer detected — climbs are computed from air pressure.</string>
+    <string name="baro_off">No barometer on this phone — climbs use GPS altitude.</string>
+
+    <!-- dialog umum -->
+    <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
+    <string name="reset_msg">Restore all settings to defaults?</string>
+
+    <!-- sensor detak jantung -->
+    <string name="hr_none">Not selected</string>
+    <string name="hr_scan_title">Searching for a sensor…</string>
+    <string name="hr_scan_msg">Make sure the watch or band is already in heart-rate broadcast mode.\\n\\nSearch runs for 8 seconds.</string>
+    <string name="hr_no_hr_tag">  (no HR)</string>
+    <string name="hr_none_title">No sensor found</string>
+    <string name="hr_none_msg">Cyclocomp can only read devices that broadcast the standard Heart Rate Service.\\n\\nCheck: Bluetooth is on, the watch/band is in heart-rate broadcast mode (on Garmin: Sensors &amp; Accessories → Broadcast Heart Rate; on Amazfit/Huawei: heart-rate settings → broadcast), and the phone is close by.\\n\\nAny BLE heart-rate strap works right away with no special mode.</string>
+    <string name="hr_retry">Try again</string>
+    <string name="hr_pick_title">Choose a sensor</string>
+    <string name="hr_saved">Sensor saved. It activates when the ride starts.</string>
+    <string name="hr_need_perm">Bluetooth permission is needed to read the sensor.</string>
+    <string name="hr_forget_msg">Cyclocomp will stop using this sensor.</string>
+    <string name="hr_forget_btn">Disconnect</string>
+
+    <!-- pilihan bernomor -->
+    <string name="opt_speed">%d km/h</string>
+    <string name="opt_sec">%d sec</string>
+    <string name="opt_km">%d km</string>
+    <string name="opt_min">%d min</string>
+
+    <!-- status Bluetooth / sensor -->
+    <string name="ble_no_bt">This device has no Bluetooth</string>
+    <string name="ble_off">Bluetooth is off</string>
+    <string name="ble_no_perm">Bluetooth permission not granted</string>
+    <string name="ble_unavailable">Bluetooth unavailable</string>
+    <string name="ble_scan_failed">Scan failed (code %d)</string>
+    <string name="ble_cannot_scan">Cannot scan: %s</string>
+    <string name="ble_connecting">Connecting to sensor...</string>
+    <string name="ble_searching">Looking for a heart-rate sensor...</string>
+    <string name="ble_not_found">Sensor not found</string>
+    <string name="ble_not_connected">Sensor not connected</string>
+    <string name="ble_reconnecting">Sensor dropped, retrying...</string>
+    <string name="ble_no_hr_service">This device does not broadcast heart rate</string>
+    <string name="ble_no_hr_char">Heart-rate characteristic missing</string>
+    <string name="ble_connected">Connected: %s</string>
+    <string name="ble_sensor_name">sensor</string>
+</resources>

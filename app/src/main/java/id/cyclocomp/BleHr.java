@@ -118,23 +118,23 @@ public class BleHr {
      */
     public static void scan(final Context c, final int ms, final ScanListener l) {
         final BluetoothAdapter a = adapter(c);
-        if (a == null) { l.onDone("Perangkat ini tidak punya Bluetooth"); return; }
+        if (a == null) { l.onDone(c.getString(R.string.ble_no_bt)); return; }
         try {
-            if (!a.isEnabled()) { l.onDone("Bluetooth mati"); return; }
+            if (!a.isEnabled()) { l.onDone(c.getString(R.string.ble_off)); return; }
         } catch (SecurityException e) {
-            l.onDone("Izin Bluetooth belum diberikan");
+            l.onDone(c.getString(R.string.ble_no_perm));
             return;
         }
-        if (!hasPermission(c)) { l.onDone("Izin Bluetooth belum diberikan"); return; }
+        if (!hasPermission(c)) { l.onDone(c.getString(R.string.ble_no_perm)); return; }
 
         final BluetoothLeScanner sc;
         try {
             sc = a.getBluetoothLeScanner();
         } catch (SecurityException e) {
-            l.onDone("Izin Bluetooth belum diberikan");
+            l.onDone(c.getString(R.string.ble_no_perm));
             return;
         }
-        if (sc == null) { l.onDone("Bluetooth mati"); return; }
+        if (sc == null) { l.onDone(c.getString(R.string.ble_off)); return; }
 
         final List<String> seen = new ArrayList<String>();
 
@@ -165,7 +165,7 @@ public class BleHr {
 
             @Override
             public void onScanFailed(int errorCode) {
-                l.onDone("Pemindaian gagal (kode " + errorCode + ")");
+                l.onDone(c.getString(R.string.ble_scan_failed, errorCode));
             }
         };
 
@@ -175,7 +175,7 @@ public class BleHr {
                     .build();
             sc.startScan(null, st, cbp);
         } catch (Throwable t) {
-            l.onDone("Tidak bisa memindai: " + t.getClass().getSimpleName());
+            l.onDone(c.getString(R.string.ble_cannot_scan, t.getClass().getSimpleName()));
             return;
         }
 
@@ -219,18 +219,18 @@ public class BleHr {
 
     private void connect() {
         if (!wanted) return;
-        if (!hasPermission(ctx)) { status("Izin Bluetooth belum diberikan"); return; }
+        if (!hasPermission(ctx)) { status(ctx.getString(R.string.ble_no_perm)); return; }
         BluetoothAdapter a = adapter(ctx);
-        if (a == null) { status("Bluetooth tidak tersedia"); return; }
+        if (a == null) { status(ctx.getString(R.string.ble_unavailable)); return; }
         try {
-            if (!a.isEnabled()) { status("Bluetooth mati"); scheduleRetry(); return; }
+            if (!a.isEnabled()) { status(ctx.getString(R.string.ble_off)); scheduleRetry(); return; }
         } catch (SecurityException e) {
-            status("Izin Bluetooth belum diberikan");
+            status(ctx.getString(R.string.ble_no_perm));
             return;
         }
 
         if (mac != null && !mac.isEmpty()) {
-            status("Menyambung ke sensor...");
+            status(ctx.getString(R.string.ble_connecting));
             try {
                 BluetoothDevice d = a.getRemoteDevice(mac);
                 gatt = d.connectGatt(ctx, false, gattCb, BluetoothDevice.TRANSPORT_LE);
@@ -241,7 +241,7 @@ public class BleHr {
             }
         } else {
             // Belum ada pilihan tersimpan: cari yang mengiklankan Heart Rate Service
-            status("Mencari sensor detak jantung...");
+            status(ctx.getString(R.string.ble_searching));
             scanForHr(a);
         }
     }
@@ -287,7 +287,7 @@ public class BleHr {
                 public void run() {
                     if (gatt == null) {
                         stopScan();
-                        status("Sensor tidak ditemukan");
+                        status(ctx.getString(R.string.ble_not_found));
                         scheduleRetry();
                     }
                 }
@@ -308,7 +308,7 @@ public class BleHr {
 
     private void scheduleRetry() {
         if (!wanted) return;
-        if (++retry > MAX_RETRY) { status("Sensor tidak tersambung"); return; }
+        if (++retry > MAX_RETRY) { status(ctx.getString(R.string.ble_not_connected)); return; }
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -346,7 +346,7 @@ public class BleHr {
                 closeGatt();
                 lastBpm = -1;
                 if (wanted) {
-                    status("Sensor terputus, mencoba lagi...");
+                    status(ctx.getString(R.string.ble_reconnecting));
                     scheduleRetry();
                 }
             }
@@ -356,14 +356,14 @@ public class BleHr {
         public void onServicesDiscovered(BluetoothGatt g, int status) {
             BluetoothGattService svc = g.getService(SVC_HR);
             if (svc == null) {
-                status("Perangkat ini tidak menyiarkan detak jantung");
+                status(ctx.getString(R.string.ble_no_hr_service));
                 closeGatt();
                 wanted = false;      // jangan berputar terus pada perangkat yang salah
                 return;
             }
             BluetoothGattCharacteristic ch = svc.getCharacteristic(CH_HR);
             if (ch == null) {
-                status("Karakteristik detak jantung tidak ada");
+                status(ctx.getString(R.string.ble_no_hr_char));
                 closeGatt();
                 wanted = false;
                 return;
@@ -381,7 +381,8 @@ public class BleHr {
                     name = dev == null ? null : dev.getName();
                     if (name == null && dev != null) name = dev.getAddress();
                 } catch (SecurityException ignored) { }
-                status("Tersambung: " + (name == null ? "sensor" : name));
+                status(ctx.getString(R.string.ble_connected,
+                        name == null ? ctx.getString(R.string.ble_sensor_name) : name));
             } catch (Throwable t) {
                 Log.w(TAG, "aktifkan notifikasi gagal", t);
             }

@@ -101,4 +101,73 @@
     <string name="settings_seconds">%d detik</string>
     <string name="settings_minutes">%d menit</string>
     <string name="settings_km">%.1f km</string>
+
+    <!-- nama grup kartu -->
+    <string name="group_recording">PEREKAMAN</string>
+    <string name="group_lap">LAP</string>
+    <string name="group_alert">PERINGATAN</string>
+    <string name="group_sensor">SENSOR</string>
+    <string name="group_map">PETA</string>
+    <string name="group_other">LAINNYA</string>
+
+    <!-- ringkasan tiap baris pengaturan -->
+    <string name="sum_autopause">Jeda sendiri saat berhenti</string>
+    <string name="sum_ap_speed">Di bawah kecepatan ini dianggap berhenti</string>
+    <string name="sum_ap_delay">Lama berhenti sebelum dijeda</string>
+    <string name="sum_beep">Bunyi saat lap dan peringatan</string>
+    <string name="sum_lap">Cara lap baru dimulai</string>
+    <string name="sum_lap_dist">Panjang satu lap</string>
+    <string name="sum_lap_time">Durasi satu lap</string>
+    <string name="sum_alert_km">Beri tahu tiap jarak tertentu</string>
+    <string name="sum_alert_min">Beri tahu tiap selang waktu</string>
+    <string name="sum_hr">Jam, band, atau sabuk detak jantung BLE</string>
+    <string name="sum_hr_forget">Putuskan dan kosongkan pilihan</string>
+    <string name="sum_map">Tampilkan peta di layar ringkasan</string>
+    <string name="sum_reset">Kembalikan semua ke nilai bawaan</string>
+
+    <!-- catatan barometer di bawah pengaturan -->
+    <string name="baro_on">Barometer terdeteksi — tanjakan dihitung dari tekanan udara.</string>
+    <string name="baro_off">HP ini tanpa barometer — tanjakan memakai ketinggian GPS.</string>
+
+    <!-- dialog umum -->
+    <string name="yes">Ya</string>
+    <string name="cancel">Batal</string>
+    <string name="reset_msg">Kembalikan semua pengaturan ke nilai bawaan?</string>
+
+    <!-- sensor detak jantung -->
+    <string name="hr_none">Belum dipilih</string>
+    <string name="hr_scan_title">Mencari sensor…</string>
+    <string name="hr_scan_msg">Pastikan jam atau band sudah dalam mode siarkan detak jantung.\n\nPencarian berjalan 8 detik.</string>
+    <string name="hr_no_hr_tag">  (tanpa HR)</string>
+    <string name="hr_none_title">Tidak ada sensor ditemukan</string>
+    <string name="hr_none_msg">Yang bisa dibaca Cyclocomp hanya perangkat yang menyiarkan Heart Rate Service standar.\n\nCek: Bluetooth menyala, jam/band dalam mode \u0022siarkan detak jantung\u0022 (di Garmin: Sensor &amp; Aksesori → Siarkan Detak Jantung; di Amazfit/Huawei: pengaturan detak jantung → siarkan), dan jarak dekat dengan HP.\n\nSabuk detak jantung BLE apa pun langsung terbaca tanpa mode khusus.</string>
+    <string name="hr_retry">Coba lagi</string>
+    <string name="hr_pick_title">Pilih sensor</string>
+    <string name="hr_saved">Sensor disimpan. Aktif saat gowes dimulai.</string>
+    <string name="hr_need_perm">Izin Bluetooth dibutuhkan untuk membaca sensor.</string>
+    <string name="hr_forget_msg">Cyclocomp akan berhenti memakai sensor ini.</string>
+    <string name="hr_forget_btn">Putuskan</string>
+
+    <!-- pilihan bernomor (ikut bahasa, satuan ikut berubah) -->
+    <string name="opt_speed">%d km/jam</string>
+    <string name="opt_sec">%d detik</string>
+    <string name="opt_km">%d km</string>
+    <string name="opt_min">%d menit</string>
+
+    <!-- status Bluetooth / sensor -->
+    <string name="ble_no_bt">Perangkat ini tidak punya Bluetooth</string>
+    <string name="ble_off">Bluetooth mati</string>
+    <string name="ble_no_perm">Izin Bluetooth belum diberikan</string>
+    <string name="ble_unavailable">Bluetooth tidak tersedia</string>
+    <string name="ble_scan_failed">Pemindaian gagal (kode %d)</string>
+    <string name="ble_cannot_scan">Tidak bisa memindai: %s</string>
+    <string name="ble_connecting">Menyambung ke sensor...</string>
+    <string name="ble_searching">Mencari sensor detak jantung...</string>
+    <string name="ble_not_found">Sensor tidak ditemukan</string>
+    <string name="ble_not_connected">Sensor tidak tersambung</string>
+    <string name="ble_reconnecting">Sensor terputus, mencoba lagi...</string>
+    <string name="ble_no_hr_service">Perangkat ini tidak menyiarkan detak jantung</string>
+    <string name="ble_no_hr_char">Karakteristik detak jantung tidak ada</string>
+    <string name="ble_connected">Tersambung: %s</string>
+    <string name="ble_sensor_name">sensor</string>
 </resources>
