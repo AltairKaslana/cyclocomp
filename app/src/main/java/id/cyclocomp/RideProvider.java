@@ -29,15 +29,16 @@ public class RideProvider extends ContentProvider {
 
     private File resolve(Uri uri) throws FileNotFoundException {
         String name = uri.getLastPathSegment();
+        // ContentProvider bukan Context: string lewat getContext()
         if (name == null || name.isEmpty()) {
-            throw new FileNotFoundException(getString(R.string.prov_empty_name));
+            throw new FileNotFoundException(getContext().getString(R.string.prov_empty_name));
         }
         if (!name.matches("[A-Za-z0-9_.-]+") || name.contains("..")) {
-            throw new FileNotFoundException(getString(R.string.prov_bad_name));
+            throw new FileNotFoundException(getContext().getString(R.string.prov_bad_name));
         }
         File base = getContext() == null ? null : getContext().getExternalFilesDir(null);
         if (base == null) {
-            throw new FileNotFoundException(getString(R.string.prov_no_storage));
+            throw new FileNotFoundException(getContext().getString(R.string.prov_no_storage));
         }
         File f = new File(new File(base, "rides"), name);
         if (!f.exists()) throw new FileNotFoundException(name);
