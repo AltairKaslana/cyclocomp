@@ -75,6 +75,23 @@ public class HistoryActivity extends Activity {
         return sb.toString();
     }
 
+    /** Hapus butuh konfirmasi kedua: berkas GPX tidak bisa dipulihkan. */
+    private void konfirmasiHapus(final RideDb.Row r) {
+        new AlertDialog.Builder(this)
+                .setTitle("Hapus rekaman?")
+                .setMessage("Rekaman dan berkas GPX-nya akan dihapus permanen.")
+                .setPositiveButton("Hapus", new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface d, int w) {
+                        if (r.gpxPath != null) //noinspection ResultOfMethodCallIgnored
+                            new File(r.gpxPath).delete();
+                        db.delete(r.id);
+                        reload();
+                    }
+                })
+                .setNegativeButton("Batal", null)
+                .show();
+    }
+
     private void showDetail(final RideDb.Row r) {
         String msg = "Jarak: " + Fmt.km(r.distanceM) + " km\n"
                 + "Waktu gerak: " + Fmt.duration(r.movingMs) + "\n"
@@ -88,13 +105,18 @@ public class HistoryActivity extends Activity {
                 .setTitle(df.format(new Date(r.startMs)))
                 .setMessage(msg)
                 .setPositiveButton(R.string.close, null)
+                .setNeutralButton("Rute", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface d, int w) {
+                        startActivity(new android.content.Intent(HistoryActivity.this,
+                                SummaryActivity.class)
+                                .putExtra(SummaryActivity.EXTRA_ID, r.id));
+                    }
+                })
                 .setNegativeButton(R.string.delete, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface d, int w) {
-                        if (r.gpxPath != null) //noinspection ResultOfMethodCallIgnored
-                            new File(r.gpxPath).delete();
-                        db.delete(r.id);
-                        reload();
+                        konfirmasiHapus(r);
                     }
                 })
                 .show();

@@ -35,6 +35,36 @@ public class GpxWriter {
         if (++count % 10 == 0) w.flush();
     }
 
+    /**
+     * Tutup GPX yang terputus (HP mati / proses dibunuh) dengan menambahkan footer.
+     * Tanpa footer, banyak aplikasi peta menolak membuka berkasnya.
+     */
+    static void closeTruncated(java.io.File f) {
+        if (f == null || !f.exists()) return;
+        try {
+            String isi = baca(f);
+            if (isi.contains("</gpx>")) return;      // sudah utuh
+            StringBuilder sb = new StringBuilder(isi);
+            if (!isi.contains("</trkseg>")) sb.append("</trkseg>\n");
+            if (!isi.contains("</trk>")) sb.append("</trk>\n");
+            sb.append("</gpx>\n");
+            java.io.Writer w = new java.io.OutputStreamWriter(
+                    new java.io.FileOutputStream(f, false), "UTF-8");
+            w.write(sb.toString());
+            w.close();
+        } catch (Throwable ignored) { }
+    }
+
+    private static String baca(java.io.File f) throws java.io.IOException {
+        java.io.BufferedReader r = new java.io.BufferedReader(
+                new java.io.InputStreamReader(new java.io.FileInputStream(f), "UTF-8"));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = r.readLine()) != null) sb.append(line).append('\n');
+        r.close();
+        return sb.toString();
+    }
+
     public void close() {
         try {
             w.write("</trkseg></trk>\n</gpx>\n");

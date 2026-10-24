@@ -91,7 +91,10 @@ public class RideService extends Service implements LocationListener {
         @Override
         public void run() {
             if (state == State.IDLE) return;
-            if (++tick % 5 == 0) updateNotification();
+            if (++tick % 5 == 0) {
+                updateNotification();
+                saveSession();
+            }
             if (state == State.RECORDING) {
                 checkAutoPause();
                 checkAutoLap();
@@ -208,6 +211,7 @@ public class RideService extends Service implements LocationListener {
         lastAlertKmStep = 0;
         lastAlertMinStep = 0;
         state = State.RECORDING;
+        saveSession();
         acquireWakeLock();
         handler.removeCallbacks(ticker);
         handler.post(ticker);
@@ -265,11 +269,15 @@ public class RideService extends Service implements LocationListener {
             r.elevGainM = stats.elevGainM;
             r.gpxPath = gpxFile.getAbsolutePath();
             r.laps = encodeLaps(laps);
-            db.insert(r);
+            long id = db.insert(r);
+            Settings.setLastRideId(this, id);
+            SessionRecovery.clear(this);
         } else if (gpxFile != null) {
             //noinspection ResultOfMethodCallIgnored
             gpxFile.delete(); // rekaman terlalu pendek, buang
+            SessionRecovery.clear(this);
         }
+        SessionRecovery.clear(this);
         releaseWakeLock();
         state = State.IDLE;
         stopForeground(true);
@@ -363,6 +371,19 @@ public class RideService extends Service implements LocationListener {
                 Toast.makeText(RideService.this, msg, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    /**
+     * Simpan penanda sesi ke SharedPreferences. Kalau proses dibunuh di tengah gowes,
+     * App bisa memulihkan rekaman ini saat aplikasi dibuka lagi.
+     */
+    private void saveSession() {
+        if (state == State.IDLE || gpxFile == null) return;
+        try {
+            SessionRecovery.mark(this, gpxFile.getAbsolutePath(), startWall, getElapsedMs(),
+                    stats.distanceM, stats.movingMs, stats.maxSpeedMs, stats.elevGainM,
+                    encodeLaps(laps));
+        } catch (Throwable ignored) { }
     }
 
     /** Lap -> teks ringkas untuk satu kolom DB (tanpa tabel tambahan). */

@@ -35,9 +35,21 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name=".SummaryActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".SettingsActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+
+        <!-- Dipakai hanya untuk membagikan GPX lewat content:// (Android 7+ melarang file://) -->
+        <provider
+            android:name=".RideProvider"
+            android:authorities="id.cyclocomp.files"
+            android:exported="false"
+            android:grantUriPermissions="true" />
 
         <service
             android:name=".RideService"

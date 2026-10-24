@@ -58,6 +58,8 @@ public class MainActivity extends Activity implements RideService.Listener {
     private RideService service;
     private boolean bound;
     private int page;
+    private RideService.State prevState = RideService.State.IDLE;
+    private boolean summaryPending;
 
     private GestureDetector gestures;
     private View[] pageViews;
@@ -176,6 +178,11 @@ public class MainActivity extends Activity implements RideService.Listener {
             pageViews[i].setVisibility(i == 0 ? View.VISIBLE : View.GONE);
         }
         page = 0;
+        if (App.recovered) {
+            App.recovered = false;
+            Toast.makeText(this, "Rekaman sebelumnya dipulihkan ke Riwayat",
+                    Toast.LENGTH_LONG).show();
+        }
         buildDots();
         paintDots();
         refresh();
@@ -448,6 +455,20 @@ public class MainActivity extends Activity implements RideService.Listener {
 
         // titik hijau berkedip-tetap hanya saat merekam
         if (vRec != null) vRec.setVisibility(st == RideService.State.RECORDING ? View.VISIBLE : View.GONE);
+
+        // Saat perekaman berakhir, buka Ringkasan sekali (rute + angka akhir).
+        if (prevState != RideService.State.IDLE && st == RideService.State.IDLE) {
+            summaryPending = true;
+        }
+        prevState = st;
+        if (summaryPending && st == RideService.State.IDLE) {
+            summaryPending = false;
+            long id = Settings.lastRideId(this);
+            if (id > 0) {
+                startActivity(new Intent(this, SummaryActivity.class)
+                        .putExtra(SummaryActivity.EXTRA_ID, id));
+            }
+        }
 
         // ---------- lap ----------
         refreshLap(st);

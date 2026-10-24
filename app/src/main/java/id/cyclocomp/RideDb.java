@@ -85,6 +85,43 @@ public class RideDb extends SQLiteOpenHelper {
         return out;
     }
 
+    /** Satu baris berdasarkan id, atau null. */
+    public Row byId(long id) {
+        Cursor c = getReadableDatabase().query("rides", null, "id=?",
+                new String[]{String.valueOf(id)}, null, null, null);
+        try {
+            return c.moveToFirst() ? read(c) : null;
+        } finally {
+            c.close();
+        }
+    }
+
+    /** Rekaman terbaru, atau null kalau belum ada. */
+    public Row latest() {
+        Cursor c = getReadableDatabase().query("rides", null, null, null, null, null,
+                "start_ms DESC", "1");
+        try {
+            return c.moveToFirst() ? read(c) : null;
+        } finally {
+            c.close();
+        }
+    }
+
+    private Row read(Cursor c) {
+        Row r = new Row();
+        r.id = c.getLong(c.getColumnIndexOrThrow("id"));
+        r.startMs = c.getLong(c.getColumnIndexOrThrow("start_ms"));
+        r.durationMs = c.getLong(c.getColumnIndexOrThrow("duration_ms"));
+        r.movingMs = c.getLong(c.getColumnIndexOrThrow("moving_ms"));
+        r.distanceM = c.getDouble(c.getColumnIndexOrThrow("distance_m"));
+        r.maxSpeedMs = c.getDouble(c.getColumnIndexOrThrow("max_speed"));
+        r.elevGainM = c.getDouble(c.getColumnIndexOrThrow("elev_gain"));
+        r.gpxPath = c.getString(c.getColumnIndexOrThrow("gpx_path"));
+        int li = c.getColumnIndex("laps");
+        r.laps = li >= 0 && !c.isNull(li) ? c.getString(li) : null;
+        return r;
+    }
+
     public void delete(long id) {
         getWritableDatabase().delete("rides", "id=?", new String[]{String.valueOf(id)});
     }

@@ -23,8 +23,17 @@ import java.util.Locale;
 public class App extends Application {
     private static Thread.UncaughtExceptionHandler sistem;
 
+    /** True bila sesi gowes sebelumnya berhasil diselamatkan saat aplikasi dibuka. */
+    public static boolean recovered;
+
     @Override public void onCreate() {
         super.onCreate();
+
+        // Selamatkan rekaman yang terputus (proses dibunuh / HP restart) sebelum UI jalan.
+        try {
+            recovered = SessionRecovery.recover(this);
+        } catch (Throwable ignored) { }
+
         if (sistem == null) sistem = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override public void uncaughtException(Thread t, Throwable e) {

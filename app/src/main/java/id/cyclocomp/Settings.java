@@ -25,6 +25,7 @@ final class Settings {
     private static final String K_ALERT_KM    = "alert_km";     // km, 0 = mati
     private static final String K_ALERT_MIN   = "alert_min";    // menit, 0 = mati
     private static final String K_BEEP        = "beep";
+    private static final String K_LAST_RIDE   = "last_ride";
 
     // mode lap
     public static final int LAP_MANUAL = 0, LAP_DISTANCE = 1, LAP_TIME = 2;
@@ -77,6 +78,10 @@ final class Settings {
     /** Beri tahu tiap sekian menit; 0 = mati. */
     public static int alertMin(Context c) { return sp(c).getInt(K_ALERT_MIN, 0); }
     public static void setAlertMin(Context c, int v) { sp(c).edit().putInt(K_ALERT_MIN, v).apply(); }
+
+    /** Id rekaman terakhir yang disimpan (dipakai layar Ringkasan). */
+    public static long lastRideId(Context c) { return sp(c).getLong(K_LAST_RIDE, -1); }
+    public static void setLastRideId(Context c, long id) { sp(c).edit().putLong(K_LAST_RIDE, id).apply(); }
 
     /** Bunyi bip saat peringatan & lap. */
     public static boolean beep(Context c) { return sp(c).getBoolean(K_BEEP, true); }
