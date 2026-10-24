@@ -11,7 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -38,7 +38,7 @@ public class SummaryActivity extends Activity {
         db = new RideDb(this);
         row = id > 0 ? db.byId(id) : db.latest();
         if (row == null) {
-            Toast.makeText(this, "Rekaman tidak ditemukan", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.summary_missing, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -58,7 +58,8 @@ public class SummaryActivity extends Activity {
     }
 
     private void bind() {
-        SimpleDateFormat df = new SimpleDateFormat("EEEE, d MMM yyyy · HH:mm", Locale.getDefault());
+        DateFormat df = DateFormat.getDateTimeInstance(
+                DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault());
         ((TextView) findViewById(R.id.tvWhen)).setText(df.format(new Date(row.startMs)));
 
         ((TextView) findViewById(R.id.tvDist)).setText(Fmt.km(row.distanceM));
@@ -83,12 +84,13 @@ public class SummaryActivity extends Activity {
             wrap.setVisibility(View.GONE);
         } else {
             wrap.setVisibility(View.VISIBLE);
-            ((TextView) findViewById(R.id.tvLapCount)).setText(laps.size() + " lap");
+            ((TextView) findViewById(R.id.tvLapCount)).setText(
+                    getString(R.string.summary_laps, laps.size()));
             for (Lap l : laps) {
                 TextView t = new TextView(this);
-                t.setText("Lap " + l.index + "   " + Fmt.km(l.distanceM) + " km   "
-                        + Fmt.shortDuration(l.elapsedMs) + "   "
-                        + Fmt.speed(l.avgSpeedMs()) + " km/j");
+                t.setText(getString(R.string.summary_lap_row, l.index,
+                        Fmt.km(l.distanceM), Fmt.shortDuration(l.elapsedMs),
+                        Fmt.speed(l.avgSpeedMs())));
                 t.setTextColor(getResources().getColor(R.color.value));
                 t.setTextSize(13);
                 t.setPadding(0, dp(6), 0, dp(6));
@@ -108,19 +110,19 @@ public class SummaryActivity extends Activity {
         if (row == null || row.gpxPath == null) return;
         File f = new File(row.gpxPath);
         if (!f.exists()) {
-            Toast.makeText(this, "Berkas GPX tidak ada", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.gpx_missing, Toast.LENGTH_SHORT).show();
             return;
         }
         Uri uri = Uri.parse("content://" + RideProvider.AUTHORITY + "/" + f.getName());
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("application/gpx+xml");
         i.putExtra(Intent.EXTRA_STREAM, uri);
-        i.putExtra(Intent.EXTRA_SUBJECT, "Rekaman gowes " + f.getName());
+        i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject, f.getName()));
         i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         try {
-            startActivity(Intent.createChooser(i, "Bagikan rute GPX"));
+            startActivity(Intent.createChooser(i, getString(R.string.share_title)));
         } catch (Exception e) {
-            Toast.makeText(this, "Tidak ada aplikasi untuk membagikan", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.no_share_app, Toast.LENGTH_LONG).show();
         }
     }
 

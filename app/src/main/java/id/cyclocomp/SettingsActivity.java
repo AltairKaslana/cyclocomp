@@ -431,7 +431,7 @@ public class SettingsActivity extends Activity {
                                 paint();
                             }
                         })
-                        .setNegativeButton("Batal", null)
+                        .setNegativeButton(R.string.cancel, null)
                         .show();
                 break;
         }
@@ -464,7 +464,7 @@ public class SettingsActivity extends Activity {
                         d.dismiss();
                     }
                 })
-                .setNegativeButton("Batal", null)
+                .setNegativeButton(R.string.cancel, null)
                 .show();
     }
 

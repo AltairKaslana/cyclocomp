@@ -195,7 +195,7 @@ public class RideService extends Service implements LocationListener {
             startWall = System.currentTimeMillis();
             String stamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date(startWall));
             gpxFile = new File(dir, "ride_" + stamp + ".gpx");
-            gpx = new GpxWriter(gpxFile, "Ride " + stamp);
+            gpx = new GpxWriter(gpxFile, getString(R.string.gpx_creator) + " " + stamp);
             stats = new RideStats();
             lastFixElapsed = 0;
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, this);
@@ -300,11 +300,11 @@ public class RideService extends Service implements LocationListener {
 
     private void startBle() {
         if (!BleHr.hasPermission(this)) {
-            bleStatus = "Izin Bluetooth belum diberikan";
+            bleStatus = getString(R.string.ble_no_perm);
             return;
         }
         if (!BleHr.available(this)) {
-            bleStatus = "Perangkat tanpa Bluetooth";
+            bleStatus = getString(R.string.ble_no_bt);
             return;
         }
         stopBle();
@@ -567,8 +567,8 @@ public class RideService extends Service implements LocationListener {
         } else {
             b = new Notification.Builder(this);
         }
-        String text = Fmt.speed(stats.currentSpeedMs) + " km/j  |  "
-                + Fmt.km(stats.distanceM) + " km  |  " + Fmt.duration(getElapsedMs());
+        String text = getString(R.string.notif_line, Fmt.speed(stats.currentSpeedMs),
+                Fmt.km(stats.distanceM), Fmt.duration(getElapsedMs()));
         b.setSmallIcon(android.R.drawable.ic_menu_mylocation)
                 .setContentTitle(getString(R.string.notif_title))
                 .setContentText(text)

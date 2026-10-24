@@ -172,4 +172,41 @@
     <string name="ble_no_hr_char">Heart-rate characteristic missing</string>
     <string name="ble_connected">Connected: %s</string>
     <string name="ble_sensor_name">sensor</string>
+
+    <!-- riwayat: baris daftar & dialog detail -->
+    <string name="hist_item">%1$s\n%2$s km  •  %3$s  •  %4$s km/h</string>
+    <string name="hist_item_laps">%1$s\n%2$s km  •  %3$s  •  %4$s km/h  •  %5$d laps</string>
+    <string name="hist_lap_header">Laps:</string>
+    <string name="hist_lap_more">… and %d more laps</string>
+    <string name="hist_lap_row">%1$d. %2$s km  %3$s  %4$s km/h</string>
+    <string name="hist_delete_title">Delete ride?</string>
+    <string name="hist_delete_msg">The ride and its GPX file will be deleted permanently.</string>
+    <string name="hist_dist">Distance: %1$s km</string>
+    <string name="hist_moving">Moving time: %1$s</string>
+    <string name="hist_total">Total time: %1$s</string>
+    <string name="hist_avg">Average: %1$s km/h</string>
+    <string name="hist_max">Max: %1$s km/h</string>
+    <string name="hist_elev">Elevation: %1$s m</string>
+    <string name="hist_gpx_file">GPX file:\n%1$s</string>
+    <string name="btn_route">Route</string>
+
+    <!-- layar ringkasan -->
+    <string name="summary_missing">Ride not found</string>
+    <string name="summary_laps">%d laps</string>
+    <string name="summary_lap_row">Lap %1$d  •  %2$s km  •  %3$s  •  %4$s km/h</string>
+    <string name="gpx_missing">GPX file missing</string>
+    <string name="share_subject">Ride recording %1$s</string>
+    <string name="share_title">Share GPX route</string>
+    <string name="no_share_app">No app available to share</string>
+
+    <!-- layar utama -->
+    <string name="recovered_msg">Previous recording was recovered into History</string>
+    <string name="crash_title">Previous crash report</string>
+    <string name="lap_toast">Lap %1$d  •  %2$s km</string>
+    <string name="ride_prefix">Ride </string>
+
+    <!-- notifikasi & toast layar utama -->
+    <string name="notif_line">%1$s km/h  |  %2$s km  |  %3$s</string>
+    <string name="lap_badge">LAP %d</string>
+    <string name="gpx_creator">Cyclocomp</string>
 </resources>

@@ -183,8 +183,7 @@ public class MainActivity extends Activity implements RideService.Listener {
         page = 0;
         if (App.recovered) {
             App.recovered = false;
-            Toast.makeText(this, "Rekaman sebelumnya dipulihkan ke Riwayat",
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.recovered_msg, Toast.LENGTH_LONG).show();
         }
         buildDots();
         paintDots();
@@ -214,10 +213,10 @@ public class MainActivity extends Activity implements RideService.Listener {
             isi = sb.toString();
 
             new AlertDialog.Builder(this)
-                    .setTitle("Laporan crash sebelumnya")
+                    .setTitle(R.string.crash_title)
                     .setMessage(isi)
                     .setPositiveButton(R.string.close, null)
-                    .setNeutralButton("Hapus", new DialogInterface.OnClickListener() {
+                    .setNeutralButton(R.string.delete, new DialogInterface.OnClickListener() {
                         @Override public void onClick(DialogInterface d, int w) {
                             new java.io.File(App.crashPath(MainActivity.this)).delete();
                         }
@@ -524,7 +523,7 @@ public class MainActivity extends Activity implements RideService.Listener {
         long mv = cur == null ? 0 : cur.movingMs;
 
         tvLapBadge.setVisibility(View.VISIBLE);
-        tvLapBadge.setText("LAP " + idx);
+        tvLapBadge.setText(getString(R.string.lap_badge, idx));
         tvLapTitle.setText(getString(R.string.lap_current) + " " + idx);
         tvLapDist.setText(Fmt.km(d));
         tvLapTime.setText(Fmt.shortDuration(cur == null ? 0 : cur.elapsedMs));
@@ -540,9 +539,9 @@ public class MainActivity extends Activity implements RideService.Listener {
             lapEmpty.setVisibility(View.GONE);
             List<String> rows = new ArrayList<String>();
             for (Lap l : done) {
-                rows.add("Lap " + l.index + "   " + Fmt.km(l.distanceM) + " km   "
-                        + Fmt.shortDuration(l.elapsedMs) + "   "
-                        + Fmt.speed(l.avgSpeedMs()) + " km/j");
+                rows.add(getString(R.string.summary_lap_row, l.index,
+                        Fmt.km(l.distanceM), Fmt.shortDuration(l.elapsedMs),
+                        Fmt.speed(l.avgSpeedMs())));
             }
             lapList.setAdapter(new ArrayAdapter<String>(this,
                     android.R.layout.simple_list_item_1, rows));

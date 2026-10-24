@@ -10,7 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -19,7 +19,9 @@ public class HistoryActivity extends Activity {
     private RideDb db;
     private ListView list;
     private List<RideDb.Row> rows;
-    private final SimpleDateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm", Locale.getDefault());
+    /** Tanggal mengikuti bahasa perangkat, bukan pola tetap Indonesia/Inggris. */
+    private final DateFormat df = DateFormat.getDateTimeInstance(
+            DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +53,13 @@ public class HistoryActivity extends Activity {
         for (int i = 0; i < items.length; i++) {
             RideDb.Row r = rows.get(i);
             java.util.List<Lap> lp = RideService.decodeLaps(r.laps);
-            items[i] = df.format(new Date(r.startMs)) + "\n"
-                    + Fmt.km(r.distanceM) + " km  •  " + Fmt.duration(r.movingMs)
-                    + "  •  " + Fmt.speed(r.avgSpeedMs()) + " km/j"
-                    + (lp.isEmpty() ? "" : "  •  " + lp.size() + " lap");
+            items[i] = lp.isEmpty()
+                    ? getString(R.string.hist_item, df.format(new Date(r.startMs)),
+                            Fmt.km(r.distanceM), Fmt.duration(r.movingMs),
+                            Fmt.speed(r.avgSpeedMs()))
+                    : getString(R.string.hist_item_laps, df.format(new Date(r.startMs)),
+                            Fmt.km(r.distanceM), Fmt.duration(r.movingMs),
+                            Fmt.speed(r.avgSpeedMs()), lp.size());
         }
         list.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items));
     }
@@ -62,14 +67,16 @@ public class HistoryActivity extends Activity {
     /** Ringkasan lap: tiap baris jarak + waktu. Dibatasi 8 lap supaya dialog tidak terlalu panjang. */
     private String lapSummary(java.util.List<Lap> laps) {
         if (laps == null || laps.isEmpty()) return "";
-        StringBuilder sb = new StringBuilder("Lap:");
+        StringBuilder sb = new StringBuilder(getString(R.string.hist_lap_header));
         int n = 0;
         for (Lap l : laps) {
-            if (n >= 8) { sb.append("\n… dan ").append(laps.size() - n).append(" lap lagi"); break; }
-            sb.append("\n  ").append(l.index).append(". ")
-              .append(Fmt.km(l.distanceM)).append(" km  ")
-              .append(Fmt.shortDuration(l.elapsedMs)).append("  ")
-              .append(Fmt.speed(l.avgSpeedMs())).append(" km/j");
+            if (n >= 8) {
+                sb.append("\n").append(getString(R.string.hist_lap_more, laps.size() - n));
+                break;
+            }
+            sb.append("\n").append(getString(R.string.hist_lap_row, l.index,
+                    Fmt.km(l.distanceM), Fmt.shortDuration(l.elapsedMs),
+                    Fmt.speed(l.avgSpeedMs())));
             n++;
         }
         return sb.toString();
@@ -78,9 +85,9 @@ public class HistoryActivity extends Activity {
     /** Hapus butuh konfirmasi kedua: berkas GPX tidak bisa dipulihkan. */
     private void konfirmasiHapus(final RideDb.Row r) {
         new AlertDialog.Builder(this)
-                .setTitle("Hapus rekaman?")
-                .setMessage("Rekaman dan berkas GPX-nya akan dihapus permanen.")
-                .setPositiveButton("Hapus", new DialogInterface.OnClickListener() {
+                .setTitle(R.string.hist_delete_title)
+                .setMessage(R.string.hist_delete_msg)
+                .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface d, int w) {
                         if (r.gpxPath != null) //noinspection ResultOfMethodCallIgnored
                             new File(r.gpxPath).delete();
@@ -88,24 +95,24 @@ public class HistoryActivity extends Activity {
                         reload();
                     }
                 })
-                .setNegativeButton("Batal", null)
+                .setNegativeButton(R.string.cancel, null)
                 .show();
     }
 
     private void showDetail(final RideDb.Row r) {
-        String msg = "Jarak: " + Fmt.km(r.distanceM) + " km\n"
-                + "Waktu gerak: " + Fmt.duration(r.movingMs) + "\n"
-                + "Waktu total: " + Fmt.duration(r.durationMs) + "\n"
-                + "Rata-rata: " + Fmt.speed(r.avgSpeedMs()) + " km/j\n"
-                + "Maks: " + Fmt.speed((float) r.maxSpeedMs) + " km/j\n"
-                + "Tanjakan: " + Fmt.meters(r.elevGainM) + " m\n\n"
+        String msg = getString(R.string.hist_dist, Fmt.km(r.distanceM)) + "\n"
+                + getString(R.string.hist_moving, Fmt.duration(r.movingMs)) + "\n"
+                + getString(R.string.hist_total, Fmt.duration(r.durationMs)) + "\n"
+                + getString(R.string.hist_avg, Fmt.speed(r.avgSpeedMs())) + "\n"
+                + getString(R.string.hist_max, Fmt.speed((float) r.maxSpeedMs)) + "\n"
+                + getString(R.string.hist_elev, Fmt.meters(r.elevGainM)) + "\n\n"
                 + lapSummary(RideService.decodeLaps(r.laps))
-                + "\nFile GPX:\n" + r.gpxPath;
+                + "\n" + getString(R.string.hist_gpx_file, r.gpxPath);
         new AlertDialog.Builder(this)
                 .setTitle(df.format(new Date(r.startMs)))
                 .setMessage(msg)
                 .setPositiveButton(R.string.close, null)
-                .setNeutralButton("Rute", new DialogInterface.OnClickListener() {
+                .setNeutralButton(R.string.btn_route, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface d, int w) {
                         startActivity(new android.content.Intent(HistoryActivity.this,
