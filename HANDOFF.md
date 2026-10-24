@@ -254,11 +254,12 @@ Jalankan di minimal: 1 HP KitKat (API 19) dan 1 HP Android 7+ (idealnya juga And
 - Satuan internal selalu SI (m, m/s, ms); konversi ke km/j hanya di `Fmt`.
 - Tidak ada akses jaringan. Jika ditambah (peta online, upload), tambahkan izin `INTERNET` dan
   perhatikan TLS di KitKat (TLS 1.2 perlu diaktifkan manual / pakai library; banyak server menolak TLS lama).
-- String UI di `strings.xml`, bukan hardcode (pengecualian kecil: satuan "km/j" di notifikasi).
+- String UI di `strings.xml` (bawaan id) + `values-en/strings.xml`; satuan & tanggal ikut locale. Notifikasi memakai
+  `R.string.notif_line` (satu pola, bukan tempelan literal).
 
 ## 12. Roadmap (urutan disarankan) dan petunjuk implementasi
 
-**Status per v0.7.0 (24 Okt 2026): 1 ✅ · 2 ✅ · 3 ✅ · 4 ✅ (detak jantung) · 5 ✅ · 6 ✅ · 8 ✅ · 9 ✅ — sisa: 4b (kadensi/kecepatan CSC), 7 (peta osmdroid), 10 (lokalisasi).**
+**Status per v0.9.0 (24 Okt 2026): 1 ✅ · 2 ✅ · 3 ✅ · 4 ✅ (detak jantung) · 5 ✅ · 6 ✅ · 7 ✅ (peta ubin OSM) · 8 ✅ · 9 ✅ · 10 ✅ (lokalisasi) — sisa: 4b (kadensi/kecepatan CSC), Strava API.**
 
 1. ✅ **Perbaikan dasar**: kompilasi, uji perangkat, hapus `elapsed` tak terpakai, konfirmasi hapus riwayat,
    ikon launcher sendiri.
@@ -287,11 +288,18 @@ Jalankan di minimal: 1 HP KitKat (API 19) dan 1 HP Android 7+ (idealnya juga And
 5. ✅ **Ekspor/bagikan GPX** (`RideProvider`, authority `id.cyclocomp.files`): Android 7+ wajib `content://` via FileProvider (butuh `androidx.core` atau
    implementasi `ContentProvider` sendiri bila tetap tanpa AndroidX). Di KitKat `file://` masih bisa.
 6. ✅ **Lap/interval** dan aksi Jeda/Berhenti di notifikasi.
-7. **Peta offline** (osmdroid, minSdk 9) dan tampilan rute di detail riwayat. Perhatikan tile cache & izin jaringan.
+7. ✅ **Peta** (v0.8.0, `TileMapView` 316 baris — **tanpa osmdroid**, hanya ubin `tile.openstreetmap.org` + Web Mercator + LruCache/cache disk + pinch/geser).
+   Konsekuensi desain: izin `INTERNET` + `ACCESS_NETWORK_STATE` **wajib** ditambah (dulu aplikasi sepenuhnya offline), jadi peta
+   sekarang bergantung jaringan untuk ubin baru. Kalau gagal dimuat, `RouteView.drawBackground()` yang tampak (latar kisi),
+   dan ubin yang sudah ter-cache tetap tampil offline. Bisa dimatikan di Pengaturan → PETA.
+   Catatan: atribusi "© OpenStreetMap" digambar di sudut kanan bawah (syarat ketentuan OSM).
 8. ✅ **Barometer** (`Baro.java`; `TYPE_PRESSURE` + `SensorManager.getAltitude`, dikalibrasi ke GPS, koreksi bila selisih > 25 m).
 9. ✅ **Unit test `RideStats`** — dipilih **refactor**, bukan Robolectric: `onFix(Fix)` bebas kelas Android,
    jarak pakai haversine sendiri (`distanceM`). 14 tes di `app/src/test/.../RideStatsTest.java`, ikut dijalankan CI.
-10. **Lokalisasi** (`values-en`) dan layout adaptif.
+10. ✅ **Lokalisasi** (v0.9.0): semua teks layar di `res/values/strings.xml` (bawaan Indonesia) + `res/values-en/strings.xml`;
+   tanggal memakai `DateFormat.getDateTimeInstance(..., Locale.getDefault())`; satuan ikut bahasa (`km/jam` vs `km/h`,
+   `detik` vs `sec`); dialog, toast, dan notifikasi ikut. Catatan: `ContentProvider` **bukan** `Context` → `getString()`
+   harus lewat `getContext()`; metadata GPX (`gpx_creator`) sengaja tidak diterjemahkan.
 
 ## 13. Keputusan minSdk: 23 (Android 6.0+) — sudah diambil
 
