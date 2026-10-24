@@ -46,6 +46,7 @@ public class MainActivity extends Activity implements RideService.Listener {
     private static final int ANIM_MS = 180;
 
     private TextView tvStatus, tvLapBadge;
+    private View vRec;
     private TextView tvSpeed, tvDist, tvTime, tvAvg, tvMax, tvElev, tvAlt, tvGrade, tvGradeArrow;
     private TextView tvSpeed2, tvDist2, tvTime2, tvAvg2, tvMax2, tvElev2, tvAlt2;
     private TextView tvMoving, tvTotal, tvLapDist, tvLapTime, tvLapAvg, tvLapMoving, tvLapTitle;
@@ -93,8 +94,13 @@ public class MainActivity extends Activity implements RideService.Listener {
             }
         });
 
+        // font dibundel di assets: Barlow Condensed untuk angka, Barlow untuk label
+        Ui.fonts(getWindow().getDecorView(), this);
+        Ui.buttonFonts(getWindow().getDecorView(), this);
+
         pages = (ViewGroup) findViewById(R.id.pages);
         dots = (LinearLayout) findViewById(R.id.dots);
+        vRec = findViewById(R.id.vRec);
 
         tvStatus = (TextView) findViewById(R.id.tvStatus);
         tvLapBadge = (TextView) findViewById(R.id.tvLapBadge);
@@ -215,21 +221,29 @@ public class MainActivity extends Activity implements RideService.Listener {
     private void buildDots() {
         dots.removeAllViews();
         for (int i = 0; i < PAGE_COUNT; i++) {
-            TextView d = new TextView(this);
-            d.setText("●");
-            d.setTextSize(9);
-            d.setPadding(6, 0, 6, 0);
-            d.setTextColor(getResources().getColor(R.color.label));
+            View d = new View(this);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(18), dp(3));
+            lp.leftMargin = dp(3);
+            lp.rightMargin = dp(3);
+            d.setLayoutParams(lp);
             dots.addView(d);
         }
     }
 
+    /** Halaman aktif jadi garis oranye lebih panjang - pola khas aplikasi olahraga. */
     private void paintDots() {
         for (int i = 0; i < dots.getChildCount(); i++) {
-            TextView d = (TextView) dots.getChildAt(i);
-            d.setTextColor(getResources().getColor(i == page ? R.color.accent : R.color.label));
-            d.setAlpha(i == page ? 1f : 0.35f);
+            View d = dots.getChildAt(i);
+            boolean on = i == page;
+            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) d.getLayoutParams();
+            lp.width = dp(on ? 26 : 12);
+            d.setLayoutParams(lp);
+            d.setBackgroundResource(on ? R.drawable.dot_on : R.drawable.dot_off);
         }
+    }
+
+    private int dp(int v) {
+        return Math.round(getResources().getDisplayMetrics().density * v);
     }
 
     private void showPage(int target) {
@@ -431,6 +445,9 @@ public class MainActivity extends Activity implements RideService.Listener {
                 else tvStatus.setText(getString(R.string.status_ok, Math.round(service.getLastAccuracy())));
                 break;
         }
+
+        // titik hijau berkedip-tetap hanya saat merekam
+        if (vRec != null) vRec.setVisibility(st == RideService.State.RECORDING ? View.VISIBLE : View.GONE);
 
         // ---------- lap ----------
         refreshLap(st);

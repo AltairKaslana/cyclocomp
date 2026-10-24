@@ -1,95 +1,85 @@
 <resources>
     <!--
-      Tema gelap penuh: layar HP dipakai sebagai siklokomputer di luar ruangan,
-      dan tema hitam sekaligus menghemat baterai panel OLED.
-      Angka memakai "sans-serif-condensed" (Roboto Condensed, bawaan Android):
-      lebar per digit lebih sempit sehingga angka besar tetap muat dan mudah dibaca
-      sekilas - pendekatan yang sama dipakai siklokomputer Garmin/Wahoo.
+      Tema gelap, gaya Strava: hitam pekat, kartu abu-gelap membulat, satu aksen
+      oranye. Huruf memakai Barlow Condensed (angka) + Barlow (label) yang dibundel
+      di assets/fonts supaya tampil sama di semua versi Android, bukan bergantung
+      font sistem.
     -->
     <style name="AppTheme" parent="android:Theme.Holo.NoActionBar">
         <item name="android:windowBackground">@color/bg</item>
     </style>
 
-    <!-- label kecil di atas angka -->
+    <!-- label kecil di atas angka: huruf besar, renggang, abu -->
     <style name="Label">
-        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textSize">11sp</item>
         <item name="android:textColor">@color/label</item>
-        <item name="android:letterSpacing">0.12</item>
+        <item name="android:letterSpacing">0.14</item>
         <item name="android:gravity">center</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
-    <!-- nilai utama (dipakai halaman SEKILAS) -->
-    <style name="Value">
-        <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textSize">34sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/value</item>
-        <item name="android:gravity">center</item>
-    </style>
-
-    <!-- nilai sedang (baris 3 metrik kunci) -->
+    <!-- nilai sedang (baris metrik) -->
     <style name="ValueSmall">
-        <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textSize">26sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">24sp</item>
         <item name="android:textColor">@color/value</item>
         <item name="android:gravity">center</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
-    <!-- nilai besar (halaman LAP) -->
+    <!-- nilai besar (angka lap) -->
     <style name="ValueBig">
-        <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textSize">40sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">36sp</item>
         <item name="android:textColor">@color/value</item>
         <item name="android:gravity">center</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <!-- teks bilah status -->
     <style name="StatusBar">
-        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textColor">@color/label</item>
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:letterSpacing">0.1</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
-    <!-- tombol aksi utama (MULAI / JEDA / LANJUT) -->
+    <!-- tombol utama: kapsul oranye, teks gelap -->
     <style name="ActionBtnPrimary">
-        <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">17sp</item>
         <item name="android:textColor">@color/bg</item>
-        <item name="android:background">@color/accent</item>
+        <item name="android:background">@drawable/bg_btn_primary</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:paddingLeft">4dp</item>
+        <item name="android:paddingRight">4dp</item>
+    </style>
+
+    <!-- tombol sekunder: kapsul gelap, teks putih -->
+    <style name="ActionBtn">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/value</item>
+        <item name="android:background">@drawable/bg_btn</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
         <item name="android:paddingLeft">2dp</item>
         <item name="android:paddingRight">2dp</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:maxLines">1</item>
     </style>
 
-    <!-- tombol aksi sekunder (LAP / BERHENTI) -->
-    <style name="ActionBtn">
-        <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/value</item>
-        <item name="android:background">@color/surface</item>
-        <item name="android:paddingLeft">1dp</item>
-        <item name="android:paddingRight">1dp</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:maxLines">1</item>
-    </style>
-
-    <!-- tombol kecil pojok (RIWAYAT / PENGATURAN) -->
+    <!-- tautan kecil di bilah atas -->
     <style name="TinyBtn">
-        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textSize">11sp</item>
         <item name="android:textColor">@color/label</item>
         <item name="android:background">@android:color/transparent</item>
-        <item name="android:minHeight">1dp</item>
-        <item name="android:minWidth">1dp</item>
-        <item name="android:paddingLeft">6dp</item>
-        <item name="android:paddingRight">6dp</item>
         <item name="android:includeFontPadding">false</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:stateListAnimator">@null</item>
     </style>
 </resources>

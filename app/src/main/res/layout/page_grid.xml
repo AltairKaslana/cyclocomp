@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Halaman 2 "DETAIL": kisi 2x4 metrik lengkap. Dipakai sesekali, bukan
-  halaman utama - jadi boleh rapat tapi tetap terbaca.
+  Halaman 2 "DETAIL" - gaya Strava: satu kartu besar berisi kisi 2x4 dengan
+  pembatas tipis. Karena halaman rujukan, angka tetap jelas hierarkinya.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -13,126 +13,188 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-condensed"
-        android:letterSpacing="0.2"
-        android:paddingBottom="10dp"
+        android:letterSpacing="0.22"
+        android:paddingLeft="4dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="8dp"
         android:text="@string/page_detail"
         android:textColor="@color/label"
-        android:textSize="12sp" />
+        android:textSize="11sp" />
 
-    <!-- baris 1 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="horizontal"
-        android:baselineAligned="false">
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/bg_card"
+        android:orientation="vertical">
 
+        <!-- baris 1 -->
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_speed" />
-            <TextView android:id="@+id/tvSpeed2" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0,0" />
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/label_speed" />
+                <TextView android:id="@+id/tvSpeed2" style="@style/ValueSmall"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp" android:tag="num" android:text="0,0" />
+            </LinearLayout>
+
+            <View android:layout_width="1dp" android:layout_height="match_parent"
+                android:layout_marginTop="14dp" android:layout_marginBottom="14dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/label_avg" />
+                <TextView android:id="@+id/tvAvg2" style="@style/ValueSmall"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp" android:tag="num" android:text="0,0" />
+            </LinearLayout>
         </LinearLayout>
 
+        <View android:layout_width="match_parent" android:layout_height="1dp"
+            android:layout_marginLeft="14dp" android:layout_marginRight="14dp"
+            android:background="@color/divider" />
+
+        <!-- baris 2 -->
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_avg" />
-            <TextView android:id="@+id/tvAvg2" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0,0" />
-        </LinearLayout>
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:baselineAligned="false">
 
-    <!-- baris 2 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal"
-        android:baselineAligned="false">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/label_max" />
+                <TextView android:id="@+id/tvMax2" style="@style/ValueSmall"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp" android:tag="num" android:text="0,0" />
+            </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_max" />
-            <TextView android:id="@+id/tvMax2" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0,0" />
-        </LinearLayout>
+            <View android:layout_width="1dp" android:layout_height="match_parent"
+                android:layout_marginTop="14dp" android:layout_marginBottom="14dp"
+                android:background="@color/divider" />
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_distance" />
-            <TextView android:id="@+id/tvDist2" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0,00" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- baris 3 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal"
-        android:baselineAligned="false">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_moving" />
-            <TextView android:id="@+id/tvMoving" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0:00:00" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/label_distance" />
+                <TextView android:id="@+id/tvDist2" style="@style/ValueSmall"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp" android:tag="num" android:text="0,00" />
+            </LinearLayout>
         </LinearLayout>
 
+        <View android:layout_width="match_parent" android:layout_height="1dp"
+            android:layout_marginLeft="14dp" android:layout_marginRight="14dp"
+            android:background="@color/divider" />
+
+        <!-- baris 3 -->
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_total" />
-            <TextView android:id="@+id/tvTotal" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0:00:00" />
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/label_moving" />
+                <TextView android:id="@+id/tvMoving" style="@style/ValueSmall"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp" android:tag="num" android:text="0:00:00" />
+            </LinearLayout>
+
+            <View android:layout_width="1dp" android:layout_height="match_parent"
+                android:layout_marginTop="14dp" android:layout_marginBottom="14dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/label_total" />
+                <TextView android:id="@+id/tvTotal" style="@style/ValueSmall"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp" android:tag="num" android:text="0:00:00" />
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
 
-    <!-- baris 4 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal"
-        android:baselineAligned="false">
+        <View android:layout_width="match_parent" android:layout_height="1dp"
+            android:layout_marginLeft="14dp" android:layout_marginRight="14dp"
+            android:background="@color/divider" />
 
+        <!-- baris 4 -->
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_elev" />
-            <TextView android:id="@+id/tvElev2" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" />
-        </LinearLayout>
+            android:orientation="horizontal"
+            android:baselineAligned="false">
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_alt" />
-            <TextView android:id="@+id/tvAlt2" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="--" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/label_elev" />
+                <TextView android:id="@+id/tvElev2" style="@style/ValueSmall"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp" android:tag="num" android:text="0" />
+            </LinearLayout>
+
+            <View android:layout_width="1dp" android:layout_height="match_parent"
+                android:layout_marginTop="14dp" android:layout_marginBottom="14dp"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/label_alt" />
+                <TextView android:id="@+id/tvAlt2" style="@style/ValueSmall"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp" android:tag="num" android:text="--" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

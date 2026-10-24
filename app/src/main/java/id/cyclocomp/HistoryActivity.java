@@ -25,6 +25,7 @@ public class HistoryActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
+        Ui.fonts(getWindow().getDecorView(), this);
         setTitle(R.string.title_history);
         db = new RideDb(this);
         list = (ListView) findViewById(R.id.list);

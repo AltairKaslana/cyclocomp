@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Susunan vertikal (bukan posisi mengambang) supaya tidak ada elemen yang saling
-  menimpa di ukuran layar apa pun:
+  Gaya Strava: bilah atas tipis, konten berkartu, aksi berbentuk kapsul.
 
-    [ bilah status + tombol kecil ]
-    [ wadah halaman (berat 1)     ]
-    [ titik indikator             ]
-    [ tombol aksi                 ]
+    [ ● MEREKAM        LAP 1     RIWAYAT  PENGATURAN ]
+    [            wadah halaman (berat 1)             ]
+    [              — ● ·  (indikator)                ]
+    [  ( LAP )      ( MULAI )       ( STOP )         ]
 
-  Ketiga halaman ditumpuk di satu FrameLayout; HANYA SATU yang terlihat, sisanya
-  GONE (diatur di MainActivity.initPages/showPage).
+  Hanya satu halaman terlihat pada satu waktu; visibility diatur MainActivity.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -17,16 +15,22 @@
     android:orientation="vertical"
     android:background="@color/bg">
 
-    <!-- ===== bilah status ===== -->
+    <!-- ===== bilah atas ===== -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingLeft="14dp"
-        android:paddingRight="4dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="4dp">
+        android:paddingLeft="16dp"
+        android:paddingRight="4dp">
+
+        <View
+            android:id="@+id/vRec"
+            android:layout_width="7dp"
+            android:layout_height="7dp"
+            android:layout_marginRight="7dp"
+            android:background="@drawable/rec_dot"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/tvStatus"
@@ -42,23 +46,22 @@
             style="@style/StatusBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
+            android:layout_marginRight="6dp"
+            android:textColor="@color/accent"
             android:visibility="gone" />
 
         <Button
             android:id="@+id/btnHistory"
             style="@style/TinyBtn"
             android:layout_width="wrap_content"
-            android:layout_height="34dp"
+            android:layout_height="40dp"
             android:text="@string/btn_history" />
 
         <Button
             android:id="@+id/btnSettings"
             style="@style/TinyBtn"
             android:layout_width="wrap_content"
-            android:layout_height="34dp"
-            android:layout_marginLeft="2dp"
+            android:layout_height="40dp"
             android:text="@string/btn_settings" />
     </LinearLayout>
 
@@ -95,8 +98,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:orientation="horizontal"
-        android:paddingTop="2dp"
-        android:paddingBottom="4dp" />
+        android:paddingTop="4dp"
+        android:paddingBottom="10dp" />
 
     <!-- ===== tombol aksi ===== -->
     <LinearLayout
@@ -104,34 +107,34 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:paddingBottom="12dp">
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp"
+        android:paddingBottom="16dp">
 
         <Button
             android:id="@+id/btnLap"
             style="@style/ActionBtn"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="54dp"
+            android:layout_height="52dp"
             android:text="@string/btn_lap" />
 
         <Button
             android:id="@+id/btnStartPause"
             style="@style/ActionBtnPrimary"
             android:layout_width="0dp"
-            android:layout_weight="1.35"
-            android:layout_height="54dp"
-            android:layout_marginLeft="8dp"
+            android:layout_weight="1.5"
+            android:layout_height="52dp"
+            android:layout_marginLeft="10dp"
             android:text="@string/btn_start" />
 
         <Button
             android:id="@+id/btnStop"
             style="@style/ActionBtn"
             android:layout_width="0dp"
-            android:layout_weight="1.1"
-            android:layout_height="54dp"
-            android:layout_marginLeft="8dp"
+            android:layout_weight="1"
+            android:layout_height="52dp"
+            android:layout_marginLeft="10dp"
             android:text="@string/btn_stop" />
     </LinearLayout>
 </LinearLayout>

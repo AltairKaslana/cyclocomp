@@ -46,6 +46,7 @@ public class SettingsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        Ui.fonts(getWindow().getDecorView(), this);
         setTitle(R.string.settings_title);
 
         rows.add(new Row(ROW_AUTOPAUSE, R.string.settings_autopause));

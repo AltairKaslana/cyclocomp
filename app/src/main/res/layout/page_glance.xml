@@ -1,20 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Halaman 1 "SEKILAS": satu angka dominan (kecepatan) + 3 metrik kunci.
-  Inilah halaman yang dilihat saat gowes - hierarki jelas, angka besar.
+  Halaman 1 "SEKILAS" - gaya Strava.
+  Kecepatan sebagai angka dominan (putih, Barlow Condensed), gradien sebagai pil
+  kecil di atasnya, lalu satu kartu berisi tiga metrik berkunci dengan pembatas tipis.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp">
+    android:paddingLeft="14dp"
+    android:paddingRight="14dp">
+
+    <!-- pil gradien -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_pill"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp">
+
+        <TextView
+            android:id="@+id/tvGradeArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:text="→"
+            android:textColor="@color/accent_soft"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvGrade"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:paddingLeft="5dp"
+            android:tag="num"
+            android:text="0,0"
+            android:textColor="@color/value"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:paddingLeft="2dp"
+            android:text="@string/unit_grade"
+            android:textColor="@color/label"
+            android:textSize="12sp" />
+    </LinearLayout>
 
     <!-- kecepatan: angka dominan -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1.5"
+        android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -22,65 +65,28 @@
             android:id="@+id/tvSpeed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-condensed"
+            android:includeFontPadding="false"
+            android:tag="num"
             android:text="0,0"
-            android:textColor="@color/accent"
-            android:textSize="118sp"
-            android:textStyle="bold" />
+            android:textColor="@color/value"
+            android:textSize="112sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-condensed"
+            android:layout_marginTop="2dp"
+            android:letterSpacing="0.18"
             android:text="@string/unit_speed"
             android:textColor="@color/label"
-            android:textSize="16sp"
-            android:letterSpacing="0.15" />
+            android:textSize="13sp" />
     </LinearLayout>
 
-    <!-- gradien: dibaca sebagai arah tanjakan, bukan angka biasa -->
+    <!-- kartu tiga metrik kunci -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.7"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/tvGradeArrow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-condensed"
-            android:textColor="@color/value"
-            android:textSize="34sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvGrade"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-condensed"
-            android:paddingLeft="6dp"
-            android:text="0,0"
-            android:textColor="@color/value"
-            android:textSize="34sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-condensed"
-            android:paddingLeft="4dp"
-            android:text="@string/unit_grade"
-            android:textColor="@color/label"
-            android:textSize="18sp" />
-    </LinearLayout>
-
-    <!-- 3 metrik kunci, sejajar rapi -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="88dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/bg_card"
         android:orientation="horizontal"
         android:baselineAligned="false">
 
@@ -90,9 +96,15 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_distance" />
-            <TextView android:id="@+id/tvDist" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0,00" />
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_distance" />
+            <TextView android:id="@+id/tvDist" style="@style/ValueSmall"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="4dp" android:tag="num" android:text="0,00" />
         </LinearLayout>
+
+        <View android:layout_width="1dp" android:layout_height="34dp"
+            android:layout_gravity="center_vertical" android:background="@color/divider" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -100,9 +112,15 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_time" />
-            <TextView android:id="@+id/tvTime" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0:00:00" />
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_time" />
+            <TextView android:id="@+id/tvTime" style="@style/ValueSmall"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="4dp" android:tag="num" android:text="0:00:00" />
         </LinearLayout>
+
+        <View android:layout_width="1dp" android:layout_height="34dp"
+            android:layout_gravity="center_vertical" android:background="@color/divider" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -110,8 +128,11 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_avg" />
-            <TextView android:id="@+id/tvAvg" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0,0" />
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_avg" />
+            <TextView android:id="@+id/tvAvg" style="@style/ValueSmall"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="4dp" android:tag="num" android:text="0,0" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

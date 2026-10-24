@@ -1,124 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Halaman 3 "LAP": angka lap yang sedang berjalan (besar) + riwayat lap.
-  Dipakai saat ingin tahu performa per segmen, misal tiap tanjakan.
+  Halaman 3 "LAP" - gaya Strava: kartu lap berjalan (jarak + waktu besar)
+  dengan kartu kecil di bawahnya, lalu daftar lap selesai.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp">
+    android:paddingLeft="14dp"
+    android:paddingRight="14dp">
 
     <TextView
         android:id="@+id/tvLapTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-condensed"
-        android:letterSpacing="0.2"
+        android:letterSpacing="0.22"
+        android:paddingLeft="4dp"
+        android:paddingTop="4dp"
         android:paddingBottom="8dp"
         android:text="@string/lap_current"
-        android:textColor="@color/label"
-        android:textSize="12sp" />
+        android:textColor="@color/accent"
+        android:textSize="11sp" />
 
-    <!-- lap berjalan: jarak dominan -->
+    <!-- kartu lap berjalan -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:baselineAligned="false">
+        android:background="@drawable/bg_card"
+        android:orientation="vertical"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1.2"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_distance" />
-            <TextView
-                android:id="@+id/tvLapDist"
-                style="@style/ValueBig"
-                android:layout_width="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="0,00" />
+                android:layout_weight="1.15"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/label_distance" />
+                <TextView android:id="@+id/tvLapDist" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp" android:tag="num" android:text="0,00" />
+            </LinearLayout>
+
+            <View android:layout_width="1dp" android:layout_height="42dp"
+                android:layout_gravity="center_vertical" android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/label_lap_time" />
+                <TextView android:id="@+id/tvLapTime" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp" android:tag="num" android:text="0:00" />
+            </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_lap_time" />
-            <TextView
-                android:id="@+id/tvLapTime"
-                style="@style/ValueBig"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0:00" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="10dp"
-        android:paddingBottom="8dp"
-        android:baselineAligned="false">
+        <View android:layout_width="match_parent" android:layout_height="1dp"
+            android:layout_marginLeft="14dp" android:layout_marginRight="14dp"
+            android:layout_marginTop="10dp" android:layout_marginBottom="10dp"
+            android:background="@color/divider" />
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_lap_avg" />
-            <TextView
-                android:id="@+id/tvLapAvg"
-                style="@style/ValueSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0,0" />
-        </LinearLayout>
+            android:orientation="horizontal"
+            android:baselineAligned="false">
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_lap_moving" />
-            <TextView
-                android:id="@+id/tvLapMoving"
-                style="@style/ValueSmall"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="0:00" />
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/label_lap_avg" />
+                <TextView android:id="@+id/tvLapAvg" style="@style/ValueSmall"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp" android:tag="num" android:text="0,0" />
+            </LinearLayout>
+
+            <View android:layout_width="1dp" android:layout_height="28dp"
+                android:layout_gravity="center_vertical" android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/label_lap_moving" />
+                <TextView android:id="@+id/tvLapMoving" style="@style/ValueSmall"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp" android:tag="num" android:text="0:00" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-condensed"
-        android:letterSpacing="0.2"
-        android:paddingTop="6dp"
-        android:paddingBottom="4dp"
+        android:letterSpacing="0.22"
+        android:paddingLeft="4dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="6dp"
         android:text="@string/lap_done"
         android:textColor="@color/label"
-        android:textSize="12sp" />
+        android:textSize="11sp" />
 
     <ListView
         android:id="@+id/lapList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:divider="@color/label"
-        android:dividerHeight="1dp" />
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/bg_card"
+        android:divider="@color/divider"
+        android:dividerHeight="1dp"
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp" />
 
     <TextView
         android:id="@+id/lapEmpty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp"
+        android:padding="16dp"
         android:text="@string/lap_none"
         android:textColor="@color/label"
         android:textSize="13sp"
