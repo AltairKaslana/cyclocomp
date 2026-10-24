@@ -32,6 +32,7 @@ public class SettingsActivity extends Activity {
     private static final int R_ALERT_KM = 7, R_ALERT_MIN = 8, R_BEEP = 9;
     private static final int R_RESET = 10;
     private static final int R_HR = 11, R_HR_FORGET = 12;
+    private static final int R_STRAVA_ID = 21, R_STRAVA_SECRET = 22, R_STRAVA_LINK = 23;
     private static final int R_MAP = 13;
 
     private static final int REQ_BLE = 71;
@@ -79,6 +80,24 @@ public class SettingsActivity extends Activity {
 
         group(getString(R.string.group_map));
         switchRow(R_MAP, R.string.settings_map, getString(R.string.sum_map));
+
+        group(getString(R.string.group_strava));
+        valueRow(R_STRAVA_ID, R.string.settings_strava_id, getString(R.string.sum_strava_id));
+        valueRow(R_STRAVA_SECRET, R.string.settings_strava_secret, getString(R.string.sum_strava_secret));
+        valueRow(R_STRAVA_LINK, StravaStore.connected(this)
+                        ? R.string.settings_strava_unlink : R.string.settings_strava_link,
+                StravaStore.connected(this)
+                        ? getString(R.string.sum_strava_unlink) : getString(R.string.sum_strava_link));
+
+        TextView sv = new TextView(this);
+        sv.setText(StravaStore.connected(this)
+                ? getString(R.string.strava_status_on, StravaStore.athlete(this))
+                : getString(R.string.strava_status_off));
+        sv.setTextColor(getResources().getColor(R.color.label));
+        sv.setTextSize(12);
+        sv.setPadding(dp(16), dp(10), dp(16), dp(4));
+        Ui.fonts(sv, this);
+        groups.addView(sv);
 
         group(getString(R.string.group_other));
         valueRow(R_RESET, R.string.settings_reset, getString(R.string.sum_reset));
@@ -279,6 +298,14 @@ public class SettingsActivity extends Activity {
                 return n.isEmpty() ? getString(R.string.hr_none) : n;
             }
             case R_HR_FORGET: return "";
+            case R_STRAVA_ID:
+                String id = StravaStore.clientId(this);
+                return id.isEmpty() ? "-" : id;
+            case R_STRAVA_SECRET:
+                // rahasia tidak pernah ditampilkan utuh; cukup tanda sudah terisi
+                return StravaStore.clientSecret(this).isEmpty() ? "-"
+                        : getString(R.string.strava_secret_set);
+            case R_STRAVA_LINK: return "";
             default:          return "";
         }
     }
@@ -412,6 +439,28 @@ public class SettingsActivity extends Activity {
                         })
                         .show();
                 break;
+            case R_STRAVA_ID:
+                askText(R.string.settings_strava_id, StravaStore.clientId(this),
+                        R.string.strava_id_hint, new Text() {
+                    @Override public void set(String v) {
+                        StravaStore.clientId(SettingsActivity.this, v);
+                        paint();
+                    }
+                });
+                break;
+            case R_STRAVA_SECRET:
+                askText(R.string.settings_strava_secret, StravaStore.clientSecret(this),
+                        R.string.strava_secret_hint, new Text() {
+                    @Override public void set(String v) {
+                        StravaStore.clientSecret(SettingsActivity.this, v);
+                        paint();
+                    }
+                });
+                break;
+            case R_STRAVA_LINK:
+                if (StravaStore.connected(this)) unlinkStrava();
+                else linkStrava();
+                break;
             case R_RESET:
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.settings_reset)
@@ -438,6 +487,84 @@ public class SettingsActivity extends Activity {
     }
 
     private interface Pick { void set(int index); }
+
+    private interface Text { void set(String value); }
+
+    // ---------- Strava ----------
+
+    /**
+     * Minta izin ke Strava.
+     *
+     * Seluruh alur berjalan di thread latar: membuka peramban, menunggu pengalihan kembali
+     * ke 127.0.0.1, lalu menukar kode dengan token. Kalau ditahan di thread UI, aplikasi
+     * akan membeku selama pengguna login - dan ANR lebih buruk daripada galat.
+     */
+    private void linkStrava() {
+        if (StravaStore.clientId(this).isEmpty()) {
+            Toast.makeText(this, R.string.strava_need_id, Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (StravaStore.clientSecret(this).isEmpty()) {
+            Toast.makeText(this, R.string.strava_need_secret, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        final android.app.ProgressDialog pd = new android.app.ProgressDialog(this);
+        pd.setMessage(getString(R.string.strava_uploading));
+        pd.setCancelable(false);
+        pd.show();
+
+        new Thread(new Runnable() {
+            @Override public void run() {
+                final String err = Strava.runAuth(SettingsActivity.this);
+                runOnUiThread(new Runnable() {
+                    @Override public void run() {
+                        pd.dismiss();
+                        paint();
+                        Toast.makeText(SettingsActivity.this,
+                                err == null ? R.string.strava_authorized : err,
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void unlinkStrava() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.settings_strava_unlink)
+                .setMessage(R.string.sum_strava_unlink)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.hr_forget_btn, new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface d, int w) {
+                        StravaStore.clearTokens(SettingsActivity.this);
+                        paint();
+                        Toast.makeText(SettingsActivity.this, R.string.strava_unlinked,
+                                Toast.LENGTH_LONG).show();
+                    }
+                })
+                .show();
+    }
+
+    /** Dialog isian teks satu baris, dipakai untuk Client ID dan Client Secret. */
+    private void askText(int titleRes, String current, int hintRes, final Text out) {
+        final android.widget.EditText et = new android.widget.EditText(this);
+        et.setInputType(android.text.InputType.TYPE_CLASS_TEXT
+                | android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        if (current != null && !current.isEmpty()) et.setText(current);
+        et.setHint(hintRes);
+        Ui.fonts(et, this);
+        new AlertDialog.Builder(this)
+                .setTitle(titleRes)
+                .setView(et)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface d, int w) {
+                        out.set(et.getText() == null ? "" : et.getText().toString().trim());
+                    }
+                })
+                .show();
+    }
 
     private static int nearest(float[] vals, float v) {
         int best = 0;

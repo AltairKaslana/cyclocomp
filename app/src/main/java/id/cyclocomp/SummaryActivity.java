@@ -59,6 +59,11 @@ public class SummaryActivity extends Activity {
         findViewById(R.id.btnShareCard).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { shareCard(); }
         });
+        Button strava = (Button) findViewById(R.id.btnStrava);
+        strava.setVisibility(StravaStore.connected(this) ? View.VISIBLE : View.GONE);
+        strava.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { uploadStrava(); }
+        });
         findViewById(R.id.btnShare).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { share(); }
         });
@@ -195,6 +200,40 @@ public class SummaryActivity extends Activity {
         } catch (Exception e) {
             Toast.makeText(this, R.string.no_share_app, Toast.LENGTH_LONG).show();
         }
+    }
+
+    /**
+     * Unggah GPX gowes ini ke Strava.
+     *
+     * Berjalan di thread latar karena unggahan multipart + penanyaan status bisa memakan
+     * waktu puluhan detik; kalau di thread UI aplikasi akan ANR.
+     */
+    private void uploadStrava() {
+        if (row == null || row.gpxPath == null) return;
+        final File gpx = new File(row.gpxPath);
+        if (!gpx.exists()) {
+            Toast.makeText(this, R.string.gpx_missing, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        final android.app.ProgressDialog pd = new android.app.ProgressDialog(this);
+        pd.setMessage(getString(R.string.strava_uploading));
+        pd.setCancelable(false);
+        pd.show();
+
+        new Thread(new Runnable() {
+            @Override public void run() {
+                final String err = Strava.upload(SummaryActivity.this, gpx);
+                runOnUiThread(new Runnable() {
+                    @Override public void run() {
+                        pd.dismiss();
+                        Toast.makeText(SummaryActivity.this,
+                                err == null ? R.string.strava_uploaded : err,
+                                err == null ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        }).start();
     }
 
     private int dp(int v) {

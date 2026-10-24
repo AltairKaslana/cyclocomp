@@ -132,6 +132,7 @@
     <string name="baro_off">No barometer on this phone — climbs use GPS altitude.</string>
 
     <!-- dialog umum -->
+    <string name="save">Save</string>
     <string name="yes">Yes</string>
     <string name="cancel">Cancel</string>
     <string name="reset_msg">Restore all settings to defaults?</string>
@@ -227,4 +228,39 @@
     <string name="card_failed">Could not create the share image</string>
     <string name="card_share_title">Share ride card</string>
     <string name="card_share_subject">Ride card %1$s</string>
+
+    <!-- Strava -->
+    <string name="group_strava">STRAVA</string>
+    <string name="settings_strava_id">Client ID</string>
+    <string name="sum_strava_id">Create an app at strava.com/settings/api</string>
+    <string name="settings_strava_secret">Client Secret</string>
+    <string name="sum_strava_secret">Your Strava application secret</string>
+    <string name="settings_strava_link">Connect Strava account</string>
+    <string name="settings_strava_unlink">Disconnect Strava account</string>
+    <string name="sum_strava_link">The consent page opens in your browser</string>
+    <string name="sum_strava_unlink">Remove the token from this device</string>
+    <string name="strava_status_on">Connected as %1$s</string>
+    <string name="strava_status_off">Not connected</string>
+    <string name="strava_id_hint">e.g. 123432</string>
+    <string name="strava_secret_hint">paste here</string>
+    <string name="strava_secret_set">saved</string>
+    <string name="strava_need_id">Enter the Client ID first</string>
+    <string name="strava_need_secret">Enter the Client Secret first</string>
+    <string name="strava_auth_empty">Strava did not return an authorization code</string>
+    <string name="strava_auth_denied">Permission was denied on Strava</string>
+    <string name="strava_auth_timeout">Strava sign-in was not completed</string>
+    <string name="strava_auth_done">Done. You can go back to Cyclocomp.</string>
+    <string name="strava_auth_failed">Token exchange failed</string>
+    <string name="strava_authorized">Strava connected</string>
+    <string name="strava_network">Network unavailable</string>
+    <string name="strava_reauth">Strava session expired, connect again</string>
+    <string name="strava_failed">Strava failed</string>
+    <string name="strava_not_ready">Strava is not ready</string>
+    <string name="strava_upload_failed">Upload to Strava failed</string>
+    <string name="strava_upload_slow">Strava is still processing, check History later</string>
+    <string name="strava_ratelimit">Strava rate limit reached, try again later</string>
+    <string name="btn_strava_upload">UPLOAD TO STRAVA</string>
+    <string name="strava_uploading">Uploading to Strava…</string>
+    <string name="strava_uploaded">Sent to Strava</string>
+    <string name="strava_unlinked">Strava disconnected</string>
 </resources>

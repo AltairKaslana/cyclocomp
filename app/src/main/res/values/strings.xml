@@ -130,6 +130,7 @@
     <string name="baro_off">HP ini tanpa barometer — tanjakan memakai ketinggian GPS.</string>
 
     <!-- dialog umum -->
+    <string name="save">Simpan</string>
     <string name="yes">Ya</string>
     <string name="cancel">Batal</string>
     <string name="reset_msg">Kembalikan semua pengaturan ke nilai bawaan?</string>
@@ -226,4 +227,39 @@
     <string name="card_failed">Gambar kartu gagal dibuat</string>
     <string name="card_share_title">Bagikan kartu gowes</string>
     <string name="card_share_subject">Kartu gowes %1$s</string>
+
+    <!-- Strava -->
+    <string name="group_strava">STRAVA</string>
+    <string name="settings_strava_id">Client ID</string>
+    <string name="sum_strava_id">Buat aplikasi di strava.com/settings/api</string>
+    <string name="settings_strava_secret">Client Secret</string>
+    <string name="sum_strava_secret">Kunci rahasia aplikasi Strava</string>
+    <string name="settings_strava_link">Sambungkan akun Strava</string>
+    <string name="settings_strava_unlink">Putuskan akun Strava</string>
+    <string name="sum_strava_link">Halaman izin dibuka di peramban</string>
+    <string name="sum_strava_unlink">Hapus token dari perangkat ini</string>
+    <string name="strava_status_on">Tersambung sebagai %1$s</string>
+    <string name="strava_status_off">Belum tersambung</string>
+    <string name="strava_id_hint">misalnya 123432</string>
+    <string name="strava_secret_hint">tempel di sini</string>
+    <string name="strava_secret_set">tersimpan</string>
+    <string name="strava_need_id">Isi Client ID lebih dulu</string>
+    <string name="strava_need_secret">Isi Client Secret lebih dulu</string>
+    <string name="strava_auth_empty">Strava tidak mengirim kode otorisasi</string>
+    <string name="strava_auth_denied">Izin ditolak di halaman Strava</string>
+    <string name="strava_auth_timeout">Login Strava tidak diselesaikan</string>
+    <string name="strava_auth_done">Selesai. Silakan kembali ke Cyclocomp.</string>
+    <string name="strava_auth_failed">Penukaran token gagal</string>
+    <string name="strava_authorized">Strava tersambung</string>
+    <string name="strava_network">Jaringan tidak tersedia</string>
+    <string name="strava_reauth">Sesi Strava berakhir, sambungkan lagi</string>
+    <string name="strava_failed">Strava gagal</string>
+    <string name="strava_not_ready">Strava belum siap</string>
+    <string name="strava_upload_failed">Unggahan ke Strava gagal</string>
+    <string name="strava_upload_slow">Strava masih memproses, periksa Riwayat nanti</string>
+    <string name="strava_ratelimit">Batas permintaan Strava tercapai, coba lagi nanti</string>
+    <string name="btn_strava_upload">UNGGAH KE STRAVA</string>
+    <string name="strava_uploading">Mengunggah ke Strava…</string>
+    <string name="strava_uploaded">Terkirim ke Strava</string>
+    <string name="strava_unlinked">Strava diputus</string>
 </resources>
