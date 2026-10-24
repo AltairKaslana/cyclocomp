@@ -63,6 +63,8 @@ public class RideService extends Service implements LocationListener {
     private LocationManager lm;
     private PowerManager.WakeLock wakeLock;
     private RideDb db;
+    private BleHr ble;
+    private String bleStatus;
     private GpxWriter gpx;
     private File gpxFile;
     private Listener listener;
@@ -139,6 +141,7 @@ public class RideService extends Service implements LocationListener {
         if (gpx != null) { gpx.close(); gpx = null; }
         releaseWakeLock();
         if (baro != null) { baro.stop(); baro = null; }
+        stopBle();
         if (tone != null) { tone.release(); tone = null; }
         db.close();
         super.onDestroy();
@@ -216,6 +219,7 @@ public class RideService extends Service implements LocationListener {
         lastAlertMinStep = 0;
         state = State.RECORDING;
         if (baro != null) baro.start();
+        startBle();
         saveSession();
         acquireWakeLock();
         handler.removeCallbacks(ticker);
@@ -284,11 +288,62 @@ public class RideService extends Service implements LocationListener {
         }
         SessionRecovery.clear(this);
         if (baro != null) baro.stop();
+        stopBle();
         releaseWakeLock();
         state = State.IDLE;
         stopForeground(true);
         stopSelf();
         notifyUi();
+    }
+
+    // ---------- sensor detak jantung ----------
+
+    private void startBle() {
+        if (!BleHr.hasPermission(this)) {
+            bleStatus = "Izin Bluetooth belum diberikan";
+            return;
+        }
+        if (!BleHr.available(this)) {
+            bleStatus = "Perangkat tanpa Bluetooth";
+            return;
+        }
+        stopBle();
+        ble = new BleHr(this, new BleHr.Callback() {
+            @Override
+            public void onHr(final int bpm) {
+                // callback GATT datang dari thread lain; pindahkan ke main thread
+                handler.post(new Runnable() {
+                    @Override public void run() { stats.setHr(bpm); notifyUi(); }
+                });
+            }
+
+            @Override
+            public void onStatus(final String text) {
+                handler.post(new Runnable() {
+                    @Override public void run() { bleStatus = text; notifyUi(); }
+                });
+            }
+        });
+        ble.setMac(Settings.hrMac(this));
+        ble.start();
+    }
+
+    private void stopBle() {
+        if (ble != null) {
+            ble.stop();
+            ble = null;
+        }
+        bleStatus = null;
+    }
+
+    /** Status sensor untuk ditampilkan; null = tidak ada sensor dikonfigurasi. */
+    public String getBleStatus() {
+        return bleStatus;
+    }
+
+    /** true kalau ada data detak jantung yang masuk. */
+    public boolean hasHr() {
+        return stats.hr > 0;
     }
 
     // ---------- auto-pause ----------
@@ -447,7 +502,7 @@ public class RideService extends Service implements LocationListener {
         }
         if (stats.onLocation(loc) && gpx != null) {
             try {
-                gpx.add(loc);
+                gpx.add(loc, stats.hr);
             } catch (Exception e) {
                 Log.e(TAG, "gpx write failed", e);
             }

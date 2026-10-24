@@ -51,6 +51,30 @@
             android:text="@string/unit_grade"
             android:textColor="@color/label"
             android:textSize="12sp" />
+
+        <!-- detak jantung: muncul hanya kalau sensor mengirim data -->
+        <TextView
+            android:id="@+id/tvHrHeart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:paddingLeft="10dp"
+            android:text="\u2665"
+            android:textColor="@color/accent"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvHr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:paddingLeft="3dp"
+            android:tag="num"
+            android:text="0"
+            android:textColor="@color/value"
+            android:textSize="15sp"
+            android:visibility="gone" />
     </LinearLayout>
 
     <!-- kecepatan: angka dominan -->

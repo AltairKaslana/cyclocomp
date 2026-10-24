@@ -48,6 +48,27 @@ public class RideStats {
     /** Kemiringan jalan dalam persen; positif = naik. */
     public double gradePercent;
 
+    // ---------- detak jantung ----------
+    /** bpm terakhir dari sensor; <= 0 berarti belum ada data. */
+    public int hr = -1;
+    public int hrMax;
+    private double hrSum;
+    private int hrCount;
+
+    /** Dipanggil tiap notifikasi sensor. Nilai di luar rentang wajar diabaikan. */
+    public void setHr(int bpm) {
+        if (bpm <= 0 || bpm > 250) return;
+        hr = bpm;
+        if (bpm > hrMax) hrMax = bpm;
+        hrSum += bpm;
+        hrCount++;
+    }
+
+    /** Rata-rata sederhana dari semua sampel; 0 kalau tidak ada data. */
+    public int avgHr() {
+        return hrCount == 0 ? 0 : (int) Math.round(hrSum / hrCount);
+    }
+
     // ---------- lap ----------
     public int lapIndex;          // lap sedang berjalan (1-based)
     public double lapDistanceM;

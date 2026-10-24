@@ -82,6 +82,8 @@
     <string name="settings_alert_km">Ingat tiap (km)</string>
     <string name="settings_alert_min">Ingat tiap (menit)</string>
     <string name="settings_beep">Bunyi bip</string>
+    <string name="settings_hr">Sensor detak jantung</string>
+    <string name="settings_hr_forget">Lupakan sensor</string>
     <string name="settings_reset">Kembalikan ke bawaan</string>
     <string name="settings_on">Aktif</string>
     <string name="settings_off">Mati</string>

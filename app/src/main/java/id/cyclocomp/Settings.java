@@ -26,6 +26,8 @@ final class Settings {
     private static final String K_ALERT_MIN   = "alert_min";    // menit, 0 = mati
     private static final String K_BEEP        = "beep";
     private static final String K_LAST_RIDE   = "last_ride";
+    private static final String K_HR_MAC      = "hr_mac";        // alamat sensor detak jantung
+    private static final String K_HR_NAME     = "hr_name";
 
     // mode lap
     public static final int LAP_MANUAL = 0, LAP_DISTANCE = 1, LAP_TIME = 2;
@@ -82,6 +84,20 @@ final class Settings {
     /** Id rekaman terakhir yang disimpan (dipakai layar Ringkasan). */
     public static long lastRideId(Context c) { return sp(c).getLong(K_LAST_RIDE, -1); }
     public static void setLastRideId(Context c, long id) { sp(c).edit().putLong(K_LAST_RIDE, id).apply(); }
+
+    // ---------- sensor detak jantung ----------
+
+    /** MAC sensor BLE yang dipilih; "" = belum ada (aplikasi akan mencari sendiri). */
+    public static String hrMac(Context c) { return sp(c).getString(K_HR_MAC, ""); }
+    public static void setHrMac(Context c, String v) {
+        sp(c).edit().putString(K_HR_MAC, v == null ? "" : v).apply();
+    }
+
+    /** Nama sensor, hanya untuk ditampilkan di Pengaturan. */
+    public static String hrName(Context c) { return sp(c).getString(K_HR_NAME, ""); }
+    public static void setHrName(Context c, String v) {
+        sp(c).edit().putString(K_HR_NAME, v == null ? "" : v).apply();
+    }
 
     /** Bunyi bip saat peringatan & lap. */
     public static boolean beep(Context c) { return sp(c).getBoolean(K_BEEP, true); }

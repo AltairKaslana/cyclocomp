@@ -12,6 +12,10 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Pengaturan berkelompok dalam kartu.
@@ -27,6 +31,9 @@ public class SettingsActivity extends Activity {
     private static final int R_LAP_MODE = 4, R_LAP_DIST = 5, R_LAP_TIME = 6;
     private static final int R_ALERT_KM = 7, R_ALERT_MIN = 8, R_BEEP = 9;
     private static final int R_RESET = 10;
+    private static final int R_HR = 11, R_HR_FORGET = 12;
+
+    private static final int REQ_BLE = 71;
 
     private LinearLayout groups;
     private LinearLayout lastCard;
@@ -62,6 +69,12 @@ public class SettingsActivity extends Activity {
         group("PERINGATAN");
         valueRow(R_ALERT_KM, R.string.settings_alert_km, "Beri tahu tiap jarak tertentu");
         valueRow(R_ALERT_MIN, R.string.settings_alert_min, "Beri tahu tiap selang waktu");
+
+        group("SENSOR");
+        valueRow(R_HR, R.string.settings_hr, "Jam, band, atau sabuk detak jantung BLE");
+        if (!Settings.hrMac(this).isEmpty()) {
+            valueRow(R_HR_FORGET, R.string.settings_hr_forget, "Putuskan dan kosongkan pilihan");
+        }
 
         group("LAINNYA");
         valueRow(R_RESET, R.string.settings_reset, "Kembalikan semua ke nilai bawaan");
@@ -142,6 +155,88 @@ public class SettingsActivity extends Activity {
         lastCard.addView(v);
     }
 
+    // ---------- sensor detak jantung ----------
+
+    private AlertDialog scanDialog;
+    private final List<String> foundNames = new ArrayList<String>();
+    private final List<String> foundMacs = new ArrayList<String>();
+
+    private void pickSensor() {
+        if (!BleHr.hasPermission(this)) {
+            requestPermissions(BleHr.neededPermissions(), REQ_BLE);
+            return;
+        }
+        foundNames.clear();
+        foundMacs.clear();
+
+        scanDialog = new AlertDialog.Builder(this)
+                .setTitle("Mencari sensor…")
+                .setMessage("Pastikan jam atau band sudah dalam mode siarkan detak jantung.\n\n"
+                        + "Pencarian berjalan 8 detik.")
+                .setNegativeButton("Batal", null)
+                .create();
+        scanDialog.show();
+
+        BleHr.scan(this, 8000, new BleHr.ScanListener() {
+            @Override public void onFound(String name, String mac, boolean hasHrService) {
+                // yang menyiarkan layanan detak jantung ditaruh paling atas
+                int at = hasHrService ? 0 : foundMacs.size();
+                foundNames.add(at, hasHrService ? name : name + "  (tanpa HR)");
+                foundMacs.add(at, mac);
+            }
+
+            @Override public void onDone(String error) {
+                if (scanDialog != null && scanDialog.isShowing()) scanDialog.dismiss();
+                if (error != null) { Toast.makeText(SettingsActivity.this, error, Toast.LENGTH_LONG).show(); return; }
+                if (foundMacs.isEmpty()) { showNoSensor(); return; }
+                showFound();
+            }
+        });
+    }
+
+    private void showNoSensor() {
+        new AlertDialog.Builder(this)
+                .setTitle("Tidak ada sensor ditemukan")
+                .setMessage("Yang bisa dibaca Cyclocomp hanya perangkat yang menyiarkan "
+                        + "Heart Rate Service standar.\n\n"
+                        + "Cek: Bluetooth menyala, jam/band dalam mode \"siarkan detak jantung\" "
+                        + "(di Garmin: Sensor & Aksesori → Siarkan Detak Jantung; di Amazfit/Huawei: "
+                        + "pengaturan detak jantung → siarkan), dan jarak dekat dengan HP.\n\n"
+                        + "Sabuk detak jantung BLE apa pun langsung terbaca tanpa mode khusus.")
+                .setPositiveButton("Coba lagi", new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface d, int w) { pickSensor(); }
+                })
+                .setNegativeButton("Tutup", null)
+                .show();
+    }
+
+    private void showFound() {
+        new AlertDialog.Builder(this)
+                .setTitle("Pilih sensor")
+                .setItems(foundNames.toArray(new String[0]), new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface d, int which) {
+                        Settings.setHrMac(SettingsActivity.this, foundMacs.get(which));
+                        String n = foundNames.get(which).replace("  (tanpa HR)", "");
+                        Settings.setHrName(SettingsActivity.this, n);
+                        paint();
+                        Toast.makeText(SettingsActivity.this,
+                                "Sensor disimpan. Aktif saat gowes dimulai.", Toast.LENGTH_LONG).show();
+                    }
+                })
+                .show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int req, String[] perms, int[] res) {
+        super.onRequestPermissionsResult(req, perms, res);
+        if (req != REQ_BLE) return;
+        boolean all = res.length > 0;
+        for (int r : res) if (r != android.content.pm.PackageManager.PERMISSION_GRANTED) all = false;
+        if (all) pickSensor();
+        else Toast.makeText(this, "Izin Bluetooth dibutuhkan untuk membaca sensor.",
+                Toast.LENGTH_LONG).show();
+    }
+
     // ---------- nilai ----------
 
     private boolean isOn(int id) {
@@ -172,6 +267,11 @@ public class SettingsActivity extends Activity {
                 int mn = Settings.alertMin(this);
                 return mn <= 0 ? getString(R.string.settings_off) : getString(R.string.settings_minutes, mn);
             case R_BEEP:      return onOff(Settings.beep(this));
+            case R_HR: {
+                String n = Settings.hrName(this);
+                return n.isEmpty() ? "Belum dipilih" : n;
+            }
+            case R_HR_FORGET: return "";
             default:          return "";
         }
     }
@@ -276,6 +376,23 @@ public class SettingsActivity extends Activity {
                         });
                 break;
             }
+            case R_HR:
+                pickSensor();
+                break;
+            case R_HR_FORGET:
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.settings_hr_forget)
+                        .setMessage("Cyclocomp akan berhenti memakai sensor ini.")
+                        .setNegativeButton("Batal", null)
+                        .setPositiveButton("Putuskan", new DialogInterface.OnClickListener() {
+                            @Override public void onClick(DialogInterface d, int w) {
+                                Settings.setHrMac(SettingsActivity.this, "");
+                                Settings.setHrName(SettingsActivity.this, "");
+                                paint();
+                            }
+                        })
+                        .show();
+                break;
             case R_RESET:
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.settings_reset)

@@ -48,6 +48,7 @@ public class MainActivity extends Activity implements RideService.Listener {
     private TextView tvStatus, tvLapBadge;
     private View vRec;
     private TextView tvSpeed, tvDist, tvTime, tvAvg, tvMax, tvElev, tvAlt, tvGrade, tvGradeArrow;
+    private TextView tvHr, tvHrHeart;
     private TextView tvSpeed2, tvDist2, tvTime2, tvAvg2, tvMax2, tvElev2, tvAlt2;
     private TextView tvMoving, tvTotal, tvLapDist, tvLapTime, tvLapAvg, tvLapMoving, tvLapTitle;
     private ListView lapList;
@@ -114,6 +115,8 @@ public class MainActivity extends Activity implements RideService.Listener {
         tvAvg = (TextView) findViewById(R.id.tvAvg);
         tvGrade = (TextView) findViewById(R.id.tvGrade);
         tvGradeArrow = (TextView) findViewById(R.id.tvGradeArrow);
+        tvHr = (TextView) findViewById(R.id.tvHr);
+        tvHrHeart = (TextView) findViewById(R.id.tvHrHeart);
 
         // halaman DETAIL
         tvSpeed2 = (TextView) findViewById(R.id.tvSpeed2);
@@ -383,6 +386,11 @@ public class MainActivity extends Activity implements RideService.Listener {
         List<String> p = new ArrayList<String>();
         p.add(Manifest.permission.ACCESS_FINE_LOCATION);
         if (Build.VERSION.SDK_INT >= 33) p.add(Manifest.permission.POST_NOTIFICATIONS);
+        // izin Bluetooth hanya diminta kalau Tuan memang sudah memilih sensor,
+        // supaya aplikasi tidak meminta izin yang tidak dipakai
+        if (!id.cyclocomp.Settings.hrMac(this).isEmpty() && !BleHr.hasPermission(this)) {
+            for (String s : BleHr.neededPermissions()) p.add(s);
+        }
         requestPermissions(p.toArray(new String[0]), REQ_PERM);
     }
 
@@ -423,6 +431,17 @@ public class MainActivity extends Activity implements RideService.Listener {
         } else {
             tvGradeArrow.setText("▼");
             tvGrade.setText(Fmt.grade(-g));
+        }
+
+        // detak jantung: pil disembunyikan bila belum ada data (tanpa sensor = tidak berisik)
+        int hr = s.hr;
+        if (hr > 0) {
+            tvHr.setText(String.valueOf(hr));
+            tvHr.setVisibility(View.VISIBLE);
+            tvHrHeart.setVisibility(View.VISIBLE);
+        } else {
+            tvHr.setVisibility(View.GONE);
+            tvHrHeart.setVisibility(View.GONE);
         }
 
         // ---------- DETAIL ----------
