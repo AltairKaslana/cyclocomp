@@ -160,6 +160,41 @@ public class MainActivity extends Activity implements RideService.Listener {
 
         buildDots();
         showPage(0);
+        showLastCrash();
+    }
+
+    /**
+     * Kalau percobaan sebelumnya berakhir dengan crash, tampilkan penyebabnya di layar.
+     * Perangkat pengujian tanpa adb dan folder Android/data sulit diakses di Android 11+;
+     * dialog ini membuat laporan crash bisa di-screenshot dan dikirim.
+     */
+    private void showLastCrash() {
+        try {
+            java.io.File f = new java.io.File(App.crashPath(this));
+            if (!f.exists()) return;
+            String isi = "";
+            java.io.BufferedReader r = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(new java.io.FileInputStream(f), "UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            String baris;
+            while ((baris = r.readLine()) != null) {
+                sb.append(baris).append('\n');
+                if (sb.length() > 2200) break;
+            }
+            r.close();
+            isi = sb.toString();
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Laporan crash sebelumnya")
+                    .setMessage(isi)
+                    .setPositiveButton(R.string.close, null)
+                    .setNeutralButton("Hapus", new DialogInterface.OnClickListener() {
+                        @Override public void onClick(DialogInterface d, int w) {
+                            new java.io.File(App.crashPath(MainActivity.this)).delete();
+                        }
+                    })
+                    .show();
+        } catch (Throwable ignored) { }
     }
 
     // ---------- halaman bergeser ----------
