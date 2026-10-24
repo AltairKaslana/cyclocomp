@@ -71,7 +71,19 @@ public class RideProvider extends ContentProvider {
         }
     }
 
-    @Override public String getType(Uri uri) { return "application/gpx+xml"; }
+    /**
+     * Jenis berkas mengikuti ekstensi: PNG untuk kartu gambar, GPX untuk rute.
+     *
+     * Aplikasi penerima (termasuk galeri dan Strava) memperlakukan berkas sesuai MIME
+     * ini, jadi kalau PNG salah dilaporkan sebagai GPX berkasnya akan ditolak.
+     */
+    @Override public String getType(Uri uri) {
+        String name = uri.getLastPathSegment();
+        if (name != null && name.toLowerCase(java.util.Locale.US).endsWith(".png")) {
+            return "image/png";
+        }
+        return "application/gpx+xml";
+    }
     @Override public Uri insert(Uri uri, ContentValues values) { return null; }
     @Override public int delete(Uri uri, String selection, String[] selectionArgs) { return 0; }
     @Override public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) { return 0; }

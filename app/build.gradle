@@ -10,8 +10,8 @@ android {
         applicationId "id.cyclocomp"
         minSdk 23          // Android 6.0+ (diputuskan 23 Okt 2026)
         targetSdk 33
-        versionCode 17
-        versionName "0.9.3"
+        versionCode 18
+        versionName "0.9.4"
     }
 
     buildTypes {

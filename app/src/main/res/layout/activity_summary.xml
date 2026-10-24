@@ -174,12 +174,30 @@
             android:orientation="vertical" />
     </LinearLayout>
 
+    <!-- Kartu gambar adalah jalur utama (paling sering dipakai untuk dibagikan),
+         jadi dapat baris sendiri selebar penuh. GPX dan Tutup di baris berikutnya. -->
+    <Button
+        android:id="@+id/btnShareCard"
+        style="@style/ActionBtnPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginTop="12dp"
+        android:text="@string/btn_share_card" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingTop="12dp"
+        android:paddingTop="10dp"
         android:paddingBottom="16dp">
+
+        <Button
+            android:id="@+id/btnShare"
+            style="@style/ActionBtn"
+            android:layout_width="0dp"
+            android:layout_weight="1.7"
+            android:layout_height="50dp"
+            android:text="@string/btn_share_gpx" />
 
         <Button
             android:id="@+id/btnClose"
@@ -187,15 +205,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="50dp"
-            android:text="@string/close" />
-
-        <Button
-            android:id="@+id/btnShare"
-            style="@style/ActionBtnPrimary"
-            android:layout_width="0dp"
-            android:layout_weight="1.7"
-            android:layout_height="50dp"
             android:layout_marginLeft="10dp"
-            android:text="@string/btn_share_gpx" />
+            android:text="@string/close" />
     </LinearLayout>
 </LinearLayout>

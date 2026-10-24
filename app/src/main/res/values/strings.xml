@@ -218,4 +218,13 @@
     <string name="prov_bad_name">nama tidak sah</string>
     <string name="prov_no_storage">penyimpanan tidak tersedia</string>
     <string name="ble_no_name">(tanpa nama)</string>
+
+    <!-- kartu gambar yang bisa dibagikan -->
+    <string name="btn_share_card">BAGIKAN GAMBAR</string>
+    <string name="card_footer">Cyclocomp</string>
+    <string name="card_note">rute &amp; angka dari pencatat gowes</string>
+    <string name="card_failed">Gambar kartu gagal dibuat</string>
+    <string name="card_share_title">Bagikan kartu gowes</string>
+    <string name="card_share_subject">Kartu gowes %1$s</string>
+    <string name="no_share_app">Tidak ada aplikasi yang bisa menerima berkas ini</string>
 </resources>

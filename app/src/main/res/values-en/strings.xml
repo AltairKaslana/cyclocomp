@@ -219,4 +219,13 @@
     <string name="prov_bad_name">invalid name</string>
     <string name="prov_no_storage">storage unavailable</string>
     <string name="ble_no_name">(no name)</string>
+
+    <!-- shareable image card -->
+    <string name="btn_share_card">SHARE IMAGE</string>
+    <string name="card_footer">Cyclocomp</string>
+    <string name="card_note">route &amp; stats from the ride recorder</string>
+    <string name="card_failed">Could not create the share image</string>
+    <string name="card_share_title">Share ride card</string>
+    <string name="card_share_subject">Ride card %1$s</string>
+    <string name="no_share_app">No app can receive this file</string>
 </resources>

@@ -56,6 +56,9 @@ public class SummaryActivity extends Activity {
         findViewById(R.id.btnClose).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { finish(); }
         });
+        findViewById(R.id.btnShareCard).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { shareCard(); }
+        });
         findViewById(R.id.btnShare).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { share(); }
         });
@@ -129,6 +132,48 @@ public class SummaryActivity extends Activity {
         Button share = (Button) findViewById(R.id.btnShare);
         share.setEnabled(adaGpx);
         share.setAlpha(adaGpx ? 1f : 0.4f);
+    }
+
+    /**
+     * Buat kartu gambar (PNG) berisi angka akhir + gambar rute, lalu bagikan.
+     *
+     * Kartu digambar sendiri lewat {@link ShareCard}, bukan memotret layar: hasilnya sama
+     * di semua perangkat dan tetap lengkap walaupun peta ubin tidak bisa diambil.
+     * Seluruh proses dibungkus try/catch - membuat gambar tidak boleh mematikan aplikasi.
+     */
+    private void shareCard() {
+        if (row == null) return;
+        List<GpxReader.P> track;
+        try {
+            track = GpxReader.read(row.gpxPath == null ? null : new File(row.gpxPath));
+        } catch (Throwable t) {
+            Log.e("Summary", "rute untuk kartu gagal dibaca", t);
+            track = java.util.Collections.emptyList();
+        }
+
+        File png;
+        try {
+            png = ShareCard.build(this, row, track);
+        } catch (Throwable t) {
+            Log.e("Summary", "kartu gagal dibuat", t);
+            png = null;
+        }
+        if (png == null) {
+            Toast.makeText(this, R.string.card_failed, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        Uri uri = Uri.parse("content://" + RideProvider.AUTHORITY + "/" + png.getName());
+        Intent i = new Intent(Intent.ACTION_SEND);
+        i.setType("image/png");
+        i.putExtra(Intent.EXTRA_STREAM, uri);
+        i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.card_share_subject, png.getName()));
+        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        try {
+            startActivity(Intent.createChooser(i, getString(R.string.card_share_title)));
+        } catch (Exception e) {
+            Toast.makeText(this, R.string.no_share_app, Toast.LENGTH_LONG).show();
+        }
     }
 
     /** Bagikan berkas GPX lewat content:// supaya bisa diterima aplikasi lain (termasuk Strava). */
