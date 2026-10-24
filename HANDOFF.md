@@ -258,7 +258,7 @@ Jalankan di minimal: 1 HP KitKat (API 19) dan 1 HP Android 7+ (idealnya juga And
 
 ## 12. Roadmap (urutan disarankan) dan petunjuk implementasi
 
-**Status per v0.6.1 (24 Okt 2026): 1 ✅ · 2 ✅ · 3 ✅ · 5 ✅ · 6 ✅ · 8 ✅ · 9 ✅ — sisa: 4 (BLE), 7 (peta osmdroid), 10 (lokalisasi).**
+**Status per v0.7.0 (24 Okt 2026): 1 ✅ · 2 ✅ · 3 ✅ · 4 ✅ (detak jantung) · 5 ✅ · 6 ✅ · 8 ✅ · 9 ✅ — sisa: 4b (kadensi/kecepatan CSC), 7 (peta osmdroid), 10 (lokalisasi).**
 
 1. ✅ **Perbaikan dasar**: kompilasi, uji perangkat, hapus `elapsed` tak terpakai, konfirmasi hapus riwayat,
    ikon launcher sendiri.
@@ -266,7 +266,11 @@ Jalankan di minimal: 1 HP KitKat (API 19) dan 1 HP Android 7+ (idealnya juga And
    saat app dibuka dan ada sesi tanpa footer → tawarkan "pulihkan" (tambah footer GPX, masukkan ke DB).
 3. ✅ **Pengaturan** (`SettingsActivity` + `SharedPreferences`, dikelompokkan per kartu sejak v0.6.0): satuan km/mil, auto-pause (ambang & jeda),
    ukuran roda (untuk sensor), interval GPS, field dashboard.
-4. **Sensor BLE** (API 18+):
+4. ✅ **Sensor BLE — detak jantung** (v0.7.0, `BleHr.java`): Heart Rate Service `0x180D` / `0x2A37`,
+   notifikasi lewat CCCD `0x2902`, sambung ulang otomatis, `hr` + `hrMax` + `avgHr()` di `RideStats`,
+   `gpxtpx:hr` per titik GPX, pil HR di halaman Sekilas, pemilih sensor di Pengaturan → SENSOR.
+   **Belum**: kadensi/kecepatan CSC `0x1816` (butuh sensor khusus, bukan jam).
+   Sisa catatan teknis untuk 4b:
    - Izin: API 18–30 `BLUETOOTH`, `BLUETOOTH_ADMIN` + izin lokasi untuk scan (23+); API 31+
      `BLUETOOTH_SCAN`, `BLUETOOTH_CONNECT` (`neverForLocation` bila tidak butuh lokasi dari scan).
    - Cycling Speed & Cadence: service `0x1816`, karakteristik Measurement `0x2A5B`. Byte flags: bit0 = data
@@ -276,6 +280,10 @@ Jalankan di minimal: 1 HP KitKat (API 19) dan 1 HP Android 7+ (idealnya juga And
    - Heart Rate: service `0x180D`, karakteristik `0x2A37`; flags bit0 = 0 → HR uint8, 1 → uint16.
    - Letakkan di kelas baru `BleSensors` dalam `RideService`; tambahkan field di `RideStats`
      (cadence, hr) dan `RideDb` (migrasi versi 2), plus ekstensi GPX (`gpxtpx:hr`, `gpxtpx:cad`).
+   - **Pelajaran v0.7.0**: jam/band hanya menyiarkan HR kalau ada mode "siarkan detak jantung";
+     perangkat yang tidak punya service `0x180D` harus langsung dilepas (`wanted = false`),
+     kalau tidak aplikasi berputar mencoba menyambung terus. Detak 0 = sensor belum kontak kulit,
+     jangan ditampilkan sebagai angka nol.
 5. ✅ **Ekspor/bagikan GPX** (`RideProvider`, authority `id.cyclocomp.files`): Android 7+ wajib `content://` via FileProvider (butuh `androidx.core` atau
    implementasi `ContentProvider` sendiri bila tetap tanpa AndroidX). Di KitKat `file://` masih bisa.
 6. ✅ **Lap/interval** dan aksi Jeda/Berhenti di notifikasi.
