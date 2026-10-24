@@ -112,14 +112,14 @@ public class RideStats {
         if (dt > MAX_GAP_MS) {          // sinyal sempat hilang: jangan lompatkan jarak
             last = f;
             currentSpeedMs = 0f;
+            gradeRefDist = distanceM;
+            gradeRefAlt = altitudeM;
             return true;
         }
 
         double d = distanceM(last.lat, last.lon, f.lat, f.lon);
         float v = f.speedMps >= 0 ? f.speedMps : (float) (d / (dt / 1000.0));
         last = f;
-
-        updateGrade();
 
         if (v < MOVING_SPEED_MS || d < MIN_STEP_M) {
             currentSpeedMs = 0f;
@@ -131,6 +131,7 @@ public class RideStats {
         lapDistanceM += d;
         lapMovingMs += dt;
         if (v > maxSpeedMs) maxSpeedMs = v;
+        updateGrade();          // setelah jarak ditambah, supaya jendela 25 m terukur benar
         return true;
     }
 

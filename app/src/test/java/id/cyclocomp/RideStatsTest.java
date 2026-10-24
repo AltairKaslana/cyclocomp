@@ -74,7 +74,8 @@ public class RideStatsTest {
         s.onFix(at(0, 1000, 5f));
         s.onFix(at(2000, 1000 + 60_000L, 5f)); // 2 km tapi 60 detik: sinyal sempat hilang
         assertEquals(0.0, s.distanceM, 0.01);
-        assertTrue("titik tetap ditulis sebagai awal segmen baru", s.onFix(at(2001, 1000 + 62_000L, 5f)));
+        // 5 m: di atas MIN_STEP_M (2 m), jadi titik ini memang layak ditulis
+        assertTrue("titik tetap ditulis sebagai awal segmen baru", s.onFix(at(2005, 1000 + 62_000L, 5f)));
     }
 
     @Test public void rataRataMemakaiWaktuGerak() {
