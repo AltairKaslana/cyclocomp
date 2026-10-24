@@ -35,7 +35,7 @@
             android:gravity="center_vertical"
             android:orientation="vertical">
             <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_speed" />
-            <TextView android:id="@+id/tvSpeed2" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0" />
+            <TextView android:id="@+id/tvSpeed2" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0,0" />
         </LinearLayout>
 
         <LinearLayout
@@ -45,7 +45,7 @@
             android:gravity="center_vertical"
             android:orientation="vertical">
             <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_avg" />
-            <TextView android:id="@+id/tvAvg2" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0" />
+            <TextView android:id="@+id/tvAvg2" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0,0" />
         </LinearLayout>
     </LinearLayout>
 
@@ -64,7 +64,7 @@
             android:gravity="center_vertical"
             android:orientation="vertical">
             <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_max" />
-            <TextView android:id="@+id/tvMax2" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0" />
+            <TextView android:id="@+id/tvMax2" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0,0" />
         </LinearLayout>
 
         <LinearLayout
@@ -74,7 +74,7 @@
             android:gravity="center_vertical"
             android:orientation="vertical">
             <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_distance" />
-            <TextView android:id="@+id/tvDist2" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.00" />
+            <TextView android:id="@+id/tvDist2" style="@style/ValueSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0,00" />
         </LinearLayout>
     </LinearLayout>
 
