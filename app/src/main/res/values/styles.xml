@@ -57,30 +57,39 @@
     <!-- tombol aksi utama (MULAI / JEDA / LANJUT) -->
     <style name="ActionBtnPrimary">
         <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/bg</item>
         <item name="android:background">@color/accent</item>
+        <item name="android:paddingLeft">2dp</item>
+        <item name="android:paddingRight">2dp</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:maxLines">1</item>
     </style>
 
     <!-- tombol aksi sekunder (LAP / BERHENTI) -->
     <style name="ActionBtn">
         <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textSize">17sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/value</item>
         <item name="android:background">@color/surface</item>
+        <item name="android:paddingLeft">1dp</item>
+        <item name="android:paddingRight">1dp</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:maxLines">1</item>
     </style>
 
     <!-- tombol kecil pojok (RIWAYAT / PENGATURAN) -->
     <style name="TinyBtn">
         <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">11sp</item>
         <item name="android:textColor">@color/label</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:minHeight">1dp</item>
         <item name="android:minWidth">1dp</item>
         <item name="android:paddingLeft">6dp</item>
         <item name="android:paddingRight">6dp</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 </resources>

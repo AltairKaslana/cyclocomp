@@ -59,6 +59,7 @@ public class MainActivity extends Activity implements RideService.Listener {
     private int page;
 
     private GestureDetector gestures;
+    private View[] pageViews;
 
     private final ServiceConnection conn = new ServiceConnection() {
         @Override
@@ -158,8 +159,20 @@ public class MainActivity extends Activity implements RideService.Listener {
             }
         });
 
+        pageViews = new View[]{
+                findViewById(R.id.page0),
+                findViewById(R.id.page1),
+                findViewById(R.id.page2)
+        };
+        // Penting: ketiga halaman ditumpuk di satu FrameLayout, jadi yang tidak aktif
+        // HARUS disembunyikan. Tanpa ini semua angka tergambar bertumpuk.
+        for (int i = 0; i < pageViews.length; i++) {
+            pageViews[i].setVisibility(i == 0 ? View.VISIBLE : View.GONE);
+        }
+        page = 0;
         buildDots();
-        showPage(0);
+        paintDots();
+        refresh();
         showLastCrash();
     }
 
@@ -220,21 +233,21 @@ public class MainActivity extends Activity implements RideService.Listener {
     }
 
     private void showPage(int target) {
-        if (target < 0 || target >= PAGE_COUNT || target == page) return;
+        if (pageViews == null || target < 0 || target >= PAGE_COUNT || target == page) return;
         final boolean keKiri = target > page;
+
+        // tukar dulu halaman yang terlihat, baru geser - supaya tidak ada momen
+        // dua halaman tampil bersamaan
+        for (int i = 0; i < pageViews.length; i++) {
+            pageViews[i].clearAnimation();
+            pageViews[i].setVisibility(i == target ? View.VISIBLE : View.GONE);
+        }
         page = target;
 
         float from = keKiri ? pages.getWidth() : -pages.getWidth();
         Animation a = new TranslateAnimation(from, 0f, 0f, 0f);
         a.setDuration(ANIM_MS);
-        a.setFillAfter(true);
         pages.startAnimation(a);
-        pages.postDelayed(new Runnable() {
-            @Override public void run() {
-                pages.clearAnimation();
-                refresh();
-            }
-        }, ANIM_MS);
 
         paintDots();
         refresh();

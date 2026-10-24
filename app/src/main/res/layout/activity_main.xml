@@ -1,51 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Halaman utama: wadah berisi 3 halaman data yang digeser.
-  Tanpa ViewPager (tanpa dependency): geser ditangani GestureDetector + animasi
-  translate. Cukup untuk 3 halaman dan tetap ringan.
+  Susunan vertikal (bukan posisi mengambang) supaya tidak ada elemen yang saling
+  menimpa di ukuran layar apa pun:
 
-  Susunan (dari atas): bilah status, wadah halaman, indikator titik, tombol aksi.
+    [ bilah status + tombol kecil ]
+    [ wadah halaman (berat 1)     ]
+    [ titik indikator             ]
+    [ tombol aksi                 ]
+
+  Ketiga halaman ditumpuk di satu FrameLayout; HANYA SATU yang terlihat, sisanya
+  GONE (diatur di MainActivity.initPages/showPage).
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/bg">
 
-    <!-- ===== bilah status atas ===== -->
+    <!-- ===== bilah status ===== -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingLeft="14dp"
-        android:paddingRight="14dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="6dp">
+        android:paddingRight="4dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="4dp">
 
         <TextView
             android:id="@+id/tvStatus"
             style="@style/StatusBar"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="13sp" />
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:ellipsize="end" />
 
         <TextView
             android:id="@+id/tvLapBadge"
             style="@style/StatusBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="13sp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
             android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btnHistory"
+            style="@style/TinyBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="34dp"
+            android:text="@string/btn_history" />
+
+        <Button
+            android:id="@+id/btnSettings"
+            style="@style/TinyBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="34dp"
+            android:layout_marginLeft="2dp"
+            android:text="@string/btn_settings" />
     </LinearLayout>
 
-    <!-- ===== wadah halaman (digeser) ===== -->
+    <!-- ===== wadah halaman ===== -->
     <FrameLayout
         android:id="@+id/pages"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="34dp"
-        android:layout_marginBottom="92dp">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <include
             android:id="@+id/page0"
@@ -71,9 +93,10 @@
         android:id="@+id/dots"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:orientation="horizontal"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="74dp" />
+        android:paddingTop="2dp"
+        android:paddingBottom="4dp" />
 
     <!-- ===== tombol aksi ===== -->
     <LinearLayout
@@ -83,23 +106,22 @@
         android:gravity="center_vertical"
         android:paddingLeft="12dp"
         android:paddingRight="12dp"
-        android:paddingBottom="14dp"
-        android:layout_gravity="bottom">
+        android:paddingBottom="12dp">
 
         <Button
             android:id="@+id/btnLap"
             style="@style/ActionBtn"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="56dp"
+            android:layout_height="54dp"
             android:text="@string/btn_lap" />
 
         <Button
             android:id="@+id/btnStartPause"
             style="@style/ActionBtnPrimary"
             android:layout_width="0dp"
-            android:layout_weight="1.4"
-            android:layout_height="56dp"
+            android:layout_weight="1.35"
+            android:layout_height="54dp"
             android:layout_marginLeft="8dp"
             android:text="@string/btn_start" />
 
@@ -107,34 +129,9 @@
             android:id="@+id/btnStop"
             style="@style/ActionBtn"
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="56dp"
+            android:layout_weight="1.1"
+            android:layout_height="54dp"
             android:layout_marginLeft="8dp"
             android:text="@string/btn_stop" />
     </LinearLayout>
-
-    <!-- ===== riwayat & pengaturan ===== -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="top|right"
-        android:layout_marginTop="6dp"
-        android:layout_marginRight="8dp">
-
-        <Button
-            android:id="@+id/btnHistory"
-            style="@style/TinyBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_history" />
-
-        <Button
-            android:id="@+id/btnSettings"
-            style="@style/TinyBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="6dp"
-            android:text="@string/btn_settings" />
-    </LinearLayout>
-</FrameLayout>
+</LinearLayout>
