@@ -208,4 +208,12 @@
     <string name="lap_badge">LAP %d</string>
     <!-- nama aplikasi di dalam berkas GPX; metadata, bukan teks layar -->
     <string name="gpx_creator">Cyclocomp</string>
+
+    <!-- laporan crash (ditampilkan ke pengguna, jadi ikut diterjemahkan) -->
+    <string name="crash_cause">Disebabkan oleh:</string>
+    <string name="crash_at">    di </string>
+    <string name="prov_empty_name">nama kosong</string>
+    <string name="prov_bad_name">nama tidak sah</string>
+    <string name="prov_no_storage">penyimpanan tidak tersedia</string>
+    <string name="ble_no_name">(tanpa nama)</string>
 </resources>

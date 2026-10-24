@@ -71,9 +71,11 @@ public class App extends Application {
         Throwable t = e;
         while (t != null) {
             pw.println(t.toString());
-            for (StackTraceElement el : t.getStackTrace()) pw.println("    at " + el);
+            for (StackTraceElement el : t.getStackTrace()) {
+                pw.println(getString(R.string.crash_at) + el);
+            }
             t = t.getCause();
-            if (t != null) pw.println("Disebabkan oleh:");
+            if (t != null) pw.println(getString(R.string.crash_cause));
         }
         pw.flush();
         return sw.toString();

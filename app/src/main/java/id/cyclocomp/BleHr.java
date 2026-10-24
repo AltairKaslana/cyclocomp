@@ -159,7 +159,7 @@ public class BleHr {
                     try { name = d.getName(); } catch (SecurityException ignored) { }
                     if (!hasHr && (name == null || name.trim().isEmpty())) return;
                     seen.add(mac);
-                    l.onFound(name == null ? "(tanpa nama)" : name, mac, hasHr);
+                    l.onFound(name == null ? c.getString(R.string.ble_no_name) : name, mac, hasHr);
                 } catch (Throwable ignored) { }
             }
 

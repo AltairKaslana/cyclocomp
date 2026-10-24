@@ -209,4 +209,12 @@
     <string name="notif_line">%1$s km/h  |  %2$s km  |  %3$s</string>
     <string name="lap_badge">LAP %d</string>
     <string name="gpx_creator">Cyclocomp</string>
+
+    <!-- laporan crash -->
+    <string name="crash_cause">Caused by:</string>
+    <string name="crash_at">    at </string>
+    <string name="prov_empty_name">empty name</string>
+    <string name="prov_bad_name">invalid name</string>
+    <string name="prov_no_storage">storage unavailable</string>
+    <string name="ble_no_name">(no name)</string>
 </resources>
