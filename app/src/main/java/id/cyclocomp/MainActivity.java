@@ -463,10 +463,12 @@ public class MainActivity extends Activity implements RideService.Listener {
         prevState = st;
         if (summaryPending && st == RideService.State.IDLE) {
             summaryPending = false;
-            long id = Settings.lastRideId(this);
-            if (id > 0) {
+            // Di kelas ini "Settings" berarti android.provider.Settings (dipakai untuk
+            // intent action), jadi kelas pengaturan milik aplikasi ditulis lengkap.
+            long lastId = id.cyclocomp.Settings.lastRideId(this);
+            if (lastId > 0) {
                 startActivity(new Intent(this, SummaryActivity.class)
-                        .putExtra(SummaryActivity.EXTRA_ID, id));
+                        .putExtra(SummaryActivity.EXTRA_ID, lastId));
             }
         }
 
