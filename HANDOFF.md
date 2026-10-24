@@ -259,7 +259,7 @@ Jalankan di minimal: 1 HP KitKat (API 19) dan 1 HP Android 7+ (idealnya juga And
 
 ## 12. Roadmap (urutan disarankan) dan petunjuk implementasi
 
-**Status per v0.9.3 (24 Okt 2026): 1 ✅ · 2 ✅ · 3 ✅ · 4 ✅ (detak jantung) · 5 ✅ · 6 ✅ · 7 ✅ (peta ubin OSM) · 8 ✅ · 9 ✅ · 10 ✅ (lokalisasi) — sisa: 4b (kadensi/kecepatan CSC), Strava API.**
+**Status per v0.9.4 (24 Okt 2026): 1 ✅ · 2 ✅ · 3 ✅ · 4 ✅ (detak jantung) · 5 ✅ · 6 ✅ · 7 ✅ (peta ubin OSM) · 8 ✅ · 9 ✅ · 10 ✅ (lokalisasi) — sisa: 4b (kadensi/kecepatan CSC), Strava API.**
 
 1. ✅ **Perbaikan dasar**: kompilasi, uji perangkat, hapus `elapsed` tak terpakai, konfirmasi hapus riwayat,
    ikon launcher sendiri.
@@ -366,6 +366,25 @@ semua fitur berikutnya (sensor, lap, pemulihan) menempel di `RideService` dan `R
 - **Cara menemukannya**: minta pengguna kirim berkas GPX-nya, lalu hitung sendiri (jumlah titik,
   selang antar titik, rentang lat/lon/ele, konsistensi tanggal). Kerusakan "tidak terlihat" di UI
   karena layar Ringkasan memakai `startMs` dari jam sistem, bukan waktu GPS.
+- **Pelajaran v0.9.2 (NPE)**: `removeAllViews()` pada kontainer yang **memuat view statis dari XML**
+  menghancurkan view itu; `findViewById` berikutnya mengembalikan null. Kontainer yang dibersihkan
+  harus kontainer kosong khusus (`lapRows`), bukan kartu yang memakai header (`tvLapCount`).
+  Gejala hanya muncul di cabang tertentu (ada lap), jadi uji di satu perangkat bisa lolos
+  sementara perangkat lain crash — **selalu uji kedua cabang**.
+
+## 16c. Pelajaran dari v0.9.3 → v0.9.4
+
+- **Verifikasi resource harus cek duplikat, bukan hanya yang hilang.** Skrip verifikasi i18n
+  hanya membandingkan "yang direferensikan" vs "yang didefinisikan", jadi string baru yang
+  ternyata **sudah ada** lolos dan baru ketangkap CI (`Found item String/no_share_app more than
+  one time`). **Aturan: skrip cek resource wajib menghitung duplikat juga** (`Counter` /
+  `names.count(n) > 1`), bukan cuma selisih himpunan.
+- **Kartu gambar digambar sendiri, jangan memotret layar.** Memotret layar bergantung pada
+  resolusi perangkat, status tampil/sembunyi, dan bisa merekam data yang tidak sengaja tampil.
+  Bitmap dengan ukuran tetap (1080x1350) + Canvas/Paint memberi hasil identik di semua perangkat.
+- **`ContentProvider.getType()` harus mengikuti ekstensi berkas.** Semua berkas dilaporkan
+  `application/gpx+xml`; begitu PNG ikut dibagikan, aplikasi penerima menolaknya. Cek
+  `getLastPathSegment()` lalu kembalikan MIME yang sesuai.
 - **Pelajaran v0.9.2 (NPE)**: `removeAllViews()` pada kontainer yang **memuat view statis dari XML**
   menghancurkan view itu; `findViewById` berikutnya mengembalikan null. Kontainer yang dibersihkan
   harus kontainer kosong khusus (`lapRows`), bukan kartu yang memakai header (`tvLapCount`).
