@@ -258,11 +258,13 @@ Jalankan di minimal: 1 HP KitKat (API 19) dan 1 HP Android 7+ (idealnya juga And
 
 ## 12. Roadmap (urutan disarankan) dan petunjuk implementasi
 
-1. **Perbaikan dasar**: kompilasi, uji perangkat, hapus `elapsed` tak terpakai, konfirmasi hapus riwayat,
+**Status per v0.6.1 (24 Okt 2026): 1 ✅ · 2 ✅ · 3 ✅ · 5 ✅ · 6 ✅ · 8 ✅ · 9 ✅ — sisa: 4 (BLE), 7 (peta osmdroid), 10 (lokalisasi).**
+
+1. ✅ **Perbaikan dasar**: kompilasi, uji perangkat, hapus `elapsed` tak terpakai, konfirmasi hapus riwayat,
    ikon launcher sendiri.
-2. **Pemulihan sesi**: simpan state ringan (path GPX, start time, jarak) ke SharedPreferences tiap ±10 dtk;
+2. ✅ **Pemulihan sesi** (`SessionRecovery`, penanda tiap 5 dtk): simpan state ringan (path GPX, start time, jarak) ke SharedPreferences tiap ±10 dtk;
    saat app dibuka dan ada sesi tanpa footer → tawarkan "pulihkan" (tambah footer GPX, masukkan ke DB).
-3. **Pengaturan** (`SettingsActivity` + `SharedPreferences`): satuan km/mil, auto-pause (ambang & jeda),
+3. ✅ **Pengaturan** (`SettingsActivity` + `SharedPreferences`, dikelompokkan per kartu sejak v0.6.0): satuan km/mil, auto-pause (ambang & jeda),
    ukuran roda (untuk sensor), interval GPS, field dashboard.
 4. **Sensor BLE** (API 18+):
    - Izin: API 18–30 `BLUETOOTH`, `BLUETOOTH_ADMIN` + izin lokasi untuk scan (23+); API 31+
@@ -274,12 +276,13 @@ Jalankan di minimal: 1 HP KitKat (API 19) dan 1 HP Android 7+ (idealnya juga And
    - Heart Rate: service `0x180D`, karakteristik `0x2A37`; flags bit0 = 0 → HR uint8, 1 → uint16.
    - Letakkan di kelas baru `BleSensors` dalam `RideService`; tambahkan field di `RideStats`
      (cadence, hr) dan `RideDb` (migrasi versi 2), plus ekstensi GPX (`gpxtpx:hr`, `gpxtpx:cad`).
-5. **Ekspor/bagikan GPX**: Android 7+ wajib `content://` via FileProvider (butuh `androidx.core` atau
+5. ✅ **Ekspor/bagikan GPX** (`RideProvider`, authority `id.cyclocomp.files`): Android 7+ wajib `content://` via FileProvider (butuh `androidx.core` atau
    implementasi `ContentProvider` sendiri bila tetap tanpa AndroidX). Di KitKat `file://` masih bisa.
-6. **Lap/interval** dan aksi Jeda/Berhenti di notifikasi.
+6. ✅ **Lap/interval** dan aksi Jeda/Berhenti di notifikasi.
 7. **Peta offline** (osmdroid, minSdk 9) dan tampilan rute di detail riwayat. Perhatikan tile cache & izin jaringan.
-8. **Barometer** (`Sensor.TYPE_PRESSURE`, `SensorManager.getAltitude`) untuk tanjakan lebih akurat bila tersedia.
-9. **Unit test `RideStats`** (butuh `Location` palsu → Robolectric atau refactor ke antarmuka titik sederhana).
+8. ✅ **Barometer** (`Baro.java`; `TYPE_PRESSURE` + `SensorManager.getAltitude`, dikalibrasi ke GPS, koreksi bila selisih > 25 m).
+9. ✅ **Unit test `RideStats`** — dipilih **refactor**, bukan Robolectric: `onFix(Fix)` bebas kelas Android,
+   jarak pakai haversine sendiri (`distanceM`). 14 tes di `app/src/test/.../RideStatsTest.java`, ikut dijalankan CI.
 10. **Lokalisasi** (`values-en`) dan layout adaptif.
 
 ## 13. Keputusan minSdk: 23 (Android 6.0+) — sudah diambil
@@ -327,3 +330,27 @@ Kalau suatu saat perlu menaikkan lagi ke 24: tidak ada yang perlu diubah selain 
 Mulai dari: **build → perbaiki error → uji perangkat (bagian 10) → roadmap nomor 1–3**.
 Jangan ubah arsitektur (service sebagai pemilik state, Activity hanya view) tanpa alasan kuat;
 semua fitur berikutnya (sensor, lap, pemulihan) menempel di `RideService` dan `RideStats`.
+
+
+## 16. Pelajaran dari v0.6.0 → v0.6.1
+
+**Tes menemukan bug yang tidak terlihat di layar.** `updateGrade()` dipanggil *sebelum*
+`distanceM += d`, jadi jendela 25 m selalu tertinggal satu titik dan gradien praktis
+tidak pernah muncul (selalu 0%). Di HP ini tampak seperti "belum dapat tanjakan",
+bukan seperti bug. Aturan: hitungan yang bergantung pada akumulasi harus dipanggil
+**setelah** akumulasinya, dan urutan itu wajib dikunci tes.
+
+**Sesudah celah sinyal, acuan gradien harus disegarkan.** Tanpa `gradeRefDist/gradeRefAlt`
+di-reset, gradien pertama setelah sinyal kembali dihitung dari ketinggian lama dan melompat.
+
+**Tes bisa salah, bukan kodenya.** Kasus `celahBesar`: titik uji hanya bergerak 1 m,
+di bawah `MIN_STEP_M` (2 m), jadi `onFix` yang mengembalikan `false` itu benar.
+Kalau tes gagal, periksa dulu apakah asumsinya masuk akal sebelum mengubah kode.
+
+**Refactor lebih murah daripada Robolectric.** `RideStats.onFix(Fix)` + haversine sendiri
+membuat 14 tes jalan di JVM biasa dalam hitungan detik, tanpa dependency uji tambahan
+selain JUnit.
+
+**CI wajib menjalankan `testDebugUnitTest`.** Sebelum v0.6.0 workflow hanya `assembleDebug`,
+jadi tes yang tidak dikompilasi tidak pernah ketahuan rusak. Sekarang ada langkah
+"Run unit tests" sebelum build APK.
