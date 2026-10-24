@@ -259,7 +259,7 @@ Jalankan di minimal: 1 HP KitKat (API 19) dan 1 HP Android 7+ (idealnya juga And
 
 ## 12. Roadmap (urutan disarankan) dan petunjuk implementasi
 
-**Status per v0.9.4 (24 Okt 2026): 1 ✅ · 2 ✅ · 3 ✅ · 4 ✅ (detak jantung) · 5 ✅ · 6 ✅ · 7 ✅ (peta ubin OSM) · 8 ✅ · 9 ✅ · 10 ✅ (lokalisasi) — sisa: 4b (kadensi/kecepatan CSC), Strava API.**
+**Status per v0.9.5 (24 Okt 2026): 1 ✅ · 2 ✅ · 3 ✅ · 4 ✅ (detak jantung) · 5 ✅ · 6 ✅ · 7 ✅ (peta ubin OSM) · 8 ✅ · 9 ✅ · 10 ✅ (lokalisasi) — sisa: 4b (kadensi/kecepatan CSC), Strava API.**
 
 1. ✅ **Perbaikan dasar**: kompilasi, uji perangkat, hapus `elapsed` tak terpakai, konfirmasi hapus riwayat,
    ikon launcher sendiri.
@@ -390,6 +390,26 @@ semua fitur berikutnya (sensor, lap, pemulihan) menempel di `RideService` dan `R
   harus kontainer kosong khusus (`lapRows`), bukan kartu yang memakai header (`tvLapCount`).
   Gejala hanya muncul di cabang tertentu (ada lap), jadi uji di satu perangkat bisa lolos
   sementara perangkat lain crash — **selalu uji kedua cabang**.
+
+## 16d. Pelajaran dari v0.9.4 → v0.9.5
+
+- **Ternary Toast tidak boleh mencampur `int` (R.string.x) dan `String`.** `err == null ?
+  R.string.berhasil : err` tidak punya tipe umum → galat kompilasi "no suitable method".
+  **Aturan: pilih pesan menjadi String lebih dulu** (`String m = err == null ?
+  getString(R.string.x) : err;`), baru masukkan ke `Toast.makeText`.
+- **Jangan pakai nama variabel yang sama dengan parameter metode.** `valueOf(int id)` +
+  `String id = ...` → "variable id is already defined". Beri nama lain (`cid`).
+- **Tes JVM menemukan bug nyata**: `decode()` punya jalan pintas `indexOf('%') < 0` yang
+  membuat `'+'` tidak diubah menjadi spasi. **Aturan: jalan pintas harus memeriksa SEMUA
+  penanda yang ditangani**, bukan satu.
+- **Verifikasi resource wajib cek duplikat** (lihat 16c), dan verifikasi tipe String wajib
+  memeriksa referensi yang tidak terpakai juga.
+- **OAuth di aplikasi Android tanpa server**: pakai *loopback* — `ServerSocket` di
+  127.0.0.1, `redirect_uri = http://127.0.0.1:<port>/callback`, buka peramban lewat
+  `ACTION_VIEW`, tangkap pengalihan balik. Strava mengizinkan localhost/127.0.0.1 tanpa
+  harus mendaftarkan domain. Jangan pakai WebView untuk login.
+- **Alur jaringan wajib di thread latar.** Unggahan multipart + penanyaan status bisa
+  puluhan detik; di thread UI itu ANR, bukan galai.
 
 ## 16. Pelajaran dari v0.6.0 → v0.6.1
 
