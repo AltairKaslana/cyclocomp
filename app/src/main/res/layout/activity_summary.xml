@@ -26,7 +26,7 @@
         android:textColor="@color/label"
         android:textSize="13sp" />
 
-    <id.cyclocomp.RouteView
+    <id.cyclocomp.TileMapView
         android:id="@+id/route"
         android:layout_width="match_parent"
         android:layout_height="0dp"

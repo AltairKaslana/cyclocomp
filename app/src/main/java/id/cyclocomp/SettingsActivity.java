@@ -32,6 +32,7 @@ public class SettingsActivity extends Activity {
     private static final int R_ALERT_KM = 7, R_ALERT_MIN = 8, R_BEEP = 9;
     private static final int R_RESET = 10;
     private static final int R_HR = 11, R_HR_FORGET = 12;
+    private static final int R_MAP = 13;
 
     private static final int REQ_BLE = 71;
 
@@ -75,6 +76,9 @@ public class SettingsActivity extends Activity {
         if (!Settings.hrMac(this).isEmpty()) {
             valueRow(R_HR_FORGET, R.string.settings_hr_forget, "Putuskan dan kosongkan pilihan");
         }
+
+        group("PETA");
+        switchRow(R_MAP, R.string.settings_map, "Tampilkan peta di layar ringkasan");
 
         group("LAINNYA");
         valueRow(R_RESET, R.string.settings_reset, "Kembalikan semua ke nilai bawaan");
@@ -240,12 +244,21 @@ public class SettingsActivity extends Activity {
     // ---------- nilai ----------
 
     private boolean isOn(int id) {
-        return id == R_AUTOPAUSE ? Settings.autoPause(this) : Settings.beep(this);
+        switch (id) {
+            case R_AUTOPAUSE: return Settings.autoPause(this);
+            case R_MAP:       return Settings.map(this);
+            case R_BEEP:
+            default:          return Settings.beep(this);
+        }
     }
 
     private void setOn(int id, boolean v) {
-        if (id == R_AUTOPAUSE) Settings.setAutoPause(this, v);
-        else if (id == R_BEEP) Settings.setBeep(this, v);
+        switch (id) {
+            case R_AUTOPAUSE: Settings.setAutoPause(this, v); break;
+            case R_MAP:       Settings.setMap(this, v); break;
+            case R_BEEP:      Settings.setBeep(this, v); break;
+            default: break;
+        }
     }
 
     private String valueOf(int id) {
@@ -267,6 +280,7 @@ public class SettingsActivity extends Activity {
                 int mn = Settings.alertMin(this);
                 return mn <= 0 ? getString(R.string.settings_off) : getString(R.string.settings_minutes, mn);
             case R_BEEP:      return onOff(Settings.beep(this));
+            case R_MAP:       return onOff(Settings.map(this));
             case R_HR: {
                 String n = Settings.hrName(this);
                 return n.isEmpty() ? "Belum dipilih" : n;

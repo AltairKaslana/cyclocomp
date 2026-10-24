@@ -60,6 +60,12 @@
     <string name="delete">Hapus</string>
     <string name="close">Tutup</string>
 
+    <!-- peta -->
+    <string name="route_none">Rute tidak tersedia</string>
+    <string name="route_offline">Peta belum siap — rute tetap tergambar</string>
+    <string name="btn_share_gpx">BAGIKAN GPX</string>
+    <string name="summary_title">GOWES SELESAI</string>
+
     <!-- notifikasi -->
     <string name="notif_channel">Perekaman gowes</string>
     <string name="notif_title">Cyclocomp merekam</string>
@@ -84,6 +90,7 @@
     <string name="settings_beep">Bunyi bip</string>
     <string name="settings_hr">Sensor detak jantung</string>
     <string name="settings_hr_forget">Lupakan sensor</string>
+    <string name="settings_map">Peta OpenStreetMap</string>
     <string name="settings_reset">Kembalikan ke bawaan</string>
     <string name="settings_on">Aktif</string>
     <string name="settings_off">Mati</string>

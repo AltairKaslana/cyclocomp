@@ -28,6 +28,7 @@ final class Settings {
     private static final String K_LAST_RIDE   = "last_ride";
     private static final String K_HR_MAC      = "hr_mac";        // alamat sensor detak jantung
     private static final String K_HR_NAME     = "hr_name";
+    private static final String K_MAP         = "map";           // peta ubin di Ringkasan
 
     // mode lap
     public static final int LAP_MANUAL = 0, LAP_DISTANCE = 1, LAP_TIME = 2;
@@ -98,6 +99,12 @@ final class Settings {
     public static void setHrName(Context c, String v) {
         sp(c).edit().putString(K_HR_NAME, v == null ? "" : v).apply();
     }
+
+    // ---------- peta ----------
+
+    /** Tampilkan peta ubin OpenStreetMap di layar Ringkasan. */
+    public static boolean map(Context c) { return sp(c).getBoolean(K_MAP, true); }
+    public static void setMap(Context c, boolean v) { sp(c).edit().putBoolean(K_MAP, v).apply(); }
 
     /** Bunyi bip saat peringatan & lap. */
     public static boolean beep(Context c) { return sp(c).getBoolean(K_BEEP, true); }

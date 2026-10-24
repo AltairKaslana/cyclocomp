@@ -69,7 +69,8 @@ public class SummaryActivity extends Activity {
         ((TextView) findViewById(R.id.tvElev)).setText(Fmt.meters(row.elevGainM));
 
         // rute
-        RouteView rv = (RouteView) findViewById(R.id.route);
+        TileMapView rv = (TileMapView) findViewById(R.id.route);
+        rv.setMapEnabled(Settings.map(this));
         File gpx = row.gpxPath == null ? null : new File(row.gpxPath);
         List<GpxReader.P> track = GpxReader.read(gpx);
         rv.setTrack(track);
