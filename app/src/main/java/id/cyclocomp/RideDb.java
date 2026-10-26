@@ -125,4 +125,15 @@ public class RideDb extends SQLiteOpenHelper {
     public void delete(long id) {
         getWritableDatabase().delete("rides", "id=?", new String[]{String.valueOf(id)});
     }
+
+    /**
+     * Perbarui lokasi berkas GPX sebuah rekaman. Dipakai migrasi sekali jalan
+     * saat berkas dipindah dari folder aplikasi ke penyimpanan bersama.
+     */
+    public void updateGpxPath(long id, String path) {
+        if (id <= 0) return;
+        ContentValues v = new ContentValues();
+        v.put("gpx_path", path);
+        getWritableDatabase().update("rides", v, "id=?", new String[]{String.valueOf(id)});
+    }
 }

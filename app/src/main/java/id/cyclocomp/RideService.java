@@ -24,7 +24,6 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -66,7 +65,7 @@ public class RideService extends Service implements LocationListener {
     private BleHr ble;
     private String bleStatus;
     private GpxWriter gpx;
-    private File gpxFile;
+    private String gpxLoc;
     private Listener listener;
 
     private State state = State.IDLE;
@@ -139,6 +138,7 @@ public class RideService extends Service implements LocationListener {
         handler.removeCallbacks(ticker);
         try { lm.removeUpdates(this); } catch (Exception ignored) { }
         if (gpx != null) { gpx.close(); gpx = null; }
+        if (gpxLoc != null) { GpxStore.finish(this, gpxLoc); }
         releaseWakeLock();
         if (baro != null) { baro.stop(); baro = null; }
         stopBle();
@@ -186,16 +186,14 @@ public class RideService extends Service implements LocationListener {
         // Wajib dipanggil cepat setelah startForegroundService() di Android 8+
         startForegroundCompat(buildNotification());
         try {
-            File base = getExternalFilesDir(null);
-            if (base == null) base = getFilesDir();
-            File dir = new File(base, "rides");
-            //noinspection ResultOfMethodCallIgnored
-            dir.mkdirs();
-
+            // Berkas ride ditaruh di penyimpanan bersama (Download/Zylo di
+            // Android 10+) supaya TIDAK hilang kalau aplikasi diuninstall.
+            // Kalau gagal, GpxStore jatuh kembali ke folder aplikasi.
             startWall = System.currentTimeMillis();
             String stamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date(startWall));
-            gpxFile = new File(dir, "ride_" + stamp + ".gpx");
-            gpx = new GpxWriter(gpxFile, getString(R.string.gpx_creator) + " " + stamp);
+            gpxLoc = GpxStore.create(this, "ride_" + stamp + ".gpx");
+            gpx = new GpxWriter(GpxStore.openWrite(this, gpxLoc, false),
+                    getString(R.string.gpx_creator) + " " + stamp);
             stats = new RideStats();
             lastFixElapsed = 0;
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, this);
@@ -203,6 +201,7 @@ public class RideService extends Service implements LocationListener {
             Log.e(TAG, "start failed", e);
             Toast.makeText(this, R.string.start_failed, Toast.LENGTH_LONG).show();
             if (gpx != null) { gpx.close(); gpx = null; }
+        if (gpxLoc != null) { GpxStore.finish(this, gpxLoc); }
             stopForeground(true);
             stopSelf();
             return;
@@ -262,6 +261,7 @@ public class RideService extends Service implements LocationListener {
         try { lm.removeUpdates(this); } catch (Exception ignored) { }
         handler.removeCallbacks(ticker);
         if (gpx != null) { gpx.close(); gpx = null; }
+        if (gpxLoc != null) { GpxStore.finish(this, gpxLoc); }
 
         // Menyimpan riwayat tidak boleh mematikan aplikasi: kalau gagal (penyimpanan
         // penuh, DB terkunci), status tetap kembali ke IDLE dan pengguna dapat pesan.
@@ -280,7 +280,7 @@ public class RideService extends Service implements LocationListener {
                 r.distanceM = stats.distanceM;
                 r.maxSpeedMs = stats.maxSpeedMs;
                 r.elevGainM = stats.elevGainM;
-                r.gpxPath = gpxFile.getAbsolutePath();
+                r.gpxPath = gpxLoc;
                 r.laps = encodeLaps(laps);
                 long id = db.insert(r);
                 Settings.setLastRideId(this, id);
@@ -289,9 +289,10 @@ public class RideService extends Service implements LocationListener {
                 simpanGagal = true;
             }
             SessionRecovery.clear(this);
-        } else if (gpxFile != null) {
-            //noinspection ResultOfMethodCallIgnored
-            gpxFile.delete(); // rekaman terlalu pendek, buang
+        } else if (gpxLoc != null) {
+            // rekaman terlalu pendek, buang
+            GpxStore.delete(this, gpxLoc);
+            gpxLoc = null;
             SessionRecovery.clear(this);
         }
         SessionRecovery.clear(this);
@@ -448,9 +449,9 @@ public class RideService extends Service implements LocationListener {
      * App bisa memulihkan rekaman ini saat aplikasi dibuka lagi.
      */
     private void saveSession() {
-        if (state == State.IDLE || gpxFile == null) return;
+        if (state == State.IDLE || gpxLoc == null) return;
         try {
-            SessionRecovery.mark(this, gpxFile.getAbsolutePath(), startWall, getElapsedMs(),
+            SessionRecovery.mark(this, gpxLoc, startWall, getElapsedMs(),
                     stats.distanceM, stats.movingMs, stats.maxSpeedMs, stats.elevGainM,
                     encodeLaps(laps));
         } catch (Throwable ignored) { }

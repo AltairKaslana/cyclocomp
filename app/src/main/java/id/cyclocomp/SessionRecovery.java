@@ -75,16 +75,15 @@ final class SessionRecovery {
         clear(c);
 
         if (path == null) return false;
-        java.io.File f = new java.io.File(path);
-        if (!f.exists()) return false;
 
         // GPX yang terputus tidak punya footer; tambahkan supaya bisa dibaca aplikasi lain
-        GpxWriter.closeTruncated(f);
+        GpxWriter.closeTruncated(c, path);
+
+        if (!GpxStore.exists(c, path)) return false;
 
         // terlalu pendek = tidak layak masuk riwayat
         if (dist < 20) {
-            //noinspection ResultOfMethodCallIgnored
-            f.delete();
+            GpxStore.delete(c, path);
             return false;
         }
 

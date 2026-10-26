@@ -80,7 +80,7 @@ final class ShareCard {
 
             File dir = new File(c.getExternalFilesDir(null), "rides");
             if (!dir.exists() && !dir.mkdirs()) return null;
-            String gpxName = row.gpxPath == null ? null : new File(row.gpxPath).getName();
+            String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
             File f = new File(dir, fileName(gpxName));
             out = new FileOutputStream(f);
             bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
@@ -320,7 +320,7 @@ final class ShareCard {
 
             File dir = new File(c.getExternalFilesDir(null), "rides");
             if (!dir.exists() && !dir.mkdirs()) return null;
-            String gpxName = row.gpxPath == null ? null : new File(row.gpxPath).getName();
+            String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
             File f = new File(dir, storyFileName(gpxName));
             out = new FileOutputStream(f);
             bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
@@ -460,7 +460,7 @@ final class ShareCard {
 
             File dir = new File(c.getExternalFilesDir(null), "rides");
             if (!dir.exists() && !dir.mkdirs()) return null;
-            String gpxName = row.gpxPath == null ? null : new File(row.gpxPath).getName();
+            String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
             File f = new File(dir, stickerFileName(gpxName));
             out = new FileOutputStream(f);
             bmp.compress(Bitmap.CompressFormat.PNG, 100, out);

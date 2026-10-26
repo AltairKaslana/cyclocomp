@@ -20,8 +20,13 @@ public class GpxWriter {
     private int count;
 
     public GpxWriter(File file, String name) throws IOException {
+        this(new FileOutputStream(file), name);
+    }
+
+    /** Versi stream: dipakai waktu berkas tujuannya MediaStore (content://). */
+    public GpxWriter(OutputStream os, String name) throws IOException {
         iso.setTimeZone(TimeZone.getTimeZone("UTC"));
-        w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
+        w = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
         w.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         w.write("<gpx version=\"1.1\" creator=\"Cyclocomp\""
                 + " xmlns=\"http://www.topografix.com/GPX/1/1\""
@@ -55,31 +60,20 @@ public class GpxWriter {
     /**
      * Tutup GPX yang terputus (HP mati / proses dibunuh) dengan menambahkan footer.
      * Tanpa footer, banyak aplikasi peta menolak membuka berkasnya.
+     *
+     * @param loc locator dari {@link GpxStore} (path biasa atau content://)
      */
-    static void closeTruncated(java.io.File f) {
-        if (f == null || !f.exists()) return;
+    static void closeTruncated(android.content.Context c, String loc) {
+        if (loc == null) return;
         try {
-            String isi = baca(f);
+            String isi = GpxStore.readAll(c, loc);
             if (isi.contains("</gpx>")) return;      // sudah utuh
             StringBuilder sb = new StringBuilder(isi);
             if (!isi.contains("</trkseg>")) sb.append("</trkseg>\n");
             if (!isi.contains("</trk>")) sb.append("</trk>\n");
             sb.append("</gpx>\n");
-            java.io.Writer w = new java.io.OutputStreamWriter(
-                    new java.io.FileOutputStream(f, false), "UTF-8");
-            w.write(sb.toString());
-            w.close();
+            GpxStore.writeAll(c, loc, sb.toString());
         } catch (Throwable ignored) { }
-    }
-
-    private static String baca(java.io.File f) throws java.io.IOException {
-        java.io.BufferedReader r = new java.io.BufferedReader(
-                new java.io.InputStreamReader(new java.io.FileInputStream(f), "UTF-8"));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = r.readLine()) != null) sb.append(line).append('\n');
-        r.close();
-        return sb.toString();
     }
 
     public void close() {

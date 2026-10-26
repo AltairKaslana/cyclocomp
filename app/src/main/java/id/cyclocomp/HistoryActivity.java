@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -97,8 +96,8 @@ public class HistoryActivity extends Activity {
                 .setMessage(R.string.hist_delete_msg)
                 .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface d, int w) {
-                        if (r.gpxPath != null) //noinspection ResultOfMethodCallIgnored
-                            new File(r.gpxPath).delete();
+                        if (r.gpxPath != null)
+                            GpxStore.delete(HistoryActivity.this, r.gpxPath);
                         db.delete(r.id);
                         reload();
                     }

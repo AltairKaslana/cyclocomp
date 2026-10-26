@@ -2,9 +2,11 @@ package id.cyclocomp;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 
@@ -36,13 +38,28 @@ public class RideProvider extends ContentProvider {
         if (!name.matches("[A-Za-z0-9_.-]+") || name.contains("..")) {
             throw new FileNotFoundException(getContext().getString(R.string.prov_bad_name));
         }
-        File base = getContext() == null ? null : getContext().getExternalFilesDir(null);
-        if (base == null) {
+        Context c = getContext();
+        if (c == null) {
             throw new FileNotFoundException(getContext().getString(R.string.prov_no_storage));
         }
-        File f = new File(new File(base, "rides"), name);
-        if (!f.exists()) throw new FileNotFoundException(name);
-        return f;
+
+        // Urutan pencarian: folder kartu milik aplikasi dulu (PNG kartu selalu
+        // ditulis ke sana), lalu tempat GPX bisa berada. Nama sudah divalidasi
+        // (tanpa ".."), jadi mencoba beberapa root tetap aman.
+        File[] roots = new File[]{
+                new File(c.getExternalFilesDir(null), "rides"),   // kartu PNG + GPX lama
+                new File(c.getCacheDir(), "gpx-read"),            // salinan baca content://
+                new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOCUMENTS), "Zylo"),
+                new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOWNLOADS), "Zylo"),
+        };
+        for (File base : roots) {
+            if (base == null) continue;
+            File f = new File(base, name);
+            if (f.exists()) return f;
+        }
+        throw new FileNotFoundException(name);
     }
 
     @Override

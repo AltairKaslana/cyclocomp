@@ -34,6 +34,12 @@ public class App extends Application {
             recovered = SessionRecovery.recover(this);
         } catch (Throwable ignored) { }
 
+        // Pindahkan GPX lama dari folder aplikasi (yang terhapus saat uninstall)
+        // ke penyimpanan bersama. Sekali saja, ditandai di SharedPreferences.
+        try {
+            migrateGpx();
+        } catch (Throwable ignored) { }
+
         if (sistem == null) sistem = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override public void uncaughtException(Thread t, Throwable e) {
@@ -41,6 +47,32 @@ public class App extends Application {
                 if (sistem != null) sistem.uncaughtException(t, e);
             }
         });
+    }
+
+    /**
+     * Pindahkan berkas GPX dari folder aplikasi (Android/data/id.cyclocomp/files/rides)
+     * ke penyimpanan bersama, supaya rekaman tidak hilang kalau aplikasi
+     * diuninstall. Dijalankan sekali, ditandai di SharedPreferences.
+     *
+     * Kegagalan di sini tidak fatal: kalau migrasi gagal, DB tetap menunjuk
+     * lokasi lama dan rekaman tetap bisa dibaca selama berkasnya ada.
+     */
+    private void migrateGpx() {
+        android.content.SharedPreferences sp =
+                getSharedPreferences("gpxmig", MODE_PRIVATE);
+        if (sp.getBoolean("done", false)) return;
+
+        RideDb db = new RideDb(this);
+        try {
+            for (RideDb.Row r : db.list()) {
+                if (r.gpxPath == null || r.gpxPath.startsWith("content://")) continue;
+                String baru = GpxStore.migrate(this, r.gpxPath);
+                if (!baru.equals(r.gpxPath)) db.updateGpxPath(r.id, baru);
+            }
+        } finally {
+            db.close();
+        }
+        sp.edit().putBoolean("done", true).apply();
     }
 
     private void tulis(Thread t, Throwable e) {

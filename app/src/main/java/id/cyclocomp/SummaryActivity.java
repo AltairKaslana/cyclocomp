@@ -101,7 +101,7 @@ public class SummaryActivity extends Activity {
         ((TextView) findViewById(R.id.tvElev)).setText(Fmt.meters(row.elevGainM));
 
         // rute & peta: kalau gagal, angka di atas tetap tampil (rute tidak, itu saja)
-        File gpx = row.gpxPath == null ? null : new File(row.gpxPath);
+        File gpx = GpxStore.materialize(this, row.gpxPath);
         try {
             TileMapView rv = (TileMapView) findViewById(R.id.route);
             rv.setMapEnabled(Settings.map(this));
@@ -218,7 +218,7 @@ public class SummaryActivity extends Activity {
         boolean needsRoute = variant != 1;
         if (needsRoute) {
             try {
-                track = GpxReader.read(row.gpxPath == null ? null : new File(row.gpxPath));
+                track = GpxReader.read(GpxStore.materialize(this, row.gpxPath));
             } catch (Throwable t) {
                 Log.e("Summary", "rute untuk kartu gagal dibaca", t);
                 track = java.util.Collections.emptyList();
@@ -312,16 +312,18 @@ public class SummaryActivity extends Activity {
     /** Bagikan berkas GPX lewat content:// supaya bisa diterima aplikasi lain (termasuk Strava). */
     private void share() {
         if (row == null || row.gpxPath == null) return;
-        File f = new File(row.gpxPath);
-        if (!f.exists()) {
+        if (!GpxStore.exists(this, row.gpxPath)) {
             Toast.makeText(this, R.string.gpx_missing, Toast.LENGTH_SHORT).show();
             return;
         }
-        Uri uri = Uri.parse("content://" + RideProvider.AUTHORITY + "/" + f.getName());
+        // content:// MediaStore (Android 10+) dipakai langsung; path biasa
+        // tetap lewat RideProvider seperti sebelumnya.
+        Uri uri = GpxStore.shareUri(this, row.gpxPath);
+        String nama = GpxStore.displayName(row.gpxPath);
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("application/gpx+xml");
         i.putExtra(Intent.EXTRA_STREAM, uri);
-        i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject, f.getName()));
+        i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject, nama));
         i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         try {
             startActivity(Intent.createChooser(i, getString(R.string.share_title)));
@@ -338,11 +340,11 @@ public class SummaryActivity extends Activity {
      */
     private void uploadStrava() {
         if (row == null || row.gpxPath == null) return;
-        final File gpx = new File(row.gpxPath);
-        if (!gpx.exists()) {
+        if (!GpxStore.exists(this, row.gpxPath)) {
             Toast.makeText(this, R.string.gpx_missing, Toast.LENGTH_SHORT).show();
             return;
         }
+        final String gpxLoc = row.gpxPath;
 
         final android.app.ProgressDialog pd = new android.app.ProgressDialog(this);
         pd.setMessage(getString(R.string.strava_uploading));
@@ -351,7 +353,7 @@ public class SummaryActivity extends Activity {
 
         new Thread(new Runnable() {
             @Override public void run() {
-                final String err = Strava.upload(SummaryActivity.this, gpx);
+                final String err = Strava.upload(SummaryActivity.this, gpxLoc);
                 runOnUiThread(new Runnable() {
                     @Override public void run() {
                         pd.dismiss();

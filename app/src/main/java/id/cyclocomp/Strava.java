@@ -220,7 +220,9 @@ final class Strava {
      *
      * @return null kalau berhasil, atau pesan galat yang bisa ditampilkan.
      */
-    static String upload(Context c, File gpx) {
+    static String upload(Context c, String gpxLoc) {
+        if (gpxLoc == null) return c.getString(R.string.gpx_missing);
+        File gpx = GpxStore.materialize(c, gpxLoc);
         if (gpx == null || !gpx.exists()) return c.getString(R.string.gpx_missing);
         if (!StravaStore.ready(c)) return c.getString(R.string.strava_not_ready);
 
