@@ -7,6 +7,10 @@
     <string name="unit_speed">km/h</string>
     <string name="unit_grade">%</string>
 
+    <!-- accessibility description for GradeRoad: a screen reader cannot "see" a tilt,
+         so the direction of the climb must be stated explicitly here. -->
+    <string name="grade_road_desc">Climb direction: a road tilting up means climbing, tilting down means descending, level means flat</string>
+
     <!-- label -->
     <string name="label_speed">SPEED</string>
     <string name="label_distance">DISTANCE</string>

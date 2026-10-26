@@ -44,6 +44,13 @@
     <dimen name="hairline">1dp</dimen>
     <dimen name="dot_radius">2dp</dimen>
 
+    <!-- GradeRoad: ruas jalan miring. Ukuran dipilih supaya ruas jalan yang sudah
+         diputar maksimal (32 derajat) tetap utuh di dalam view — kalau lebih kecil,
+         ujung jalan terpotong tepat saat tanjakan curam, jadi informasi hilang justru
+         saat paling dibutuhkan. -->
+    <dimen name="grade_road_w">24dp</dimen>
+    <dimen name="grade_road_h">18dp</dimen>
+
     <!-- ===== sudut lengkung =====
          Kartu membulat sedang, kapsul penuh. Satu nilai per peran. -->
     <dimen name="radius_card">14dp</dimen>

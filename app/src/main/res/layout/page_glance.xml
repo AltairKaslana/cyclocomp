@@ -15,7 +15,8 @@
     android:paddingLeft="@dimen/screen_edge"
     android:paddingRight="@dimen/screen_edge">
 
-    <!-- pil tanjakan -->
+    <!-- pil tanjakan: ruas jalan miring + angka. Arah dan besar tanjakan terbaca
+         dari bentuk jalan; angkanya memberi nilai persis. -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="@dimen/pill_h"
@@ -27,12 +28,12 @@
         android:paddingLeft="@dimen/gap_roomy"
         android:paddingRight="@dimen/gap_roomy">
 
-        <TextView
-            android:id="@+id/tvGradeArrow"
-            style="@style/GradeArrow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="→" />
+        <id.cyclocomp.GradeRoad
+            android:id="@+id/gradeRoad"
+            android:layout_width="@dimen/grade_road_w"
+            android:layout_height="@dimen/grade_road_h"
+            android:layout_marginRight="@dimen/gap_snug"
+            android:contentDescription="@string/grade_road_desc" />
 
         <TextView
             android:id="@+id/tvGrade"
@@ -53,7 +54,7 @@
         <!-- detak jantung: muncul hanya kalau sensor mengirim data -->
         <TextView
             android:id="@+id/tvHrHeart"
-            style="@style/GradeArrow"
+            style="@style/PillGlyph"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="@dimen/gap_loose"
@@ -80,11 +81,12 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <TextView
+        <id.cyclocomp.AutoFitText
             android:id="@+id/tvSpeed"
             style="@style/SpeedHero"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
             android:tag="num"
             android:text="0,0" />
 

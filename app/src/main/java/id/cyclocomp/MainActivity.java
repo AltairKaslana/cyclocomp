@@ -47,7 +47,8 @@ public class MainActivity extends Activity implements RideService.Listener {
 
     private TextView tvStatus, tvLapBadge;
     private View vRec;
-    private TextView tvSpeed, tvDist, tvTime, tvAvg, tvMax, tvElev, tvAlt, tvGrade, tvGradeArrow;
+    private TextView tvSpeed, tvDist, tvTime, tvAvg, tvMax, tvElev, tvAlt, tvGrade;
+    private GradeRoad gradeRoad;
     private TextView tvHr, tvHrHeart;
     private TextView tvSpeed2, tvDist2, tvTime2, tvAvg2, tvMax2, tvElev2, tvAlt2;
     private TextView tvMoving, tvTotal, tvLapDist, tvLapTime, tvLapAvg, tvLapMoving, tvLapTitle;
@@ -114,7 +115,7 @@ public class MainActivity extends Activity implements RideService.Listener {
         tvTime = (TextView) findViewById(R.id.tvTime);
         tvAvg = (TextView) findViewById(R.id.tvAvg);
         tvGrade = (TextView) findViewById(R.id.tvGrade);
-        tvGradeArrow = (TextView) findViewById(R.id.tvGradeArrow);
+        gradeRoad = (GradeRoad) findViewById(R.id.gradeRoad);
         tvHr = (TextView) findViewById(R.id.tvHr);
         tvHrHeart = (TextView) findViewById(R.id.tvHrHeart);
 
@@ -419,18 +420,15 @@ public class MainActivity extends Activity implements RideService.Listener {
         tvTime.setText(Fmt.duration(s.movingMs));
         tvAvg.setText(Fmt.speed(s.avgSpeedMs()));
 
-        // gradien: panah arah + angka, supaya terbaca sekilas tanpa memikirkan tanda
+        // gradien: ruas jalan memberi ARAH dan KESAN besarannya, angka memberi nilai
+        // persis. Dua hal berbeda, tidak salung ulang — itu sebabnya panah naik/turun
+        // bisa dibuang.
         double g = s.gradePercent;
-        if (Math.abs(g) < 0.15) {
-            tvGradeArrow.setText("→");
-            tvGrade.setText("0.0");
-        } else if (g > 0) {
-            tvGradeArrow.setText("▲");
-            tvGrade.setText(Fmt.grade(g));
-        } else {
-            tvGradeArrow.setText("▼");
-            tvGrade.setText(Fmt.grade(-g));
-        }
+        gradeRoad.setGrade(g);
+        // Angka selalu magnitudo; arah sudah dikatakan jalan. Kasus rata ikut lewat
+        // Fmt.grade() supaya pemisah desimalnya konsisten dengan locale — sebelumnya
+        // ditulis "0.0" dengan titik, padahal locale Indonesia memakai koma.
+        tvGrade.setText(Fmt.grade(Math.abs(g) < 0.15 ? 0.0 : Math.abs(g)));
 
         // detak jantung: pil disembunyikan bila belum ada data (tanpa sensor = tidak berisik)
         int hr = s.hr;

@@ -5,6 +5,10 @@
     <string name="unit_speed">km/jam</string>
     <string name="unit_grade">%</string>
 
+    <!-- deskripsi aksesibilitas untuk GradeRoad: pembaca layar tidak bisa "melihat"
+         kemiringan, jadi arah tanjakan harus disebut eksplisit di sini. -->
+    <string name="grade_road_desc">Arah tanjakan: jalan miring ke atas berarti sedang naik, miring ke bawah berarti sedang turun, datar berarti rata</string>
+
     <!-- label -->
     <string name="label_speed">KECEPATAN</string>
     <string name="label_distance">JARAK</string>
