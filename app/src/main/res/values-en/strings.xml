@@ -228,6 +228,11 @@
     <string name="card_failed">Could not create the share image</string>
     <string name="card_share_title">Share ride card</string>
     <string name="card_share_subject">Ride card %1$s</string>
+    <string name="card_pick_title">Which card format?</string>
+    <string name="card_variant_map">Card 4:5 - includes the route map</string>
+    <string name="card_variant_story">Story card 9:16 - big numbers, black background</string>
+    <string name="unit_distance">km</string>
+    <string name="unit_elev_short">m</string>
 
     <!-- Strava -->
     <string name="group_strava">STRAVA</string>

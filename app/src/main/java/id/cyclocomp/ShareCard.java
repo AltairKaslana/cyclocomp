@@ -274,4 +274,140 @@ final class ShareCard {
         Paint p = solid(color);
         cv.drawRoundRect(new RectF(x, y, x + w, y + h), 28f, 28f, p);
     }
+
+    // ==================================================================
+    // Kartu Story 9:16 - latar hitam pekat, angka berjajar tegak di tengah.
+    //
+    // Dipakai untuk Story Instagram/WhatsApp: rasio 1080x1920 mengisi layar
+    // penuh tanpa terpotong. Bedanya dengan kartu 4:5 di atas: di sini ANGKA
+    // adalah tokoh utama, bukan peta. Tidak ada rute digambar - kalau ada
+    // rute, mata orang justru beralih ke gambar, bukan ke jarak dan tanjakan.
+    //
+    // Proporsi diambil dari pengukuran kartu rujukan (1080 lebar):
+    //   wordmark ~5% tinggi, label 38px, nilai 96px -> rasio nilai:label 2,5:1,
+    //   jarak antar blok 282px. Latar hitam murni #000000 supaya angka putih
+    //   yang menonjol, dan aksen oranye hanya untuk wordmark + garis tipis.
+    // ==================================================================
+
+    private static final int SW = 1080;
+    private static final int SH = 1920;
+
+    /** Berkas PNG kartu story - nama berbeda dari kartu 4:5 supaya tidak saling menimpa. */
+    static String storyFileName(String gpxName) {
+        if (gpxName == null) gpxName = "ride";
+        int dot = gpxName.lastIndexOf('.');
+        String base = dot > 0 ? gpxName.substring(0, dot) : gpxName;
+        return base + "_story.png";
+    }
+
+    /** Bangun kartu story dan simpan sebagai PNG di folder rides. */
+    static File buildStory(Context c, RideDb.Row row) {
+        Bitmap bmp = null;
+        FileOutputStream out = null;
+        try {
+            bmp = Bitmap.createBitmap(SW, SH, Bitmap.Config.ARGB_8888);
+            Canvas cv = new Canvas(bmp);
+            drawStory(c, cv, row);
+
+            File dir = new File(c.getExternalFilesDir(null), "rides");
+            if (!dir.exists() && !dir.mkdirs()) return null;
+            String gpxName = row.gpxPath == null ? null : new File(row.gpxPath).getName();
+            File f = new File(dir, storyFileName(gpxName));
+            out = new FileOutputStream(f);
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            return f;
+        } catch (Throwable t) {
+            return null;
+        } finally {
+            if (out != null) try { out.close(); } catch (Exception ignored) { }
+            if (bmp != null) bmp.recycle();
+        }
+    }
+
+    private static void drawStory(Context c, Canvas cv, RideDb.Row row) {
+        Typeface cond = Ui.condBold(c);
+        Typeface body = Ui.body(c);
+
+        cv.drawColor(Color.BLACK);
+
+        // ---- kepala: wordmark + garis aksen + tanggal, semuanya di tengah ----
+        Paint pBrand = text(body, ACCENT, 52f);
+        pBrand.setLetterSpacing(0.34f);
+        pBrand.setTextAlign(Paint.Align.CENTER);
+        cv.drawText(c.getString(R.string.card_footer).toUpperCase(Locale.getDefault()),
+                SW / 2f, 168f, pBrand);
+
+        Paint pRule = solid(ACCENT);
+        cv.drawRect(SW / 2f - 62f, 204f, SW / 2f + 62f, 211f, pRule);
+
+        Paint pDate = text(body, LABEL, 34f);
+        pDate.setTextAlign(Paint.Align.CENTER);
+        cv.drawText(DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault())
+                .format(new Date(row.startMs)), SW / 2f, 274f, pDate);
+
+        // ---- lima blok angka. Hanya data yang benar-benar tersedia di RideDb:
+        //      jarak, waktu gerak, tanjakan, rata-rata, maksimum. Kalori dan
+        //      detak jantung TIDAK ditampilkan karena belum disimpan per gowes -
+        //      menampilkannya berarti mengarang angka. ----
+        final float top = 430f, step = 282f;
+        final float labelSize = 38f, valueSize = 96f;
+
+        storyStat(cv, cond, body, top, labelSize, valueSize,
+                c.getString(R.string.label_distance),
+                Fmt.km(row.distanceM), c.getString(R.string.unit_distance));
+
+        storyStat(cv, cond, body, top + step, labelSize, valueSize,
+                c.getString(R.string.label_moving),
+                storyDuration(row.movingMs), null);
+
+        storyStat(cv, cond, body, top + 2 * step, labelSize, valueSize,
+                c.getString(R.string.label_elev),
+                Fmt.meters(row.elevGainM), c.getString(R.string.unit_elev_short));
+
+        storyStat(cv, cond, body, top + 3 * step, labelSize, valueSize,
+                c.getString(R.string.label_avg),
+                Fmt.speed(row.avgSpeedMs()), c.getString(R.string.unit_speed));
+
+        storyStat(cv, cond, body, top + 4 * step, labelSize, valueSize,
+                c.getString(R.string.label_max),
+                Fmt.speed((float) row.maxSpeedMs), c.getString(R.string.unit_speed));
+    }
+
+    /** Satu blok story: label kecil di tengah, nilai besar di bawahnya, satuan menyusul. */
+    private static void storyStat(Canvas cv, Typeface cond, Typeface body, float top,
+                                  float labelSize, float valueSize,
+                                  String label, String value, String unit) {
+        Paint pL = text(body, LABEL, labelSize);
+        pL.setLetterSpacing(0.20f);
+        pL.setTextAlign(Paint.Align.CENTER);
+        cv.drawText(label.toUpperCase(Locale.getDefault()), SW / 2f, top + labelSize, pL);
+
+        float vBase = top + labelSize + 34f + valueSize;
+        Paint pV = text(cond, VALUE, valueSize);
+        pV.setTextAlign(Paint.Align.CENTER);
+
+        if (unit == null || unit.isEmpty()) {
+            cv.drawText(value, SW / 2f, vBase, pV);
+            return;
+        }
+
+        // nilai + satuan sejajar baseline; satuan ~42% ukuran nilai supaya
+        // angka tetap jadi fokus pertama, sama seperti kartu rujukan.
+        Paint pU = text(body, LABEL, valueSize * 0.42f);
+        float gap = valueSize * 0.16f;
+        float total = pV.measureText(value) + gap + pU.measureText(unit);
+        float x0 = SW / 2f - total / 2f;
+        cv.drawText(value, x0, vBase, pV);
+        pU.setTextAlign(Paint.Align.LEFT);
+        cv.drawText(unit, x0 + pV.measureText(value) + gap, vBase, pU);
+    }
+
+    /** Durasi gaya kartu story: "40m 57d", bukan "40:57". */
+    private static String storyDuration(long ms) {
+        long s = Math.max(0, ms / 1000);
+        long h = s / 3600, m = (s % 3600) / 60, sec = s % 60;
+        if (h > 0) return String.format(Locale.US, "%dj %dm %dd", h, m, sec);
+        return String.format(Locale.US, "%dm %dd", m, sec);
+    }
 }

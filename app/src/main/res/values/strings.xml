@@ -227,6 +227,11 @@
     <string name="card_failed">Gambar kartu gagal dibuat</string>
     <string name="card_share_title">Bagikan kartu gowes</string>
     <string name="card_share_subject">Kartu gowes %1$s</string>
+    <string name="card_pick_title">Bentuk kartu mana?</string>
+    <string name="card_variant_map">Kartu 4:5 - ada peta rute</string>
+    <string name="card_variant_story">Kartu Story 9:16 - angka besar, latar hitam</string>
+    <string name="unit_distance">km</string>
+    <string name="unit_elev_short">m</string>
 
     <!-- Strava -->
     <string name="group_strava">STRAVA</string>

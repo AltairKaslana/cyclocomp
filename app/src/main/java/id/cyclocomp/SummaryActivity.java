@@ -3,6 +3,7 @@ package id.cyclocomp;
 import android.util.Log;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -140,25 +141,50 @@ public class SummaryActivity extends Activity {
     }
 
     /**
-     * Buat kartu gambar (PNG) berisi angka akhir + gambar rute, lalu bagikan.
+     * Tanya dulu bentuk kartu yang mau dibagikan, lalu bangun kartunya.
+     *
+     * Dua bentuk, dua kegunaan berbeda: kartu 4:5 punya peta rute dan pas untuk
+     * WhatsApp/Telegram, kartu Story 9:16 latar hitam dengan angka besar dibuat
+     * untuk Story Instagram/WhatsApp yang mengisi layar penuh. Memilih sekali di
+     * dialog ini lebih baik daripada menebak - pemakai yang tahu dia mau posting di mana.
+     */
+    private void shareCard() {
+        if (row == null) return;
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.card_pick_title)
+                .setItems(new CharSequence[]{
+                                getString(R.string.card_variant_map),
+                                getString(R.string.card_variant_story)},
+                        (d, which) -> buildAndShare(which == 1))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    /**
+     * Bangun kartu terpilih (story = kartu 9:16) lalu buka pemilih aplikasi.
      *
      * Kartu digambar sendiri lewat {@link ShareCard}, bukan memotret layar: hasilnya sama
      * di semua perangkat dan tetap lengkap walaupun peta ubin tidak bisa diambil.
      * Seluruh proses dibungkus try/catch - membuat gambar tidak boleh mematikan aplikasi.
      */
-    private void shareCard() {
+    private void buildAndShare(boolean story) {
         if (row == null) return;
-        List<GpxReader.P> track;
-        try {
-            track = GpxReader.read(row.gpxPath == null ? null : new File(row.gpxPath));
-        } catch (Throwable t) {
-            Log.e("Summary", "rute untuk kartu gagal dibaca", t);
-            track = java.util.Collections.emptyList();
+
+        // Rute hanya dibaca untuk kartu 4:5; kartu story tidak menggambar peta,
+        // jadi membaca GPX di sana cuma buang waktu di perangkat lambat.
+        List<GpxReader.P> track = java.util.Collections.emptyList();
+        if (!story) {
+            try {
+                track = GpxReader.read(row.gpxPath == null ? null : new File(row.gpxPath));
+            } catch (Throwable t) {
+                Log.e("Summary", "rute untuk kartu gagal dibaca", t);
+                track = java.util.Collections.emptyList();
+            }
         }
 
         File png;
         try {
-            png = ShareCard.build(this, row, track);
+            png = story ? ShareCard.buildStory(this, row) : ShareCard.build(this, row, track);
         } catch (Throwable t) {
             Log.e("Summary", "kartu gagal dibuat", t);
             png = null;
