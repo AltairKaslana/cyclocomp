@@ -6,11 +6,11 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -49,19 +49,18 @@ public class HistoryActivity extends Activity {
 
     private void reload() {
         rows = db.list();
-        String[] items = new String[rows.size()];
-        for (int i = 0; i < items.length; i++) {
-            RideDb.Row r = rows.get(i);
-            java.util.List<Lap> lp = RideService.decodeLaps(r.laps);
-            items[i] = lp.isEmpty()
-                    ? getString(R.string.hist_item, df.format(new Date(r.startMs)),
-                            Fmt.km(r.distanceM), Fmt.duration(r.movingMs),
-                            Fmt.speed(r.avgSpeedMs()))
-                    : getString(R.string.hist_item_laps, df.format(new Date(r.startMs)),
-                            Fmt.km(r.distanceM), Fmt.duration(r.movingMs),
-                            Fmt.speed(r.avgSpeedMs()), lp.size());
+        List<RowItem> items = new ArrayList<RowItem>();
+        for (RideDb.Row r : rows) {
+            List<Lap> lp = RideService.decodeLaps(r.laps);
+            String tag = lp.isEmpty() ? null : getString(R.string.row_laps, lp.size());
+            items.add(new RowItem(
+                    df.format(new Date(r.startMs)),
+                    tag,
+                    Fmt.km(r.distanceM),
+                    getString(R.string.row_sub_ride, Fmt.duration(r.movingMs),
+                            Fmt.speed(r.avgSpeedMs()))));
         }
-        list.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items));
+        list.setAdapter(new RowAdapter(this, items));
     }
 
     /** Ringkasan lap: tiap baris jarak + waktu. Dibatasi 8 lap supaya dialog tidak terlalu panjang. */
@@ -100,14 +99,18 @@ public class HistoryActivity extends Activity {
     }
 
     private void showDetail(final RideDb.Row r) {
+        // Path GPX sengaja TIDAK ditampilkan. Sebelumnya dialog ini diakhiri
+        // "File GPX:\n/storage/emulated/0/Android/data/…/ride_xxx.gpx" — itu rincian
+        // internal yang tidak bisa dipakai pengguna, dan membuat ringkasan terlihat
+        // seperti layar debug. Berkasnya sendiri tetap bisa diambil lewat tombol
+        // Rute -> bagikan gambar/GPX di layar Ringkasan.
         String msg = getString(R.string.hist_dist, Fmt.km(r.distanceM)) + "\n"
                 + getString(R.string.hist_moving, Fmt.duration(r.movingMs)) + "\n"
                 + getString(R.string.hist_total, Fmt.duration(r.durationMs)) + "\n"
                 + getString(R.string.hist_avg, Fmt.speed(r.avgSpeedMs())) + "\n"
                 + getString(R.string.hist_max, Fmt.speed((float) r.maxSpeedMs)) + "\n"
                 + getString(R.string.hist_elev, Fmt.meters(r.elevGainM)) + "\n\n"
-                + lapSummary(RideService.decodeLaps(r.laps))
-                + "\n" + getString(R.string.hist_gpx_file, r.gpxPath);
+                + lapSummary(RideService.decodeLaps(r.laps));
         new AlertDialog.Builder(this)
                 .setTitle(df.format(new Date(r.startMs)))
                 .setMessage(msg)

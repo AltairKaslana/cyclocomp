@@ -34,6 +34,14 @@
         <item name="android:includeFontPadding">false</item>
     </style>
 
+    <!-- angka utama di baris daftar: dominan, tapi tidak sebesar angka lap —
+         daftar harus tetap bisa memuat banyak baris. -->
+    <style name="ValueRow">
+        <item name="android:textSize">@dimen/text_value_row</item>
+        <item name="android:textColor">@color/value</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
     <!-- teks bilah status -->
     <style name="StatusBar">
         <item name="android:textColor">@color/label</item>

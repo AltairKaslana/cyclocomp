@@ -4,6 +4,7 @@
     <!-- satuan -->
     <string name="unit_speed">km/jam</string>
     <string name="unit_grade">%</string>
+    <string name="unit_km">km</string>
 
     <!-- deskripsi aksesibilitas untuk GradeRoad: pembaca layar tidak bisa "melihat"
          kemiringan, jadi arah tanjakan harus disebut eksplisit di sini. -->
@@ -177,8 +178,12 @@
     <string name="ble_sensor_name">sensor</string>
 
     <!-- riwayat: baris daftar & dialog detail -->
-    <string name="hist_item">%1$s\n%2$s km  •  %3$s  •  %4$s km/jam</string>
-    <string name="hist_item_laps">%1$s\n%2$s km  •  %3$s  •  %4$s km/jam  •  %5$d lap</string>
+    <!-- Baris daftar (item_ride.xml). Keterangan di bawah angka jarak.
+         Dipisah dari hist_item yang lama karena itu menyatukkan SEMUA angka ke dalam
+         satu string — jarak, waktu, kecepatan berebut dalam satu baris teks. -->
+    <string name="row_sub_ride">gerak %1$s  •  %2$s km/jam</string>
+    <string name="row_sub_lap">%1$s  •  %2$s km/jam</string>
+    <string name="row_laps">%d lap</string>
     <string name="hist_lap_header">Lap:</string>
     <string name="hist_lap_more">… dan %d lap lagi</string>
     <string name="hist_lap_row">%1$d. %2$s km  %3$s  %4$s km/jam</string>
@@ -190,7 +195,6 @@
     <string name="hist_avg">Rata-rata: %1$s km/jam</string>
     <string name="hist_max">Maks: %1$s km/jam</string>
     <string name="hist_elev">Tanjakan: %1$s m</string>
-    <string name="hist_gpx_file">File GPX:\n%1$s</string>
     <string name="btn_route">Rute</string>
 
     <!-- layar ringkasan -->

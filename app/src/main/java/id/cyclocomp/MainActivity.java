@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -535,14 +534,16 @@ public class MainActivity extends Activity implements RideService.Listener {
             lapEmpty.setText(R.string.lap_none);
         } else {
             lapEmpty.setVisibility(View.GONE);
-            List<String> rows = new ArrayList<String>();
+            List<RowItem> rows = new ArrayList<RowItem>();
             for (Lap l : done) {
-                rows.add(getString(R.string.summary_lap_row, l.index,
-                        Fmt.km(l.distanceM), Fmt.shortDuration(l.elapsedMs),
-                        Fmt.speed(l.avgSpeedMs())));
+                rows.add(new RowItem(
+                        getString(R.string.lap_badge, l.index),
+                        null,
+                        Fmt.km(l.distanceM),
+                        getString(R.string.row_sub_lap, Fmt.shortDuration(l.elapsedMs),
+                                Fmt.speed(l.avgSpeedMs()))));
             }
-            lapList.setAdapter(new ArrayAdapter<String>(this,
-                    android.R.layout.simple_list_item_1, rows));
+            lapList.setAdapter(new RowAdapter(this, rows));
         }
     }
 }

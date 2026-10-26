@@ -6,6 +6,7 @@
     <!-- satuan -->
     <string name="unit_speed">km/h</string>
     <string name="unit_grade">%</string>
+    <string name="unit_km">km</string>
 
     <!-- accessibility description for GradeRoad: a screen reader cannot "see" a tilt,
          so the direction of the climb must be stated explicitly here. -->
@@ -179,8 +180,12 @@
     <string name="ble_sensor_name">sensor</string>
 
     <!-- riwayat: baris daftar & dialog detail -->
-    <string name="hist_item">%1$s\n%2$s km  •  %3$s  •  %4$s km/h</string>
-    <string name="hist_item_laps">%1$s\n%2$s km  •  %3$s  •  %4$s km/h  •  %5$d laps</string>
+    <!-- List rows (item_ride.xml). The caption under the distance number.
+         Split from the old hist_item because that one merged EVERY number into a
+         single string — distance, time and speed competing inside one line of text. -->
+    <string name="row_sub_ride">moving %1$s  •  %2$s km/h</string>
+    <string name="row_sub_lap">%1$s  •  %2$s km/h</string>
+    <string name="row_laps">%d laps</string>
     <string name="hist_lap_header">Laps:</string>
     <string name="hist_lap_more">… and %d more laps</string>
     <string name="hist_lap_row">%1$d. %2$s km  %3$s  %4$s km/h</string>
@@ -192,7 +197,6 @@
     <string name="hist_avg">Average: %1$s km/h</string>
     <string name="hist_max">Max: %1$s km/h</string>
     <string name="hist_elev">Elevation: %1$s m</string>
-    <string name="hist_gpx_file">GPX file:\n%1$s</string>
     <string name="btn_route">Route</string>
 
     <!-- layar ringkasan -->

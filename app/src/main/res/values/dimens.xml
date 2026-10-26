@@ -70,6 +70,7 @@
     <dimen name="text_chevron">20sp</dimen>    <!-- tanda › di pengaturan -->
     <dimen name="text_value_s">24sp</dimen>    <!-- nilai metrik sedang -->
     <dimen name="text_value_l">36sp</dimen>    <!-- nilai besar -->
+    <dimen name="text_value_row">28sp</dimen>  <!-- angka utama di baris daftar -->
     <dimen name="text_speed">112sp</dimen>     <!-- angka kecepatan dominan -->
     <dimen name="text_empty">18sp</dimen>      <!-- pesan daftar kosong -->
 </resources>
