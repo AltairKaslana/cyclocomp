@@ -308,7 +308,6 @@ public class SummaryActivity extends Activity {
         }
         pendingSaveVariant = -1;
     }
-    }
 
     /** Bagikan berkas GPX lewat content:// supaya bisa diterima aplikasi lain (termasuk Strava). */
     private void share() {
