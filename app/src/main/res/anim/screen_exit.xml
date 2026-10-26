@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Animasi keluar aktivitas (layar yang ditinggalkan).
+
+  Pasangan dari screen_enter.xml, dipakai lewat Nav.open()/Nav.close().
+
+  Durasi 140 ms — sedikit lebih cepat dari masuk. Alasan: layar yang PERGI tidak
+  sedang dilihat pengguna, jadi tidak perlu diperhatikan; yang penting ia cepat
+  keluar dari jalan. Yang dilihat dan dinilai adalah layar yang masuk.
+
+  Interpolator accelerate (ease-in) DIPAKAI DI SINI, dan itu disengaja. Larangan
+  ease-in dari Emil-design-eng berlaku untuk animasi yang sedang ditonton/dipakai
+  pengguna. Layar keluar justru harus "menyingkir": berangkat pelan lalu
+  mempercepat, sehingga tidak menahan mata.
+
+  Skala 1.0 ke 0.98 — cermin dari screen_enter, supaya maju dan mundur terlihat
+  sebagai satu gerak yang sama dibalik.
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <alpha
+        android:duration="140"
+        android:fromAlpha="1.0"
+        android:toAlpha="0.0"
+        android:interpolator="@android:anim/accelerate_interpolator" />
+    <scale
+        android:duration="140"
+        android:fromXScale="1.0"
+        android:toXScale="0.98"
+        android:fromYScale="1.0"
+        android:toYScale="0.98"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:interpolator="@android:anim/accelerate_interpolator" />
+</set>

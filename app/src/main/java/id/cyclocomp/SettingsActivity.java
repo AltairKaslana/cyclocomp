@@ -49,6 +49,15 @@ public class SettingsActivity extends Activity {
         paint();
     }
 
+    /**
+     * Transisi cermin saat keluar lewat tombol kembali. Lihat Nav.close.
+     */
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.screen_enter, R.anim.screen_exit);
+    }
+
     // ---------- gambar ulang seluruh daftar ----------
 
     private void paint() {

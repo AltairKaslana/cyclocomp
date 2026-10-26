@@ -70,6 +70,16 @@ public class SummaryActivity extends Activity {
         });
     }
 
+    /**
+     * Transisi cermin saat keluar (tombol kembali, atau tombol TUTUP di layar ini).
+     * Lihat Nav.close.
+     */
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.screen_enter, R.anim.screen_exit);
+    }
+
     @Override protected void onDestroy() {
         if (db != null) db.close();
         super.onDestroy();

@@ -141,6 +141,11 @@ public class MainActivity extends Activity implements RideService.Listener {
         btnStop = (Button) findViewById(R.id.btnStop);
         btnLap = (Button) findViewById(R.id.btnLap);
 
+        // Umpan balik tekan: tombol menyusut sedikit saat disentuh. Lihat Nav.pressFeedback.
+        Nav.pressFeedback(btnStartPause);
+        Nav.pressFeedback(btnStop);
+        Nav.pressFeedback(btnLap);
+
         btnStartPause.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { onStartPause(); }
         });
@@ -161,12 +166,12 @@ public class MainActivity extends Activity implements RideService.Listener {
         });
         findViewById(R.id.btnHistory).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, HistoryActivity.class));
+                Nav.open(MainActivity.this, HistoryActivity.class);
             }
         });
         findViewById(R.id.btnSettings).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                Nav.open(MainActivity.this, SettingsActivity.class);
             }
         });
 
@@ -484,6 +489,7 @@ public class MainActivity extends Activity implements RideService.Listener {
             if (lastId > 0) {
                 startActivity(new Intent(this, SummaryActivity.class)
                         .putExtra(SummaryActivity.EXTRA_ID, lastId));
+                overridePendingTransition(R.anim.screen_enter, R.anim.screen_exit);
             }
         }
 
