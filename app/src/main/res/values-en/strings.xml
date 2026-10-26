@@ -1,7 +1,7 @@
 <resources>
     <!-- Bahasa Inggris. Nilai bawaan (Indonesia) ada di res/values/strings.xml;
          berkas ini hanya perlu memuat teks yang berbeda. -->
-    <string name="app_name">Cyclocomp</string>
+    <string name="app_name">Zylo</string>
 
     <!-- satuan -->
     <string name="unit_speed">km/h</string>
@@ -75,12 +75,12 @@
 
     <!-- notifikasi -->
     <string name="notif_channel">Ride recording</string>
-    <string name="notif_title">Cyclocomp is recording</string>
+    <string name="notif_title">Zylo is recording</string>
     <string name="notif_lap">LAP</string>
 
     <!-- baterai -->
     <string name="batt_title">Let the app keep recording</string>
-    <string name="batt_msg">Android may stop background recording to save battery.\\n\\nChoose \\u0022Open settings\\u0022 and set Cyclocomp to \\u0022Unrestricted\\u0022 (or \\u0022Don\'t optimize\\u0022). If you skip it, recording still runs but may stop on its own.</string>
+    <string name="batt_msg">Android may stop background recording to save battery.\\n\\nChoose \\u0022Open settings\\u0022 and set Zylo to \\u0022Unrestricted\\u0022 (or \\u0022Don\'t optimize\\u0022). If you skip it, recording still runs but may stop on its own.</string>
     <string name="batt_open">Open settings</string>
     <string name="batt_skip">Skip</string>
 
@@ -148,12 +148,12 @@
     <string name="hr_scan_msg">Make sure the watch or band is already in heart-rate broadcast mode.\\n\\nSearch runs for 8 seconds.</string>
     <string name="hr_no_hr_tag">  (no HR)</string>
     <string name="hr_none_title">No sensor found</string>
-    <string name="hr_none_msg">Cyclocomp can only read devices that broadcast the standard Heart Rate Service.\\n\\nCheck: Bluetooth is on, the watch/band is in heart-rate broadcast mode (on Garmin: Sensors &amp; Accessories → Broadcast Heart Rate; on Amazfit/Huawei: heart-rate settings → broadcast), and the phone is close by.\\n\\nAny BLE heart-rate strap works right away with no special mode.</string>
+    <string name="hr_none_msg">Zylo can only read devices that broadcast the standard Heart Rate Service.\\n\\nCheck: Bluetooth is on, the watch/band is in heart-rate broadcast mode (on Garmin: Sensors &amp; Accessories → Broadcast Heart Rate; on Amazfit/Huawei: heart-rate settings → broadcast), and the phone is close by.\\n\\nAny BLE heart-rate strap works right away with no special mode.</string>
     <string name="hr_retry">Try again</string>
     <string name="hr_pick_title">Choose a sensor</string>
     <string name="hr_saved">Sensor saved. It activates when the ride starts.</string>
     <string name="hr_need_perm">Bluetooth permission is needed to read the sensor.</string>
-    <string name="hr_forget_msg">Cyclocomp will stop using this sensor.</string>
+    <string name="hr_forget_msg">Zylo will stop using this sensor.</string>
     <string name="hr_forget_btn">Disconnect</string>
 
     <!-- pilihan bernomor -->
@@ -219,7 +219,7 @@
     <!-- notifikasi & toast layar utama -->
     <string name="notif_line">%1$s km/h  |  %2$s km  |  %3$s</string>
     <string name="lap_badge">LAP %d</string>
-    <string name="gpx_creator">Cyclocomp</string>
+    <string name="gpx_creator">Zylo</string>
 
     <!-- laporan crash -->
     <string name="crash_cause">Caused by:</string>
@@ -231,7 +231,7 @@
 
     <!-- shareable image card -->
     <string name="btn_share_card">SHARE IMAGE</string>
-    <string name="card_footer">Cyclocomp</string>
+    <string name="card_footer">Zylo</string>
     <string name="card_note">route &amp; stats from the ride recorder</string>
     <string name="card_failed">Could not create the share image</string>
     <string name="card_share_title">Share ride card</string>
@@ -262,7 +262,7 @@
     <string name="strava_auth_empty">Strava did not return an authorization code</string>
     <string name="strava_auth_denied">Permission was denied on Strava</string>
     <string name="strava_auth_timeout">Strava sign-in was not completed</string>
-    <string name="strava_auth_done">Done. You can go back to Cyclocomp.</string>
+    <string name="strava_auth_done">Done. You can go back to Zylo.</string>
     <string name="strava_auth_failed">Token exchange failed</string>
     <string name="strava_authorized">Strava connected</string>
     <string name="strava_network">Network unavailable</string>

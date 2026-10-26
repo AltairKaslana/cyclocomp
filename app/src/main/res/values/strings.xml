@@ -73,12 +73,12 @@
 
     <!-- notifikasi -->
     <string name="notif_channel">Perekaman gowes</string>
-    <string name="notif_title">Cyclocomp merekam</string>
+    <string name="notif_title">Zylo merekam</string>
     <string name="notif_lap">LAP</string>
 
     <!-- baterai -->
     <string name="batt_title">Biarkan aplikasi merekam terus</string>
-    <string name="batt_msg">Android bisa menghentikan perekaman di latar belakang untuk menghemat baterai.\n\nPilih "Buka pengaturan" lalu setel Cyclocomp menjadi "Tidak dibatasi" (atau "Jangan optimalkan"). Kalau dilewati, rekaman tetap jalan tapi berisiko terhenti sendiri.</string>
+    <string name="batt_msg">Android bisa menghentikan perekaman di latar belakang untuk menghemat baterai.\n\nPilih "Buka pengaturan" lalu setel Zylo menjadi "Tidak dibatasi" (atau "Jangan optimalkan"). Kalau dilewati, rekaman tetap jalan tapi berisiko terhenti sendiri.</string>
     <string name="batt_open">Buka pengaturan</string>
     <string name="batt_skip">Lewati</string>
 
@@ -146,12 +146,12 @@
     <string name="hr_scan_msg">Pastikan jam atau band sudah dalam mode siarkan detak jantung.\n\nPencarian berjalan 8 detik.</string>
     <string name="hr_no_hr_tag">  (tanpa HR)</string>
     <string name="hr_none_title">Tidak ada sensor ditemukan</string>
-    <string name="hr_none_msg">Yang bisa dibaca Cyclocomp hanya perangkat yang menyiarkan Heart Rate Service standar.\n\nCek: Bluetooth menyala, jam/band dalam mode \u0022siarkan detak jantung\u0022 (di Garmin: Sensor &amp; Aksesori → Siarkan Detak Jantung; di Amazfit/Huawei: pengaturan detak jantung → siarkan), dan jarak dekat dengan HP.\n\nSabuk detak jantung BLE apa pun langsung terbaca tanpa mode khusus.</string>
+    <string name="hr_none_msg">Yang bisa dibaca Zylo hanya perangkat yang menyiarkan Heart Rate Service standar.\n\nCek: Bluetooth menyala, jam/band dalam mode \u0022siarkan detak jantung\u0022 (di Garmin: Sensor &amp; Aksesori → Siarkan Detak Jantung; di Amazfit/Huawei: pengaturan detak jantung → siarkan), dan jarak dekat dengan HP.\n\nSabuk detak jantung BLE apa pun langsung terbaca tanpa mode khusus.</string>
     <string name="hr_retry">Coba lagi</string>
     <string name="hr_pick_title">Pilih sensor</string>
     <string name="hr_saved">Sensor disimpan. Aktif saat gowes dimulai.</string>
     <string name="hr_need_perm">Izin Bluetooth dibutuhkan untuk membaca sensor.</string>
-    <string name="hr_forget_msg">Cyclocomp akan berhenti memakai sensor ini.</string>
+    <string name="hr_forget_msg">Zylo akan berhenti memakai sensor ini.</string>
     <string name="hr_forget_btn">Putuskan</string>
 
     <!-- pilihan bernomor (ikut bahasa, satuan ikut berubah) -->
@@ -218,7 +218,7 @@
     <string name="notif_line">%1$s km/jam  |  %2$s km  |  %3$s</string>
     <string name="lap_badge">LAP %d</string>
     <!-- nama aplikasi di dalam berkas GPX; metadata, bukan teks layar -->
-    <string name="gpx_creator">Cyclocomp</string>
+    <string name="gpx_creator">Zylo</string>
 
     <!-- laporan crash (ditampilkan ke pengguna, jadi ikut diterjemahkan) -->
     <string name="crash_cause">Disebabkan oleh:</string>
@@ -230,7 +230,7 @@
 
     <!-- kartu gambar yang bisa dibagikan -->
     <string name="btn_share_card">BAGIKAN GAMBAR</string>
-    <string name="card_footer">Cyclocomp</string>
+    <string name="card_footer">Zylo</string>
     <string name="card_note">rute &amp; angka dari pencatat gowes</string>
     <string name="card_failed">Gambar kartu gagal dibuat</string>
     <string name="card_share_title">Bagikan kartu gowes</string>
@@ -261,7 +261,7 @@
     <string name="strava_auth_empty">Strava tidak mengirim kode otorisasi</string>
     <string name="strava_auth_denied">Izin ditolak di halaman Strava</string>
     <string name="strava_auth_timeout">Login Strava tidak diselesaikan</string>
-    <string name="strava_auth_done">Selesai. Silakan kembali ke Cyclocomp.</string>
+    <string name="strava_auth_done">Selesai. Silakan kembali ke Zylo.</string>
     <string name="strava_auth_failed">Penukaran token gagal</string>
     <string name="strava_authorized">Strava tersambung</string>
     <string name="strava_network">Jaringan tidak tersedia</string>
