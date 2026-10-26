@@ -1,79 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Halaman 1 "SEKILAS" - gaya Strava.
-  Kecepatan sebagai angka dominan (putih, Barlow Condensed), gradien sebagai pil
-  kecil di atasnya, lalu satu kartu berisi tiga metrik berkunci dengan pembatas tipis.
+  Kecepatan sebagai angka dominan (putih, Barlow Condensed), pil tanjakan di
+  atasnya, lalu satu kartu berisi tiga metrik berkunci dengan pembatas tipis.
+
+  Catatan: pil ini dulu dikomentari "gradien" padahal isinya warna solid. Sekarang
+  memang ada gradien berupa bentuk — lihat GradeRoad, yang menggambar garis jalan
+  miring sesuai sudut tanjakan.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingLeft="14dp"
-    android:paddingRight="14dp">
+    android:paddingLeft="@dimen/screen_edge"
+    android:paddingRight="@dimen/screen_edge">
 
-    <!-- pil gradien -->
+    <!-- pil tanjakan -->
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="30dp"
+        android:layout_height="@dimen/pill_h"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="@dimen/gap_cozy"
         android:background="@drawable/bg_pill"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp">
+        android:paddingLeft="@dimen/gap_roomy"
+        android:paddingRight="@dimen/gap_roomy">
 
         <TextView
             android:id="@+id/tvGradeArrow"
+            style="@style/GradeArrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:text="→"
-            android:textColor="@color/accent_soft"
-            android:textSize="14sp" />
+            android:text="→" />
 
         <TextView
             android:id="@+id/tvGrade"
+            style="@style/GradeValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:paddingLeft="5dp"
+            android:paddingLeft="@dimen/gap_snug"
             android:tag="num"
-            android:text="0,0"
-            android:textColor="@color/value"
-            android:textSize="15sp" />
+            android:text="0,0" />
 
         <TextView
+            style="@style/GradeUnit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:paddingLeft="2dp"
-            android:text="@string/unit_grade"
-            android:textColor="@color/label"
-            android:textSize="12sp" />
+            android:paddingLeft="@dimen/gap_tight"
+            android:text="@string/unit_grade" />
 
         <!-- detak jantung: muncul hanya kalau sensor mengirim data -->
         <TextView
             android:id="@+id/tvHrHeart"
+            style="@style/GradeArrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:paddingLeft="10dp"
+            android:paddingLeft="@dimen/gap_loose"
             android:text="\u2665"
             android:textColor="@color/accent"
-            android:textSize="13sp"
             android:visibility="gone" />
 
         <TextView
             android:id="@+id/tvHr"
+            style="@style/GradeValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:paddingLeft="3dp"
+            android:paddingLeft="@dimen/gap_tight"
             android:tag="num"
             android:text="0"
-            android:textColor="@color/value"
-            android:textSize="15sp"
             android:visibility="gone" />
     </LinearLayout>
 
@@ -87,29 +82,25 @@
 
         <TextView
             android:id="@+id/tvSpeed"
+            style="@style/SpeedHero"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:includeFontPadding="false"
             android:tag="num"
-            android:text="0,0"
-            android:textColor="@color/value"
-            android:textSize="112sp" />
+            android:text="0,0" />
 
         <TextView
+            style="@style/SpeedUnit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:letterSpacing="0.18"
-            android:text="@string/unit_speed"
-            android:textColor="@color/label"
-            android:textSize="13sp" />
+            android:layout_marginTop="@dimen/gap_tight"
+            android:text="@string/unit_speed" />
     </LinearLayout>
 
     <!-- kartu tiga metrik kunci -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="88dp"
-        android:layout_marginBottom="10dp"
+        android:layout_height="@dimen/metrics_card_h"
+        android:layout_marginBottom="@dimen/gap_loose"
         android:background="@drawable/bg_card"
         android:orientation="horizontal"
         android:baselineAligned="false">
@@ -124,10 +115,10 @@
                 android:layout_height="wrap_content" android:text="@string/label_distance" />
             <TextView android:id="@+id/tvDist" style="@style/ValueSmall"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginTop="4dp" android:tag="num" android:text="0,00" />
+                android:layout_marginTop="@dimen/gap_snug" android:tag="num" android:text="0,00" />
         </LinearLayout>
 
-        <View android:layout_width="1dp" android:layout_height="34dp"
+        <View android:layout_width="@dimen/hairline" android:layout_height="@dimen/divider_short"
             android:layout_gravity="center_vertical" android:background="@color/divider" />
 
         <LinearLayout
@@ -140,10 +131,10 @@
                 android:layout_height="wrap_content" android:text="@string/label_time" />
             <TextView android:id="@+id/tvTime" style="@style/ValueSmall"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginTop="4dp" android:tag="num" android:text="0:00:00" />
+                android:layout_marginTop="@dimen/gap_snug" android:tag="num" android:text="0:00:00" />
         </LinearLayout>
 
-        <View android:layout_width="1dp" android:layout_height="34dp"
+        <View android:layout_width="@dimen/hairline" android:layout_height="@dimen/divider_short"
             android:layout_gravity="center_vertical" android:background="@color/divider" />
 
         <LinearLayout
@@ -156,7 +147,7 @@
                 android:layout_height="wrap_content" android:text="@string/label_avg" />
             <TextView android:id="@+id/tvAvg" style="@style/ValueSmall"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginTop="4dp" android:tag="num" android:text="0,0" />
+                android:layout_marginTop="@dimen/gap_snug" android:tag="num" android:text="0,0" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

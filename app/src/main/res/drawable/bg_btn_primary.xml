@@ -2,19 +2,19 @@
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
             <solid android:color="@color/accent_pressed" />
-            <corners android:radius="30dp" />
+            <corners android:radius="@dimen/radius_capsule" />
         </shape>
     </item>
     <item android:state_enabled="false">
         <shape android:shape="rectangle">
-            <solid android:color="@color/card2" />
-            <corners android:radius="30dp" />
+            <solid android:color="@color/card_disabled" />
+            <corners android:radius="@dimen/radius_capsule" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
             <solid android:color="@color/accent" />
-            <corners android:radius="30dp" />
+            <corners android:radius="@dimen/radius_capsule" />
         </shape>
     </item>
 </selector>

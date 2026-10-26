@@ -11,7 +11,7 @@
 
     <!-- label kecil di atas angka: huruf besar, renggang, abu -->
     <style name="Label">
-        <item name="android:textSize">11sp</item>
+        <item name="android:textSize">@dimen/text_label</item>
         <item name="android:textColor">@color/label</item>
         <item name="android:letterSpacing">0.14</item>
         <item name="android:gravity">center</item>
@@ -20,7 +20,7 @@
 
     <!-- nilai sedang (baris metrik) -->
     <style name="ValueSmall">
-        <item name="android:textSize">24sp</item>
+        <item name="android:textSize">@dimen/text_value_s</item>
         <item name="android:textColor">@color/value</item>
         <item name="android:gravity">center</item>
         <item name="android:includeFontPadding">false</item>
@@ -28,7 +28,7 @@
 
     <!-- nilai besar (angka lap) -->
     <style name="ValueBig">
-        <item name="android:textSize">36sp</item>
+        <item name="android:textSize">@dimen/text_value_l</item>
         <item name="android:textColor">@color/value</item>
         <item name="android:gravity">center</item>
         <item name="android:includeFontPadding">false</item>
@@ -37,14 +37,14 @@
     <!-- teks bilah status -->
     <style name="StatusBar">
         <item name="android:textColor">@color/label</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">@dimen/text_caption</item>
         <item name="android:letterSpacing">0.1</item>
         <item name="android:includeFontPadding">false</item>
     </style>
 
     <!-- tombol utama: kapsul oranye, teks gelap -->
     <style name="ActionBtnPrimary">
-        <item name="android:textSize">17sp</item>
+        <item name="android:textSize">@dimen/text_btn_primary</item>
         <item name="android:textColor">@color/bg</item>
         <item name="android:background">@drawable/bg_btn_primary</item>
         <item name="android:includeFontPadding">false</item>
@@ -52,13 +52,13 @@
         <item name="android:stateListAnimator">@null</item>
         <item name="android:minWidth">0dp</item>
         <item name="android:minHeight">0dp</item>
-        <item name="android:paddingLeft">4dp</item>
-        <item name="android:paddingRight">4dp</item>
+        <item name="android:paddingLeft">@dimen/gap_snug</item>
+        <item name="android:paddingRight">@dimen/gap_snug</item>
     </style>
 
     <!-- tombol sekunder: kapsul gelap, teks putih -->
     <style name="ActionBtn">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">@dimen/text_body</item>
         <item name="android:textColor">@color/value</item>
         <item name="android:background">@drawable/bg_btn</item>
         <item name="android:includeFontPadding">false</item>
@@ -66,20 +66,104 @@
         <item name="android:stateListAnimator">@null</item>
         <item name="android:minWidth">0dp</item>
         <item name="android:minHeight">0dp</item>
-        <item name="android:paddingLeft">2dp</item>
-        <item name="android:paddingRight">2dp</item>
+        <item name="android:paddingLeft">@dimen/gap_tight</item>
+        <item name="android:paddingRight">@dimen/gap_tight</item>
     </style>
 
     <!-- tautan kecil di bilah atas -->
     <style name="TinyBtn">
-        <item name="android:textSize">11sp</item>
+        <item name="android:textSize">@dimen/text_caption</item>
         <item name="android:textColor">@color/label</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:minHeight">0dp</item>
         <item name="android:minWidth">0dp</item>
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingLeft">@dimen/gap_normal</item>
+        <item name="android:paddingRight">@dimen/gap_normal</item>
         <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <!-- ===== judul seksi (eyebrow) =====
+         Rata kiri, huruf besar, jarak huruf lebar. Dulu ditulis inline di empat
+         layout dengan pelacakan BERBEDA (0,22 di halaman Detail/Lap/Pengaturan,
+         0,18 di header grup) — peran sama, perlakuan beda. Sekarang satu gaya.
+
+         Bedanya dengan Label: Label untuk metrik yang RATA TENGAH dan rapat (0,14),
+         supaya angka dan satuannya menempel. Eyebrow rata kiri jadi lebih renggang. -->
+    <style name="SectionLabel">
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textColor">@color/label</item>
+        <item name="android:letterSpacing">0.2</item>
+        <item name="android:paddingLeft">@dimen/gap_snug</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <!-- sama, tapi oranye: menandai seksi yang sedang berjalan (lap aktif) -->
+    <style name="SectionLabelAccent" parent="SectionLabel">
+        <item name="android:textColor">@color/accent</item>
+    </style>
+
+    <!-- ===== pil gradien ===== -->
+    <style name="GradeArrow">
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="android:textColor">@color/accent_soft</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="GradeValue">
+        <item name="android:textSize">@dimen/text_body_m</item>
+        <item name="android:textColor">@color/value</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="GradeUnit">
+        <item name="android:textSize">@dimen/text_caption</item>
+        <item name="android:textColor">@color/label</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <!-- ===== angka kecepatan dominan =====
+         Ukuran dasarnya besar, tapi tingginya dibatasi ruang yang tersedia oleh
+         AutoFitText supaya tidak terpotong di layar pendek atau landscape. -->
+    <style name="SpeedHero">
+        <item name="android:textSize">@dimen/text_speed</item>
+        <item name="android:textColor">@color/value</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="SpeedUnit">
+        <item name="android:textSize">@dimen/text_body_s</item>
+        <item name="android:textColor">@color/label</item>
+        <item name="android:letterSpacing">0.18</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <!-- ===== baris pengaturan ===== -->
+    <style name="SettingTitle">
+        <item name="android:textSize">@dimen/text_body_m</item>
+        <item name="android:textColor">@color/value</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="SettingSummary">
+        <item name="android:textSize">@dimen/text_caption</item>
+        <item name="android:textColor">@color/label</item>
+        <item name="android:layout_marginTop">@dimen/hairline</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <!-- tanda "ada isinya" di ujung baris pengaturan -->
+    <style name="Chevron">
+        <item name="android:textSize">@dimen/text_chevron</item>
+        <item name="android:textColor">@color/label</item>
+        <item name="android:paddingLeft">@dimen/gap_normal</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <!-- teks penjelas (daftar kosong) -->
+    <style name="EmptyText">
+        <item name="android:textSize">@dimen/text_body_s</item>
+        <item name="android:textColor">@color/label</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 </resources>

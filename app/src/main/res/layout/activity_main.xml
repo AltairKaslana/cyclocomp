@@ -8,6 +8,10 @@
     [  ( LAP )      ( MULAI )       ( STOP )         ]
 
   Hanya satu halaman terlihat pada satu waktu; visibility diatur MainActivity.
+
+  Tombol RIWAYAT/PENGATURAN sengaja 48dp (bukan 40dp): ambang target sentuh
+  aksesibilitas. Di atas sepeda yang bergerak, 40dp terlalu kecil untuk dijangkau
+  tanpa melihat layar.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -18,17 +22,17 @@
     <!-- ===== bilah atas ===== -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="@dimen/top_bar_h"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingLeft="16dp"
-        android:paddingRight="4dp">
+        android:paddingLeft="@dimen/gap_wide"
+        android:paddingRight="@dimen/gap_snug">
 
         <View
             android:id="@+id/vRec"
-            android:layout_width="7dp"
-            android:layout_height="7dp"
-            android:layout_marginRight="7dp"
+            android:layout_width="@dimen/rec_dot"
+            android:layout_height="@dimen/rec_dot"
+            android:layout_marginRight="@dimen/rec_dot"
             android:background="@drawable/rec_dot"
             android:visibility="gone" />
 
@@ -46,7 +50,7 @@
             style="@style/StatusBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="6dp"
+            android:layout_marginRight="@dimen/gap_cozy"
             android:textColor="@color/accent"
             android:visibility="gone" />
 
@@ -54,14 +58,14 @@
             android:id="@+id/btnHistory"
             style="@style/TinyBtn"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="@dimen/touch_target_min"
             android:text="@string/btn_history" />
 
         <Button
             android:id="@+id/btnSettings"
             style="@style/TinyBtn"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="@dimen/touch_target_min"
             android:text="@string/btn_settings" />
     </LinearLayout>
 
@@ -98,25 +102,27 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:orientation="horizontal"
-        android:paddingTop="4dp"
-        android:paddingBottom="10dp" />
+        android:paddingTop="@dimen/gap_snug"
+        android:paddingBottom="@dimen/gap_loose" />
 
-    <!-- ===== tombol aksi ===== -->
+    <!-- ===== tombol aksi =====
+         Berat 1 : 1,5 : 1 — tombol MULAI terbesar, sesuai hukum Fitts: yang paling
+         sering ditekan dapat wilayah paling luas. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp"
-        android:paddingBottom="16dp">
+        android:paddingLeft="@dimen/screen_edge"
+        android:paddingRight="@dimen/screen_edge"
+        android:paddingBottom="@dimen/gap_wide">
 
         <Button
             android:id="@+id/btnLap"
             style="@style/ActionBtn"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="52dp"
+            android:layout_height="@dimen/btn_action_h"
             android:text="@string/btn_lap" />
 
         <Button
@@ -124,8 +130,8 @@
             style="@style/ActionBtnPrimary"
             android:layout_width="0dp"
             android:layout_weight="1.5"
-            android:layout_height="52dp"
-            android:layout_marginLeft="10dp"
+            android:layout_height="@dimen/btn_action_h"
+            android:layout_marginLeft="@dimen/gap_loose"
             android:text="@string/btn_start" />
 
         <Button
@@ -133,8 +139,8 @@
             style="@style/ActionBtn"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="52dp"
-            android:layout_marginLeft="10dp"
+            android:layout_height="@dimen/btn_action_h"
+            android:layout_marginLeft="@dimen/gap_loose"
             android:text="@string/btn_stop" />
     </LinearLayout>
 </LinearLayout>

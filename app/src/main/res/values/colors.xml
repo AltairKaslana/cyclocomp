@@ -2,9 +2,18 @@
     <!-- Palet gaya Strava (dari resep "Fitness/Gym App" pada skill ui-ux-pro-max):
          oranye sebagai satu-satunya aksen, hijau khusus status merekam,
          sisanya monokrom gelap. Warna dipakai untuk menarik perhatian, bukan hiasan. -->
+    <!-- Permukaan (skala elevasi). Gelap: makin tinggi makin TERANG.
+         Hanya pergeseran nilai, TANPA shadow — satu strategi kedalaman,
+         tidak dicampur. bg = kanvas, card = kartu, card2 = pil/tombol. -->
     <color name="bg">#0E1013</color>
     <color name="card">#1A1D21</color>
     <color name="card2">#23272C</color>
+
+    <!-- Keadaan tombol. Sebelumnya ditulis hex mentah di bg_btn.xml sehingga
+         palet punya dua sumber kebenaran. -->
+    <color name="card_pressed">#2F343A</color>
+    <color name="card_disabled">#171A1E</color>
+
     <color name="label">#8A9099</color>
     <color name="value">#FFFFFF</color>
     <color name="divider">#2A2F35</color>

@@ -7,20 +7,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingLeft="14dp"
-    android:paddingRight="14dp">
+    android:paddingLeft="@dimen/screen_edge"
+    android:paddingRight="@dimen/screen_edge">
 
     <TextView
         android:id="@+id/tvLapTitle"
+        style="@style/SectionLabelAccent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:letterSpacing="0.22"
-        android:paddingLeft="4dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="8dp"
-        android:text="@string/lap_current"
-        android:textColor="@color/accent"
-        android:textSize="11sp" />
+        android:paddingTop="@dimen/gap_snug"
+        android:paddingBottom="@dimen/gap_normal"
+        android:text="@string/lap_current" />
 
     <!-- kartu lap berjalan -->
     <LinearLayout
@@ -28,8 +25,8 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_card"
         android:orientation="vertical"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp">
+        android:paddingTop="@dimen/gap_roomy"
+        android:paddingBottom="@dimen/gap_roomy">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -47,10 +44,10 @@
                     android:layout_height="wrap_content" android:text="@string/label_distance" />
                 <TextView android:id="@+id/tvLapDist" style="@style/ValueBig"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp" android:tag="num" android:text="0,00" />
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0,00" />
             </LinearLayout>
 
-            <View android:layout_width="1dp" android:layout_height="42dp"
+            <View android:layout_width="@dimen/hairline" android:layout_height="@dimen/divider_lap"
                 android:layout_gravity="center_vertical" android:background="@color/divider" />
 
             <LinearLayout
@@ -63,13 +60,13 @@
                     android:layout_height="wrap_content" android:text="@string/label_lap_time" />
                 <TextView android:id="@+id/tvLapTime" style="@style/ValueBig"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp" android:tag="num" android:text="0:00" />
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00" />
             </LinearLayout>
         </LinearLayout>
 
-        <View android:layout_width="match_parent" android:layout_height="1dp"
-            android:layout_marginLeft="14dp" android:layout_marginRight="14dp"
-            android:layout_marginTop="10dp" android:layout_marginBottom="10dp"
+        <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+            android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
+            android:layout_marginTop="@dimen/gap_loose" android:layout_marginBottom="@dimen/gap_loose"
             android:background="@color/divider" />
 
         <LinearLayout
@@ -88,10 +85,10 @@
                     android:layout_height="wrap_content" android:text="@string/label_lap_avg" />
                 <TextView android:id="@+id/tvLapAvg" style="@style/ValueSmall"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp" android:tag="num" android:text="0,0" />
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0,0" />
             </LinearLayout>
 
-            <View android:layout_width="1dp" android:layout_height="28dp"
+            <View android:layout_width="@dimen/hairline" android:layout_height="@dimen/divider_lap_small"
                 android:layout_gravity="center_vertical" android:background="@color/divider" />
 
             <LinearLayout
@@ -104,41 +101,37 @@
                     android:layout_height="wrap_content" android:text="@string/label_lap_moving" />
                 <TextView android:id="@+id/tvLapMoving" style="@style/ValueSmall"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp" android:tag="num" android:text="0:00" />
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
     <TextView
+        style="@style/SectionLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:letterSpacing="0.22"
-        android:paddingLeft="4dp"
-        android:paddingTop="14dp"
-        android:paddingBottom="6dp"
-        android:text="@string/lap_done"
-        android:textColor="@color/label"
-        android:textSize="11sp" />
+        android:paddingTop="@dimen/screen_edge"
+        android:paddingBottom="@dimen/gap_cozy"
+        android:text="@string/lap_done" />
 
     <ListView
         android:id="@+id/lapList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="@dimen/gap_loose"
         android:background="@drawable/bg_card"
         android:divider="@color/divider"
         android:dividerHeight="1dp"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp" />
+        android:paddingLeft="@dimen/screen_edge"
+        android:paddingRight="@dimen/screen_edge" />
 
     <TextView
         android:id="@+id/lapEmpty"
+        style="@style/EmptyText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
+        android:padding="@dimen/gap_wide"
         android:text="@string/lap_none"
-        android:textColor="@color/label"
-        android:textSize="13sp"
         android:visibility="gone" />
 </LinearLayout>

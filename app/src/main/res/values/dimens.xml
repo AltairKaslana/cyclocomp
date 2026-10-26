@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SATU skala jarak untuk semua layar. Nama berdasarkan PERAN, bukan angka, supaya
+  kalau skalanya perlu diubah nanti namanya tetap benar.
+
+  Sebelumnya tidak ada berkas ini: nilai 14dp, 10dp, 4dp, 2dp, 7dp ditulis inline
+  di masing-masing layout, dan setiap layar memilih sendiri — itu tanda tidak ada
+  sistem. Sekarang semua ambil dari sini.
+
+  Basis: 4dp, dengan dua nilai setengah (2dp) untuk celah sangat rapat seperti
+  angka ke satuannya.
+-->
+<resources>
+
+    <!-- ===== jarak ===== -->
+    <dimen name="gap_tight">2dp</dimen>      <!-- angka ke satuannya, ikon ke teks -->
+    <dimen name="gap_snug">4dp</dimen>       <!-- label ke nilai, tepi dalam kartu -->
+    <dimen name="gap_cozy">6dp</dimen>       <!-- judul seksi ke isinya -->
+    <dimen name="gap_normal">8dp</dimen>     <!-- jarak antar blok kecil -->
+    <dimen name="gap_loose">10dp</dimen>     <!-- jarak antar kartu -->
+    <dimen name="gap_roomy">12dp</dimen>     <!-- padding dalam kartu -->
+    <dimen name="screen_edge">14dp</dimen>   <!-- tepi layar -->
+    <dimen name="gap_wide">16dp</dimen>      <!-- padding baris pengaturan -->
+    <dimen name="gap_spacious">24dp</dimen>  <!-- jarak antar wilayah -->
+
+    <!-- ===== tinggi komponen ===== -->
+    <dimen name="top_bar_h">48dp</dimen>
+    <dimen name="btn_action_h">52dp</dimen>
+
+    <!-- Target sentuh minimum. Sebelumnya tombol RIWAYAT/PENGATURAN di bilah atas
+         hanya 40dp — di atas sepeda yang bergerak dengan sarung tangan itu terlalu
+         kecil. 48dp adalah ambang aksesibilitas. -->
+    <dimen name="touch_target_min">48dp</dimen>
+
+    <dimen name="pill_h">30dp</dimen>
+    <dimen name="metrics_card_h">88dp</dimen>
+
+    <!-- pembatas vertikal antar kolom metrik -->
+    <dimen name="divider_short">34dp</dimen>
+    <dimen name="divider_lap">42dp</dimen>
+    <dimen name="divider_lap_small">28dp</dimen>
+
+    <dimen name="rec_dot">7dp</dimen>
+    <dimen name="hairline">1dp</dimen>
+    <dimen name="dot_radius">2dp</dimen>
+
+    <!-- ===== sudut lengkung =====
+         Kartu membulat sedang, kapsul penuh. Satu nilai per peran. -->
+    <dimen name="radius_card">14dp</dimen>
+    <dimen name="radius_pill">20dp</dimen>
+    <dimen name="radius_capsule">30dp</dimen>
+
+    <!-- ===== ukuran huruf =====
+         Satu tangga, dipakai semua layar. Nama per peran supaya kalau skalanya
+         diubah namanya tetap benar. Sebelumnya nilai sp ditulis inline di styles
+         DAN di layout sekaligus — dua tempat untuk satu keputusan. -->
+    <dimen name="text_label">11sp</dimen>      <!-- eyebrow seksi, label metrik -->
+    <dimen name="text_caption">12sp</dimen>    <!-- satuan, keterangan -->
+    <dimen name="text_body_s">13sp</dimen>     <!-- teks penjelas -->
+    <dimen name="text_body">14sp</dimen>       <!-- teks biasa -->
+    <dimen name="text_body_m">15sp</dimen>     <!-- judul baris pengaturan -->
+    <dimen name="text_btn_primary">17sp</dimen><!-- tombol utama -->
+    <dimen name="text_chevron">20sp</dimen>    <!-- tanda › di pengaturan -->
+    <dimen name="text_value_s">24sp</dimen>    <!-- nilai metrik sedang -->
+    <dimen name="text_value_l">36sp</dimen>    <!-- nilai besar -->
+    <dimen name="text_speed">112sp</dimen>     <!-- angka kecepatan dominan -->
+    <dimen name="text_empty">18sp</dimen>      <!-- pesan daftar kosong -->
+</resources>

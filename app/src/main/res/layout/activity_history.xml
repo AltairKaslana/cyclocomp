@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Riwayat: daftar rekaman. Kalau kosong, pesannya TENGAH layar supaya terbaca
+  sebagai keadaan, bukan teks yang tersesat di atas.
+
+  Dulu pesan ini memakai gaya Label — yang dirancang untuk label metrik (pelacakan
+  huruf 0,14, rata tengah). Untuk pesan berdiri sendiri itu salah peran: hurufnya
+  jadi terlalu renggang dan warnanya abu muda. Sekarang gaya EmptyText sendiri.
+-->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="8dp">
+    android:padding="@dimen/gap_normal">
 
     <ListView
         android:id="@+id/list"
@@ -11,9 +19,10 @@
 
     <TextView
         android:id="@+id/empty"
-        style="@style/Label"
+        style="@style/EmptyText"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/history_empty"
-        android:textSize="18sp" />
+        android:gravity="center"
+        android:textSize="@dimen/text_empty"
+        android:text="@string/history_empty" />
 </FrameLayout>

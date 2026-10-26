@@ -7,25 +7,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingLeft="14dp"
-    android:paddingRight="14dp">
+    android:paddingLeft="@dimen/screen_edge"
+    android:paddingRight="@dimen/screen_edge">
 
     <TextView
+        style="@style/SectionLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:letterSpacing="0.22"
-        android:paddingLeft="4dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="8dp"
-        android:text="@string/page_detail"
-        android:textColor="@color/label"
-        android:textSize="11sp" />
+        android:paddingTop="@dimen/gap_snug"
+        android:paddingBottom="@dimen/gap_normal"
+        android:text="@string/page_detail" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="@dimen/gap_loose"
         android:background="@drawable/bg_card"
         android:orientation="vertical">
 
@@ -47,11 +44,11 @@
                     android:layout_height="wrap_content" android:text="@string/label_speed" />
                 <TextView android:id="@+id/tvSpeed2" style="@style/ValueSmall"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp" android:tag="num" android:text="0,0" />
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0,0" />
             </LinearLayout>
 
-            <View android:layout_width="1dp" android:layout_height="match_parent"
-                android:layout_marginTop="14dp" android:layout_marginBottom="14dp"
+            <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
                 android:background="@color/divider" />
 
             <LinearLayout
@@ -64,12 +61,12 @@
                     android:layout_height="wrap_content" android:text="@string/label_avg" />
                 <TextView android:id="@+id/tvAvg2" style="@style/ValueSmall"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp" android:tag="num" android:text="0,0" />
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0,0" />
             </LinearLayout>
         </LinearLayout>
 
-        <View android:layout_width="match_parent" android:layout_height="1dp"
-            android:layout_marginLeft="14dp" android:layout_marginRight="14dp"
+        <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+            android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
             android:background="@color/divider" />
 
         <!-- baris 2 -->
@@ -90,11 +87,11 @@
                     android:layout_height="wrap_content" android:text="@string/label_max" />
                 <TextView android:id="@+id/tvMax2" style="@style/ValueSmall"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp" android:tag="num" android:text="0,0" />
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0,0" />
             </LinearLayout>
 
-            <View android:layout_width="1dp" android:layout_height="match_parent"
-                android:layout_marginTop="14dp" android:layout_marginBottom="14dp"
+            <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
                 android:background="@color/divider" />
 
             <LinearLayout
@@ -107,12 +104,12 @@
                     android:layout_height="wrap_content" android:text="@string/label_distance" />
                 <TextView android:id="@+id/tvDist2" style="@style/ValueSmall"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp" android:tag="num" android:text="0,00" />
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0,00" />
             </LinearLayout>
         </LinearLayout>
 
-        <View android:layout_width="match_parent" android:layout_height="1dp"
-            android:layout_marginLeft="14dp" android:layout_marginRight="14dp"
+        <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+            android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
             android:background="@color/divider" />
 
         <!-- baris 3 -->
@@ -133,11 +130,11 @@
                     android:layout_height="wrap_content" android:text="@string/label_moving" />
                 <TextView android:id="@+id/tvMoving" style="@style/ValueSmall"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp" android:tag="num" android:text="0:00:00" />
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00:00" />
             </LinearLayout>
 
-            <View android:layout_width="1dp" android:layout_height="match_parent"
-                android:layout_marginTop="14dp" android:layout_marginBottom="14dp"
+            <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
                 android:background="@color/divider" />
 
             <LinearLayout
@@ -150,12 +147,12 @@
                     android:layout_height="wrap_content" android:text="@string/label_total" />
                 <TextView android:id="@+id/tvTotal" style="@style/ValueSmall"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp" android:tag="num" android:text="0:00:00" />
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00:00" />
             </LinearLayout>
         </LinearLayout>
 
-        <View android:layout_width="match_parent" android:layout_height="1dp"
-            android:layout_marginLeft="14dp" android:layout_marginRight="14dp"
+        <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+            android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
             android:background="@color/divider" />
 
         <!-- baris 4 -->
@@ -176,11 +173,11 @@
                     android:layout_height="wrap_content" android:text="@string/label_elev" />
                 <TextView android:id="@+id/tvElev2" style="@style/ValueSmall"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp" android:tag="num" android:text="0" />
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0" />
             </LinearLayout>
 
-            <View android:layout_width="1dp" android:layout_height="match_parent"
-                android:layout_marginTop="14dp" android:layout_marginBottom="14dp"
+            <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
                 android:background="@color/divider" />
 
             <LinearLayout
@@ -193,7 +190,7 @@
                     android:layout_height="wrap_content" android:text="@string/label_alt" />
                 <TextView android:id="@+id/tvAlt2" style="@style/ValueSmall"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp" android:tag="num" android:text="--" />
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="--" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
