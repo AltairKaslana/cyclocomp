@@ -10,14 +10,42 @@ android {
         applicationId "id.cyclocomp"
         minSdk 23          // Android 6.0+ (diputuskan 23 Okt 2026)
         targetSdk 33
-        versionCode 20
-        versionName "0.9.6"
+        versionCode 21
+        versionName "0.9.7"
+    }
+
+    signingConfigs {
+        // Keystore TETAP, diambil dari properti Gradle atau variabel lingkungan.
+        //
+        // Kenapa ini wajib: APK debug ditandatangani ~/.android/debug.keystore yang TIDAK
+        // di-cache CI, jadi tiap runner segar menghasilkan sertifikat BARU. Akibatnya
+        // memasang versi baru di atas versi lama DITOLAK ("aplikasi sudah terpasang dengan
+        // sertifikat berbeda") dan pengguna harus uninstall dulu - data gowes hilang.
+        // Dengan keystore tetap, sertifikatnya sama selamanya dan instalasi tumpuk jalan.
+        //
+        // Keystore TIDAK BOLEH masuk repo (repo ini publik): hanya di GitHub Secrets
+        // (CYCLOCOMP_KEYSTORE_BASE64/PASSWORD/ALIAS/KEY_PASSWORD) + salinan lokal
+        // /root/.cyclocomp-keystore mode 700.
+        release {
+            def ksPath = System.getenv('CYCLOCOMP_KEYSTORE_PATH')
+                ?: (project.findProperty('cyclocompKeystore') as String)
+            if (ksPath != null) {
+                storeFile file(ksPath)
+                storePassword System.getenv('CYCLOCOMP_KEYSTORE_PASSWORD')
+                    ?: (project.findProperty('cyclocompStorePassword') as String)
+                keyAlias System.getenv('CYCLOCOMP_KEY_ALIAS')
+                    ?: (project.findProperty('cyclocompKeyAlias') as String)
+                keyPassword System.getenv('CYCLOCOMP_KEY_PASSWORD')
+                    ?: (project.findProperty('cyclocompKeyPassword') as String)
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 

@@ -3,3 +3,9 @@ build/
 local.properties
 .idea/
 *.iml
+
+# Keystore JANGAN masuk repo (repo ini publik) - hanya di GitHub Secrets +
+# salinan lokal /root/.cyclocomp-keystore mode 700.
+*.jks
+*.keystore
+keystore.properties
