@@ -64,6 +64,23 @@ final class ShareCard {
     }
 
     /**
+     * Bangun kartu 4:5 sebagai Bitmap (untuk preview maupun simpan).
+     *
+     * @return Bitmap, atau null kalau gagal. Pemanggil yang tidak lagi memakai
+     *          hasilnya bertanggung jawab memanggil recycle().
+     */
+    static Bitmap cardBitmap(Context c, RideDb.Row row, List<GpxReader.P> track) {
+        try {
+            Bitmap bmp = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
+            Canvas cv = new Canvas(bmp);
+            draw(c, cv, row, track);
+            return bmp;
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    /**
      * Bangun kartu dan simpan sebagai PNG di folder rides - folder yang sama dengan GPX,
      * supaya {@link RideProvider} bisa membagikannya.
      *
@@ -71,26 +88,13 @@ final class ShareCard {
      *          pemanggil cukup memberi tahu pengguna.
      */
     static File build(Context c, RideDb.Row row, List<GpxReader.P> track) {
-        Bitmap bmp = null;
-        FileOutputStream out = null;
+        Bitmap bmp = cardBitmap(c, row, track);
+        if (bmp == null) return null;
         try {
-            bmp = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
-            Canvas cv = new Canvas(bmp);
-            draw(c, cv, row, track);
-
-            File dir = new File(c.getExternalFilesDir(null), "rides");
-            if (!dir.exists() && !dir.mkdirs()) return null;
             String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
-            File f = new File(dir, fileName(gpxName));
-            out = new FileOutputStream(f);
-            bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.flush();
-            return f;
-        } catch (Throwable t) {
-            return null;
+            return writePngForShare(c, bmp, fileName(gpxName));
         } finally {
-            if (out != null) try { out.close(); } catch (Exception ignored) { }
-            if (bmp != null) bmp.recycle();
+            bmp.recycle();
         }
     }
 
@@ -309,28 +313,27 @@ final class ShareCard {
         return base + "_story.png";
     }
 
-    /** Bangun kartu story dan simpan sebagai PNG di folder rides. */
-    static File buildStory(Context c, RideDb.Row row) {
-        Bitmap bmp = null;
-        FileOutputStream out = null;
+    /** Bangun kartu story 9:16 sebagai Bitmap (untuk preview maupun simpan). */
+    static Bitmap storyBitmap(Context c, RideDb.Row row) {
         try {
-            bmp = Bitmap.createBitmap(SW, SH, Bitmap.Config.ARGB_8888);
+            Bitmap bmp = Bitmap.createBitmap(SW, SH, Bitmap.Config.ARGB_8888);
             Canvas cv = new Canvas(bmp);
             drawStory(c, cv, row);
-
-            File dir = new File(c.getExternalFilesDir(null), "rides");
-            if (!dir.exists() && !dir.mkdirs()) return null;
-            String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
-            File f = new File(dir, storyFileName(gpxName));
-            out = new FileOutputStream(f);
-            bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.flush();
-            return f;
+            return bmp;
         } catch (Throwable t) {
             return null;
+        }
+    }
+
+    /** Bangun kartu story dan simpan sebagai PNG di folder rides. */
+    static File buildStory(Context c, RideDb.Row row) {
+        Bitmap bmp = storyBitmap(c, row);
+        if (bmp == null) return null;
+        try {
+            String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
+            return writePngForShare(c, bmp, storyFileName(gpxName));
         } finally {
-            if (out != null) try { out.close(); } catch (Exception ignored) { }
-            if (bmp != null) bmp.recycle();
+            bmp.recycle();
         }
     }
 
@@ -443,34 +446,31 @@ final class ShareCard {
         return base + "_sticker.png";
     }
 
+    /** Bangun stempel transparan sebagai Bitmap (untuk preview maupun simpan). */
+    static Bitmap stickerBitmap(Context c, RideDb.Row row, List<GpxReader.P> track) {
+        try {
+            Bitmap bmp = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
+            Canvas cv = new Canvas(bmp);
+            drawSticker(c, cv, row, track);
+            return bmp;
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
     /**
      * Bangun stempel transparan 1080x1350 dan simpan sebagai PNG di folder rides.
      *
      * @return berkas PNG, atau null kalau gagal.
      */
     static File buildSticker(Context c, RideDb.Row row, List<GpxReader.P> track) {
-        Bitmap bmp = null;
-        FileOutputStream out = null;
+        Bitmap bmp = stickerBitmap(c, row, track);
+        if (bmp == null) return null;
         try {
-            // ARGB_8888 = punya kanal alpha. Sengaja TIDAK ada cv.drawColor():
-            // latar dibiarkan transparan supaya bisa ditempel di atas foto.
-            bmp = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
-            Canvas cv = new Canvas(bmp);
-            drawSticker(c, cv, row, track);
-
-            File dir = new File(c.getExternalFilesDir(null), "rides");
-            if (!dir.exists() && !dir.mkdirs()) return null;
             String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
-            File f = new File(dir, stickerFileName(gpxName));
-            out = new FileOutputStream(f);
-            bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.flush();
-            return f;
-        } catch (Throwable t) {
-            return null;
+            return writePngForShare(c, bmp, stickerFileName(gpxName));
         } finally {
-            if (out != null) try { out.close(); } catch (Exception ignored) { }
-            if (bmp != null) bmp.recycle();
+            bmp.recycle();
         }
     }
 
@@ -609,5 +609,93 @@ final class ShareCard {
             try { in.close(); } catch (Exception ignored) { }
             try { out.close(); } catch (Exception ignored) { }
         }
+    }
+
+    // ==================================================================
+    // Jalur baru: Bitmap -> berkas/galeri langsung (dipakai layar Bagikan
+    // yang menampilkan preview ketiga kartu sekaligus).
+    // ==================================================================
+
+    /**
+     * Tulis Bitmap sebagai PNG ke folder rides supaya bisa dibagikan lewat
+     * {@link RideProvider}. Nama bebas (dipakai juga untuk menyimpan kartu
+     * yang sedang dipilih pengguna di layar preview).
+     *
+     * @return berkas PNG, atau null kalau gagal
+     */
+    static File writePngForShare(Context c, Bitmap bmp, String name) {
+        if (bmp == null || name == null) return null;
+        FileOutputStream out = null;
+        try {
+            File dir = new File(c.getExternalFilesDir(null), "rides");
+            if (!dir.exists() && !dir.mkdirs()) return null;
+            File f = new File(dir, name);
+            out = new FileOutputStream(f);
+            if (!bmp.compress(Bitmap.CompressFormat.PNG, 100, out)) return null;
+            out.flush();
+            return f;
+        } catch (Throwable t) {
+            return null;
+        } finally {
+            if (out != null) try { out.close(); } catch (Exception ignored) { }
+        }
+    }
+
+    /**
+     * Simpan Bitmap langsung ke galeri (Pictures/Zylo). Dipakai tombol
+     * "Simpan ke galeri" di layar preview - kartu yang sedang tampil.
+     *
+     * @param name nama berkas, mis. "ride_20261024_card.png"
+     * @return null kalau berhasil, pesan singkat kalau gagal
+     */
+    static String saveBitmapToGallery(Context c, Bitmap bmp, String name) {
+        if (bmp == null || name == null) return "bitmap-null";
+        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        if (!bmp.compress(Bitmap.CompressFormat.PNG, 100, bos)) return "compress-failed";
+        byte[] png = bos.toByteArray();
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ContentResolver cr = c.getContentResolver();
+                ContentValues cv = new ContentValues();
+                cv.put(MediaStore.Images.Media.DISPLAY_NAME, name);
+                cv.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+                cv.put(MediaStore.Images.Media.RELATIVE_PATH,
+                        Environment.DIRECTORY_PICTURES + "/Zylo");
+                cv.put(MediaStore.Images.Media.IS_PENDING, 1);
+                Uri uri = cr.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cv);
+                if (uri == null) return "insert-failed";
+                OutputStream os = cr.openOutputStream(uri);
+                if (os == null) return "open-failed";
+                os.write(png);
+                os.flush();
+                os.close();
+                cv.clear();
+                cv.put(MediaStore.Images.Media.IS_PENDING, 0);
+                cr.update(uri, cv, null, null);
+                return null;
+            }
+
+            File dir = new File(
+                    Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_PICTURES), "Zylo");
+            if (!dir.exists() && !dir.mkdirs()) return "mkdir-failed";
+            File out = new File(dir, name);
+            copyFile(new FileInputStream(writeTemp(c, png)), new FileOutputStream(out));
+            MediaScannerConnection.scanFile(c,
+                    new String[]{out.getAbsolutePath()},
+                    new String[]{"image/png"}, null);
+            return null;
+        } catch (Throwable t) {
+            return t.getClass().getSimpleName();
+        }
+    }
+
+    /** Menyimpan byte PNG ke berkas sementara di cache (jalur Android 9 ke bawah). */
+    private static File writeTemp(Context c, byte[] png) throws Exception {
+        File f = new File(c.getCacheDir(), "share_tmp.png");
+        OutputStream os = new FileOutputStream(f);
+        os.write(png);
+        os.close();
+        return f;
     }
 }

@@ -206,13 +206,6 @@
 
     <!-- Simpan PNG ke galeri: kartu yang sama seperti yang dibagikan, tapi
          mendarat di Pictures/Zylo supaya bisa diedit/ditempel di aplikasi foto. -->
-    <Button
-        android:id="@+id/btnSaveGallery"
-        style="@style/ActionBtn"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/btn_action_h"
-        android:layout_marginTop="@dimen/gap_loose"
-        android:text="@string/btn_save_gallery" />
 
     <LinearLayout
         android:layout_width="match_parent"

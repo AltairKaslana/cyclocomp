@@ -239,6 +239,11 @@
     <string name="card_variant_map">Kartu 4:5 - ada peta rute</string>
     <string name="card_variant_story">Kartu Story 9:16 - angka besar, latar hitam</string>
     <string name="card_variant_clear">Stempel transparan - bisa ditempel di atas foto</string>
+    <string name="share_pager_title">Bagikan kartu</string>
+    <string name="share_generating">Menyiapkan kartu…</string>
+    <string name="share_action_save">Simpan ke galeri</string>
+    <string name="share_action_share">Bagikan</string>
+    <string name="share_action_gpx">Bagikan berkas GPX</string>
     <string name="btn_save_gallery">Simpan kartu ke galeri</string>
     <string name="save_pick_title">Simpan kartu mana ke galeri?</string>
     <string name="save_done">Tersimpan di Galeri/Pictures/Zylo</string>

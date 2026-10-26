@@ -59,6 +59,12 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name=".ShareActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:label="@string/share_pager_title" />
+
+        <activity
             android:name=".SettingsActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
