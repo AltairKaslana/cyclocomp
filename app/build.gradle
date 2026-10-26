@@ -26,6 +26,15 @@ android {
         // Keystore TIDAK BOLEH masuk repo (repo ini publik): hanya di GitHub Secrets
         // (CYCLOCOMP_KEYSTORE_BASE64/PASSWORD/ALIAS/KEY_PASSWORD) + salinan lokal
         // /root/.cyclocomp-keystore mode 700.
+        //
+        // JEBAKAN PKCS12: keystore buatan keytool modern bertipe PKCS12, dan PKCS12
+        // TIDAK mendukung password kunci yang berbeda dari password store - keytool
+        // memperingatkan "Different store and key passwords not supported ...
+        // Ignoring user-specified -keypass value" lalu memakai password store.
+        // Akibatnya CYCLOCOMP_KEY_PASSWORD harus diisi password STORE, bukan password
+        // kunci terpisah. Kalau diisi yang lain, build gagal di :app:packageRelease
+        // dengan UnrecoverableKeyException "Given final block not properly padded" -
+        // yang tampak seperti berkas rusak, padahal salah password.
         release {
             def ksPath = System.getenv('CYCLOCOMP_KEYSTORE_PATH')
                 ?: (project.findProperty('cyclocompKeystore') as String)
