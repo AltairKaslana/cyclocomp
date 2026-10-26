@@ -12,3 +12,6 @@ keystore.properties
 
 # APK hasil build jangan ikut repo - dibagikan lewat artefak CI / chat.
 *.apk
+
+# Rekaman GPS pribadi - jangan masuk repo publik.
+*.gpx
