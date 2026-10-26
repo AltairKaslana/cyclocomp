@@ -239,6 +239,12 @@
     <string name="card_pick_title">Which card format?</string>
     <string name="card_variant_map">Card 4:5 - includes the route map</string>
     <string name="card_variant_story">Story card 9:16 - big numbers, black background</string>
+    <string name="card_variant_clear">Clear stamp - can be pasted on photos</string>
+    <string name="btn_save_gallery">Save card to gallery</string>
+    <string name="save_pick_title">Save which card to gallery?</string>
+    <string name="save_done">Saved to Gallery/Pictures/Zylo</string>
+    <string name="save_failed_gallery">Failed to save to gallery</string>
+    <string name="save_need_permission">Storage permission required to save the card</string>
     <string name="unit_distance">km</string>
     <string name="unit_elev_short">m</string>
 

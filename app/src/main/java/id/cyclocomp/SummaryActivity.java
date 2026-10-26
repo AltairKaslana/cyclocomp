@@ -60,6 +60,9 @@ public class SummaryActivity extends Activity {
         findViewById(R.id.btnShareCard).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { shareCard(); }
         });
+        findViewById(R.id.btnSaveGallery).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { saveCardDialog(); }
+        });
         Button strava = (Button) findViewById(R.id.btnStrava);
         strava.setVisibility(StravaStore.connected(this) ? View.VISIBLE : View.GONE);
         strava.setOnClickListener(new View.OnClickListener() {
@@ -153,10 +156,11 @@ public class SummaryActivity extends Activity {
     /**
      * Tanya dulu bentuk kartu yang mau dibagikan, lalu bangun kartunya.
      *
-     * Dua bentuk, dua kegunaan berbeda: kartu 4:5 punya peta rute dan pas untuk
+     * Tiga bentuk, tiga kegunaan berbeda: kartu 4:5 punya peta rute dan pas untuk
      * WhatsApp/Telegram, kartu Story 9:16 latar hitam dengan angka besar dibuat
-     * untuk Story Instagram/WhatsApp yang mengisi layar penuh. Memilih sekali di
-     * dialog ini lebih baik daripada menebak - pemakai yang tahu dia mau posting di mana.
+     * untuk Story Instagram/WhatsApp yang mengisi layar penuh, dan stempel
+     * transparan untuk ditempel di atas foto. Memilih sekali di dialog ini lebih
+     * baik daripada menebak - pemakai yang tahu dia mau posting di mana.
      */
     private void shareCard() {
         if (row == null) return;
@@ -164,41 +168,22 @@ public class SummaryActivity extends Activity {
                 .setTitle(R.string.card_pick_title)
                 .setItems(new CharSequence[]{
                                 getString(R.string.card_variant_map),
-                                getString(R.string.card_variant_story)},
-                        (d, which) -> buildAndShare(which == 1))
+                                getString(R.string.card_variant_story),
+                                getString(R.string.card_variant_clear)},
+                        (d, which) -> buildAndShare(which))
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
 
     /**
-     * Bangun kartu terpilih (story = kartu 9:16) lalu buka pemilih aplikasi.
-     *
+     * Bangun kartu terpilih lalu buka pemilih aplikasi.
      * Kartu digambar sendiri lewat {@link ShareCard}, bukan memotret layar: hasilnya sama
      * di semua perangkat dan tetap lengkap walaupun peta ubin tidak bisa diambil.
      * Seluruh proses dibungkus try/catch - membuat gambar tidak boleh mematikan aplikasi.
      */
-    private void buildAndShare(boolean story) {
+    private void buildAndShare(int variant) {
         if (row == null) return;
-
-        // Rute hanya dibaca untuk kartu 4:5; kartu story tidak menggambar peta,
-        // jadi membaca GPX di sana cuma buang waktu di perangkat lambat.
-        List<GpxReader.P> track = java.util.Collections.emptyList();
-        if (!story) {
-            try {
-                track = GpxReader.read(row.gpxPath == null ? null : new File(row.gpxPath));
-            } catch (Throwable t) {
-                Log.e("Summary", "rute untuk kartu gagal dibaca", t);
-                track = java.util.Collections.emptyList();
-            }
-        }
-
-        File png;
-        try {
-            png = story ? ShareCard.buildStory(this, row) : ShareCard.build(this, row, track);
-        } catch (Throwable t) {
-            Log.e("Summary", "kartu gagal dibuat", t);
-            png = null;
-        }
+        File png = buildCard(variant);
         if (png == null) {
             Toast.makeText(this, R.string.card_failed, Toast.LENGTH_LONG).show();
             return;
@@ -215,6 +200,114 @@ public class SummaryActivity extends Activity {
         } catch (Exception e) {
             Toast.makeText(this, R.string.no_share_app, Toast.LENGTH_LONG).show();
         }
+    }
+
+    /**
+     * Bangun berkas kartu untuk varian yang diminta.
+     *
+     * @param variant 0 = kartu 4:5 dengan peta, 1 = kartu Story 9:16,
+     *                2 = stempel transparan.
+     * @return berkas PNG, atau null kalau gagal.
+     */
+    private File buildCard(int variant) {
+        // Rute hanya dibaca untuk kartu yang menggambar peta; kartu Story
+        // (varian 1) tidak menggambar rute, jadi membaca GPX di sana cuma
+        // buang waktu di perangkat lambat. Stempel transparan (varian 2)
+        // justru menggambar rute sebagai tokoh utama.
+        List<GpxReader.P> track = java.util.Collections.emptyList();
+        boolean needsRoute = variant != 1;
+        if (needsRoute) {
+            try {
+                track = GpxReader.read(row.gpxPath == null ? null : new File(row.gpxPath));
+            } catch (Throwable t) {
+                Log.e("Summary", "rute untuk kartu gagal dibaca", t);
+                track = java.util.Collections.emptyList();
+            }
+        }
+        try {
+            switch (variant) {
+                case 1:  return ShareCard.buildStory(this, row);
+                case 2:  return ShareCard.buildSticker(this, row, track);
+                default: return ShareCard.build(this, row, track);
+            }
+        } catch (Throwable t) {
+            Log.e("Summary", "kartu gagal dibuat", t);
+            return null;
+        }
+    }
+
+    // ==================================================================
+    // Simpan kartu ke galeri publik (Pictures/Zylo).
+    //
+    // Alurnya: pilih varian -> bangun kartu -> (Android 9 ke bawah: minta
+    // izin WRITE_EXTERNAL_STORAGE kalau belum ada) -> tulis lewat
+    // ShareCard.saveToGallery -> kabari hasil. Semua di thread UI aman:
+    // menggambar 1080x1350 dan menyalin beberapa ratus KB cepat, dan
+    // dialog progres justru bikin tergantung.
+    // ==================================================================
+
+    private static final int REQ_WRITE_STORAGE = 77;
+    private int pendingSaveVariant = -1;
+
+    /** Dialog pilih kartu untuk disimpan ke galeri. */
+    private void saveCardDialog() {
+        if (row == null) return;
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.save_pick_title)
+                .setItems(new CharSequence[]{
+                                getString(R.string.card_variant_map),
+                                getString(R.string.card_variant_story),
+                                getString(R.string.card_variant_clear)},
+                        (d, which) -> saveCard(which))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void saveCard(int variant) {
+        File png = buildCard(variant);
+        if (png == null) {
+            Toast.makeText(this, R.string.card_failed, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Android 10+ tidak butuh izin apa pun (MediaStore + RELATIVE_PATH).
+        if (android.os.Build.VERSION.SDK_INT < 29) {
+            int granted = checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (granted != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                pendingSaveVariant = variant;
+                requestPermissions(
+                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQ_WRITE_STORAGE);
+                return;
+            }
+        }
+        doSave(png);
+    }
+
+    private void doSave(File png) {
+        String err = ShareCard.saveToGallery(this, png);
+        Toast.makeText(this,
+                err == null ? R.string.save_done : R.string.save_failed_gallery,
+                Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode != REQ_WRITE_STORAGE) return;
+        if (grantResults.length > 0
+                && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED
+                && pendingSaveVariant >= 0) {
+            // kartu sudah dibangun sekali; bangun ulang supaya berkas pasti ada
+            File png = buildCard(pendingSaveVariant);
+            if (png != null) doSave(png);
+        } else {
+            Toast.makeText(this, R.string.save_need_permission,
+                    Toast.LENGTH_LONG).show();
+        }
+        pendingSaveVariant = -1;
+    }
     }
 
     /** Bagikan berkas GPX lewat content:// supaya bisa diterima aplikasi lain (termasuk Strava). */

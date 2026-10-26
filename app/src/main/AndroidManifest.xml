@@ -6,6 +6,10 @@
     <!-- Peta ubin OpenStreetMap di layar Ringkasan. Tanpa izin ini, peta gagal
          dimuat dan rute digambar di latar kisi seperti sebelumnya. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Hanya untuk Android 9 ke bawah: simpan PNG ke Pictures/Zylo lewat
+         jalur lama. Android 10+ pakai MediaStore tanpa izin apa pun. -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- Sensor detak jantung BLE: API 23-30 memakai izin Bluetooth lama,
