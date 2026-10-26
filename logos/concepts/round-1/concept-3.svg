@@ -1,0 +1,11 @@
+<svg viewBox="0 0 1024 512" xmlns="http://www.w3.org/2000/svg">
+  <g id="icon">
+    <path d="M150 360 L250 150 L350 360 Z" fill="#FC4C02"/>
+    <path d="M200 360 L250 220 L300 360" fill="#0E1013"/>
+    <circle cx="250" cy="130" r="20" fill="#FC4C02"/>
+  </g>
+  <g id="wordmark">
+    <text x="400" y="310" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="130" fill="#FFFFFF" letter-spacing="15">ZYLO</text>
+    <text x="405" y="350" font-family="Helvetica, Arial, sans-serif" font-size="30" fill="#8A9099" letter-spacing="4">RIDE THE GRADE</text>
+  </g>
+</svg>

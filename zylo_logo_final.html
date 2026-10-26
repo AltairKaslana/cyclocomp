@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zylo - Logo Refinement</title>
+    <style>
+        body {
+            background-color: #0E1013;
+            color: #FFFFFF;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+        .card {
+            background: #1A1D21;
+            padding: 40px;
+            border-radius: 32px;
+            border: 1px solid #2A2F35;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 320px;
+        }
+        .card.perfected {
+            border-color: #FC4C02;
+            box-shadow: 0 0 40px rgba(252, 76, 2, 0.15);
+            position: relative;
+        }
+        .badge {
+            position: absolute;
+            top: -12px;
+            background: #FC4C02;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
+        .logo-box {
+            width: 160px;
+            height: 160px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .brand-name {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .desc {
+            color: #8A9099;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        /* App Icon Mockup */
+        .app-icon-section {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 1px solid #2A2F35;
+        }
+        .app-icon {
+            width: 120px;
+            height: 120px;
+            background: #1A1D21;
+            border-radius: 28px; /* iOS style */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            margin: 0 auto 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="margin-bottom: 10px;">Zylo Brand Refinement</h1>
+    <p style="color: #8A9099; margin-bottom: 50px;">Evolusi Konsep 3: Zenith Circle</p>
+
+    <div class="comparison-grid">
+        <!-- Versi Awal -->
+        <div class="card">
+            <div class="logo-box">
+                <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="38" stroke="#FC4C02" stroke-width="12" />
+                    <rect x="0" y="55" width="120" height="20" fill="#1A1D21" transform="rotate(-35 50 50)" />
+                </svg>
+            </div>
+            <div class="brand-name" style="letter-spacing: 4px;">Zylo</div>
+            <div class="desc"><b>Draft:</b> Potongan kasar, tipografi standar. Terlihat seperti bentuk geometri biasa.</div>
+        </div>
+
+        <!-- Versi Sempurna -->
+        <div class="card perfected">
+            <div class="badge">Perfected</div>
+            <div class="logo-box">
+                <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Refined Circle with Gap (Path) -->
+                    <!-- The path creates a clean circle with a gap aligned to GradeRoad angle -->
+                    <path d="M78 35 A 38 38 0 1 1 22 65" 
+                          stroke="#FC4C02" 
+                          stroke-width="12" 
+                          stroke-linecap="round" 
+                          fill="none" />
+                    <!-- Small accent dot to suggest the 'summit' or target -->
+                    <circle cx="78" cy="35" r="5" fill="#FC4C02" />
+                </svg>
+            </div>
+            <div class="brand-name">Zylo</div>
+            <div class="desc"><b>Final:</b> Sudut presisi, ujung membulat (rounded), dan aksen titik puncak. Terasa seperti brand teknologi premium.</div>
+        </div>
+    </div>
+
+    <div class="app-icon-section">
+        <h2 style="font-size: 20px; color: #FFFFFF; margin-bottom: 30px;">App Icon Preview</h2>
+        <div class="app-icon">
+            <svg width="70" height="70" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M78 35 A 38 38 0 1 1 22 65" 
+                      stroke="#FC4C02" 
+                      stroke-width="14" 
+                      stroke-linecap="round" 
+                      fill="none" />
+                <circle cx="78" cy="35" r="6" fill="#FC4C02" />
+            </svg>
+        </div>
+        <p style="color: #8A9099; font-size: 14px;">Tampilan pada Home Screen (iOS/Android style)</p>
+    </div>
+
+</body>
+</html>

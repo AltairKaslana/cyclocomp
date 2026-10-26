@@ -1,0 +1,13 @@
+<svg viewBox="0 0 1024 512" xmlns="http://www.w3.org/2000/svg">
+  <g id="icon">
+    <rect x="100" y="150" width="200" height="40" rx="10" fill="#FC4C02"/>
+    <rect x="100" y="320" width="200" height="40" rx="10" fill="#FC4C02"/>
+    <path d="M300 150 L100 360" stroke="#FC4C02" stroke-width="40" stroke-linecap="round"/>
+    <path d="M260 170 L140 340" stroke="#FC4C02" stroke-width="10" stroke-linecap="round" opacity="0.6"/>
+    <path d="M220 190 L100 360" stroke="#FC4C02" stroke-width="10" stroke-linecap="round" opacity="0.3"/>
+  </g>
+  <g id="wordmark">
+    <text x="350" y="330" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="120" fill="#FFFFFF" letter-spacing="10">ZYLO</text>
+    <text x="355" y="370" font-family="Helvetica, Arial, sans-serif" font-size="30" fill="#8A9099" letter-spacing="4">RIDE THE GRADE</text>
+  </g>
+</svg>

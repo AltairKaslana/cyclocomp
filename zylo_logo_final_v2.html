@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zylo - Final Identity</title>
+    <style>
+        body {
+            background-color: #0E1013;
+            color: #FFFFFF;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .final-card {
+            background: #1A1D21;
+            padding: 60px;
+            border-radius: 48px;
+            border: 1px solid #2A2F35;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 380px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+        }
+        .logo-box {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .brand-name {
+            font-size: 48px;
+            font-weight: 800;
+            letter-spacing: 12px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            color: #FFFFFF;
+        }
+        .tagline {
+            color: #8A9099;
+            font-size: 16px;
+            letter-spacing: 1px;
+            font-weight: 400;
+        }
+        .preview-section {
+            margin-top: 60px;
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            justify-content: center;
+        }
+        .app-icon {
+            width: 100px;
+            height: 100px;
+            background: #1A1D21;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+            border: 1px solid #2A2F35;
+        }
+        .label {
+            font-size: 12px;
+            color: #8A9099;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="final-card">
+        <div class="logo-box">
+            <!-- 
+                Sempurna: Menggunakan stroke-dasharray.
+                Lingkaran tidak dipotong dengan kotak, tapi digambar hanya 80% kelilingnya.
+                Ini adalah metode paling stabil untuk SVG.
+            -->
+            <svg width="160" height="160" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g transform="rotate(-135 50 50)">
+                    <!-- Circle with a clean gap using dasharray -->
+                    <circle cx="50" cy="50" r="38" 
+                            stroke="#FC4C02" 
+                            stroke-width="12" 
+                            stroke-linecap="round" 
+                            stroke-dasharray="191 47" />
+                </g>
+                <!-- Summit Dot (Target Puncak) -->
+                <circle cx="78" cy="35" r="5" fill="#FC4C02" />
+            </svg>
+        </div>
+        <div class="brand-name">Zylo</div>
+        <div class="tagline">Ride the Grade.</div>
+    </div>
+
+    <div class="preview-section">
+        <div style="display:flex; flex-direction:column; align-items:center;">
+            <div class="label">App Icon</div>
+            <div class="app-icon">
+                <svg width="60" height="60" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g transform="rotate(-135 50 50)">
+                        <circle cx="50" cy="50" r="38" 
+                                stroke="#FC4C02" 
+                                stroke-width="14" 
+                                stroke-linecap="round" 
+                                stroke-dasharray="191 47" />
+                    </g>
+                    <circle cx="78" cy="35" r="6" fill="#FC4C02" />
+                </svg>
+            </div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:center;">
+            <div class="label">Smallest Scale</div>
+            <div style="width: 32px; height: 32px; background:#1A1D21; border-radius: 8px; display:flex; align-items:center; justify-content:center; border: 1px solid #2A2F35;">
+                <svg width="20" height="20" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g transform="rotate(-135 50 50)">
+                        <circle cx="50" cy="50" r="38" stroke="#FC4C02" stroke-width="16" stroke-linecap="round" stroke-dasharray="191 47" />
+                    </g>
+                    <circle cx="78" cy="35" r="7" fill="#FC4C02" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

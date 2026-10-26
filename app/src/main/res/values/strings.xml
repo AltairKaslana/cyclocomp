@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Cyclocomp</string>
+    <string name="app_name">Zylo</string>
 
     <!-- satuan -->
     <string name="unit_speed">km/jam</string>

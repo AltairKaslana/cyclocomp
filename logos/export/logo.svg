@@ -1,0 +1,23 @@
+<svg viewBox="0 0 1024 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .accent { fill: #FC4C02; stroke: #FC4C02; }
+      .text-main { fill: #FFFFFF; font-family: 'Inter', Helvetica, Arial, sans-serif; font-weight: 800; }
+      .text-sub { fill: #8A9099; font-family: 'Inter', Helvetica, Arial, sans-serif; font-weight: 400; }
+    </style>
+  </defs>
+  <g id="icon" transform="translate(0, 0)">
+    <!-- Zenith Arc: A clean, professional arc with a gap -->
+    <path d="M380 160 A 120 120 0 1 1 140 352" 
+          stroke="#FC4C02" 
+          stroke-width="40" 
+          stroke-linecap="round" 
+          fill="none" />
+    <!-- Summit Dot -->
+    <circle cx="380" cy="160" r="20" fill="#FC4C02" />
+  </g>
+  <g id="wordmark" transform="translate(450, 0)">
+    <text x="0" y="280" class="text-main" font-size="140" letter-spacing="20">ZYLO</text>
+    <text x="5" y="330" class="text-sub" font-size="35" letter-spacing="10">RIDE THE GRADE</text>
+  </g>
+</svg>
