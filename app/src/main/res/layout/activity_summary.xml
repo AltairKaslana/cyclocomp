@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Ringkasan setelah gowes: rute + angka akhir + bagikan GPX. -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/bg"
-    android:paddingLeft="@dimen/screen_edge"
-    android:paddingRight="@dimen/screen_edge"
-    android:paddingTop="@dimen/gap_loose">
+    android:fillViewport="true">
+
+    <!--
+      Isi dibungkus ScrollView + fillViewport. Alasannya TERUKUR, bukan selera:
+      tinggi TETAP layar ini ≈ 484dp (dihitung dari dimens: judul + tanggal + kartu
+      metrik + 3 tombol), sedangkan layar landscape ponsel hanya 360-400dp. Sebelum
+      ini satu-satunya elemen elastis adalah peta (berat 1), jadi di layar pendek
+      peta mengecil sampai nol SEMENTARA tombol STRAVA / Bagikan kartu / Bagikan GPX /
+      TUTOP terdorong keluar layar — TUTUP tidak bisa dijangkau sama sekali.
+
+      fillViewport menjaga berat 1 tetap bekerja di layar tinggi (peta mengisi ruang
+      sisa), dan minHeight di peta mencegah ia kolaps total di layar pendek.
+    -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/screen_edge"
+        android:paddingRight="@dimen/screen_edge"
+        android:paddingTop="@dimen/gap_loose">
 
     <TextView
         style="@style/SectionLabelAccent"
@@ -28,6 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:minHeight="@dimen/route_map_min"
         android:background="@drawable/bg_card" />
 
     <!-- angka utama -->
@@ -137,7 +154,7 @@
             <TextView style="@style/Label" android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:text="@string/label_total" />
             <TextView android:id="@+id/tvTotal"
-                style="@style/GradeValue"
+                style="@style/ValueSmall"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:paddingLeft="@dimen/gap_cozy" android:tag="num" android:text="0:00:00" />
         </LinearLayout>
@@ -211,4 +228,5 @@
             android:layout_marginLeft="@dimen/gap_loose"
             android:text="@string/close" />
     </LinearLayout>
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>

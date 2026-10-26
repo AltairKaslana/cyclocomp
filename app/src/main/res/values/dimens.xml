@@ -40,6 +40,11 @@
     <dimen name="divider_lap">42dp</dimen>
     <dimen name="divider_lap_small">28dp</dimen>
 
+    <!-- Tinggi minimum peta rute di layar Ringkasan. Diperlukan karena layar itu
+         sekarang bisa digulung: tanpa minHeight, peta (berat 1) bisa terukur nol
+         saat konten lebih tinggi dari layar, dan rute tak terlihat sama sekali. -->
+    <dimen name="route_map_min">160dp</dimen>
+
     <dimen name="rec_dot">7dp</dimen>
     <dimen name="hairline">1dp</dimen>
     <dimen name="dot_radius">2dp</dimen>

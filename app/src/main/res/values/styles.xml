@@ -158,7 +158,10 @@
     <style name="SettingSummary">
         <item name="android:textSize">@dimen/text_caption</item>
         <item name="android:textColor">@color/label</item>
-        <item name="android:layout_marginTop">@dimen/hairline</item>
+        <!-- Jarak judul→ringkasan. Sengaja BUKAN hairline: hairline (1dp) adalah
+         ketebalan GARIS, memakainya sebagai jarak menyisakan 1dp sehingga dua baris
+         nempel dan terbaca satu blok. gap_snug (4dp) memberi napas tanpa memisah. -->
+    <item name="android:layout_marginTop">@dimen/gap_snug</item>
         <item name="android:includeFontPadding">false</item>
     </style>
 
