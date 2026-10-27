@@ -244,7 +244,10 @@
     <string name="share_generating">Preparing cards…</string>
     <string name="share_action_save">Save to gallery</string>
     <string name="share_action_share">Share</string>
-    <string name="share_action_gpx">Share GPX file</string>
+    <string name="share_action_copy">Copy image</string>
+    <string name="share_action_gpx">Share GPX</string>
+    <string name="copy_done">Image copied to clipboard</string>
+    <string name="copy_failed">Could not copy the image</string>
     <string name="btn_save_gallery">Save card to gallery</string>
     <string name="save_pick_title">Save which card to gallery?</string>
     <string name="save_done">Saved to Gallery/Pictures/Zylo</string>

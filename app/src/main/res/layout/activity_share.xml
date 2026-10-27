@@ -157,13 +157,30 @@
             android:text="@string/share_action_share" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btnCardGpx"
-        style="@style/ActionBtn"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/btn_action_h"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/share_action_gpx" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="16dp">
+
+        <Button
+            android:id="@+id/btnCardCopy"
+            style="@style/ActionBtn"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/btn_action_h"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            android:text="@string/share_action_copy" />
+
+        <Button
+            android:id="@+id/btnCardGpx"
+            style="@style/ActionBtn"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/btn_action_h"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:text="@string/share_action_gpx" />
+    </LinearLayout>
 </LinearLayout>

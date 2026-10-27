@@ -81,6 +81,9 @@ public class ShareActivity extends Activity {
         findViewById(R.id.btnCardShare).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { bagikanKartu(); }
         });
+        findViewById(R.id.btnCardCopy).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { salinKartu(); }
+        });
         findViewById(R.id.btnCardGpx).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { bagikanGpx(); }
         });
@@ -244,6 +247,40 @@ public class ShareActivity extends Activity {
             startActivity(Intent.createChooser(i, getString(R.string.share_title)));
         } catch (Exception e) {
             Toast.makeText(this, R.string.no_share_app, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * Salin kartu yang sedang tampil ke clipboard - pola "Copy to Clipboard"
+     * yang dipakai Strava. Gambar ditulis dulu ke folder rides supaya punya
+     * content:// URI; aplikasi lain (WhatsApp, chat, editor) bisa menempelnya.
+     */
+    private void salinKartu() {
+        int page = pager.getCurrentPage();
+        Bitmap bmp = cards[page];
+        if (bmp == null) {
+            Toast.makeText(this, R.string.card_failed, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        File png = ShareCard.writePngForShare(this, bmp, namaKartu(page));
+        if (png == null) {
+            Toast.makeText(this, R.string.copy_failed, Toast.LENGTH_LONG).show();
+            return;
+        }
+        try {
+            android.content.ClipboardManager cm = (android.content.ClipboardManager)
+                    getSystemService(CLIPBOARD_SERVICE);
+            if (cm == null) {
+                Toast.makeText(this, R.string.copy_failed, Toast.LENGTH_LONG).show();
+                return;
+            }
+            Uri uri = Uri.parse("content://" + RideProvider.AUTHORITY + "/" + png.getName());
+            android.content.ClipData clip = android.content.ClipData.newUri(
+                    getContentResolver(), "Zylo", uri);
+            cm.setPrimaryClip(clip);
+            Toast.makeText(this, R.string.copy_done, Toast.LENGTH_SHORT).show();
+        } catch (Throwable t) {
+            Toast.makeText(this, R.string.copy_failed, Toast.LENGTH_LONG).show();
         }
     }
 

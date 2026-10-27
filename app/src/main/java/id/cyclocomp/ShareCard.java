@@ -659,6 +659,10 @@ final class ShareCard {
                 ContentValues cv = new ContentValues();
                 cv.put(MediaStore.Images.Media.DISPLAY_NAME, name);
                 cv.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+                // Dimensi ikut dicatat supaya galeri tidak perlu menebak
+                // (Strava melakukan hal yang sama di MediaWriter-nya).
+                cv.put(MediaStore.Images.Media.WIDTH, bmp.getWidth());
+                cv.put(MediaStore.Images.Media.HEIGHT, bmp.getHeight());
                 cv.put(MediaStore.Images.Media.RELATIVE_PATH,
                         Environment.DIRECTORY_PICTURES + "/Zylo");
                 cv.put(MediaStore.Images.Media.IS_PENDING, 1);

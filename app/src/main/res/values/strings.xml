@@ -243,7 +243,10 @@
     <string name="share_generating">Menyiapkan kartu…</string>
     <string name="share_action_save">Simpan ke galeri</string>
     <string name="share_action_share">Bagikan</string>
-    <string name="share_action_gpx">Bagikan berkas GPX</string>
+    <string name="share_action_copy">Salin gambar</string>
+    <string name="share_action_gpx">Bagikan GPX</string>
+    <string name="copy_done">Gambar disalin ke clipboard</string>
+    <string name="copy_failed">Gagal menyalin gambar</string>
     <string name="btn_save_gallery">Simpan kartu ke galeri</string>
     <string name="save_pick_title">Simpan kartu mana ke galeri?</string>
     <string name="save_done">Tersimpan di Galeri/Pictures/Zylo</string>
