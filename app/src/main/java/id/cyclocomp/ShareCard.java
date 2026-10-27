@@ -104,7 +104,7 @@ final class ShareCard {
         String km = Fmt.km(row.distanceM);
         Paint pDist = text(cond, VALUE, 190f);
         cv.drawText(km, x0, y + 150f, pDist);
-        cv.drawText(\"km\", x0 + pDist.measureText(km) + 18f, y + 150f, text(body, LABEL, 38f));
+        cv.drawText("km", x0 + pDist.measureText(km) + 18f, y + 150f, text(body, LABEL, 38f));
         y += 186f;
 
         // ---- rute ----
@@ -119,8 +119,8 @@ final class ShareCard {
         float colW = (x1 - x0 - 2f) / 3f;
         float statTop = y;
         drawStat(cv, cond, body, x0, colW, statTop, c.getString(R.string.label_moving), Fmt.shortDuration(row.movingMs), transparent);
-        drawStat(cv, cond, body, x0 + colW + 1f, colW, statTop, c.getString(R.string.label_avg), Fmt.speed(row.avgSpeedMs()) + \" \" + c.getString(R.string.unit_speed), transparent);
-        drawStat(cv, cond, body, x0 + 2 * (colW + 1f), colW, statTop, c.getString(R.string.label_max), Fmt.speed((float) row.maxSpeedMs) + \" \" + c.getString(R.string.unit_speed), transparent);
+        drawStat(cv, cond, body, x0 + colW + 1f, colW, statTop, c.getString(R.string.label_avg), Fmt.speed(row.avgSpeedMs()) + " " + c.getString(R.string.unit_speed), transparent);
+        drawStat(cv, cond, body, x0 + 2 * (colW + 1f), colW, statTop, c.getString(R.string.label_max), Fmt.speed((float) row.maxSpeedMs) + " " + c.getString(R.string.unit_speed), transparent);
         y = statTop + 100f;
 
         cv.drawRect(x0, y, x1, y + 1f, solid(DIVIDER));
@@ -131,7 +131,7 @@ final class ShareCard {
         pValLabel.setLetterSpacing(0.18f);
         float half = (x1 - x0) / 2f;
 
-        drawStatPair(cv, cond, body, x0, half, y, c.getString(R.string.label_elev), Fmt.meters(row.elevGainM) + \" m\", transparent);
+        drawStatPair(cv, cond, body, x0, half, y, c.getString(R.string.label_elev), Fmt.meters(row.elevGainM) + " m", transparent);
         drawStatPair(cv, cond, body, x0 + half, half, y, c.getString(R.string.label_total), Fmt.duration(row.durationMs), transparent);
         y += 116f;
 
@@ -180,19 +180,19 @@ final class ShareCard {
     }
 
     private static void drawLaps(Canvas cv, Typeface cond, Typeface body, float x0, float x1, float y, String lapsStr) {
-        String[] laps = lapsStr.split(\"\\|\");
+        String[] laps = lapsStr.split("\\|");
         int maxLaps = 3;
         float rowH = 40f;
         Paint pL = text(body, LABEL, 24f);
         Paint pV = text(cond, VALUE, 24f);
 
-        cv.drawText(\"SPLIT LAPS\", x0, y + 20f, pL);
+        cv.drawText("SPLIT LAPS", x0, y + 20f, pL);
         y += 30f;
 
         for (int i = 0; i < Math.min(laps.length, maxLaps); i++) {
-            String[] d = laps[i].split(\";\");
+            String[] d = laps[i].split(";");
             if (d.length < 3) continue;
-            String rowText = String.format(Locale.US, \"Lap %d: %s km  •  %s  •  %s km/h\", i + 1, d[0], d[1], d[2]);
+            String rowText = String.format(Locale.US, "Lap %d: %s km  •  %s  •  %s km/h", i + 1, d[0], d[1], d[2]);
             cv.drawText(rowText, x0, y + 20f, pV);
             y += rowH;
         }
@@ -218,7 +218,7 @@ final class ShareCard {
         if (bmp == null) return null;
         try {
             String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
-            String suffix = transparent ? \"_story_overlay\" : \"_story\";
+            String suffix = transparent ? "_story_overlay" : "_story";
             return writePngForShare(c, bmp, fileName(gpxName, suffix));
         } finally {
             bmp.recycle();
@@ -285,8 +285,8 @@ final class ShareCard {
     private static String storyDuration(long ms) {
         long s = Math.max(0, ms / 1000);
         long h = s / 3600, m = (s % 3600) / 60, sec = s % 60;
-        if (h > 0) return String.format(Locale.US, \"%dj %dm %dd\", h, m, sec);
-        return String.format(Locale.US, \"%dm %dd\", m, sec);
+        if (h > 0) return String.format(Locale.US, "%dj %dm %dd", h, m, sec);
+        return String.format(Locale.US, "%dm %dd", m, sec);
     }
 
     /** Varian Stempel (Always Transparent) */
@@ -306,7 +306,7 @@ final class ShareCard {
         if (bmp == null) return null;
         try {
             String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
-            return writePngForShare(c, bmp, fileName(gpxName, \"_sticker\"));
+            return writePngForShare(c, bmp, fileName(gpxName, "_sticker"));
         } finally {
             bmp.recycle();
         }
@@ -413,7 +413,7 @@ final class ShareCard {
 
     private static File writePngForShare(Context c, Bitmap bmp, String name) {
         try {
-            File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), \"Zylo\");
+            File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Zylo");
             if (!dir.exists()) dir.mkdirs();
             File file = new File(dir, name);
             FileOutputStream fos = new FileOutputStream(file);

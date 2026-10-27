@@ -38,11 +38,11 @@ public class ShareActivity extends Activity {
     private View[] dotViews = new View[5];
     private Bitmap[] cards = new Bitmap[5];
     private int[] labelIds = {
-            R.string.card_variant_map,     // 0: 4:5 Opak
-            R.string.card_variant_clear,    // 1: 4:5 Transparan (overlay)
-            R.string.card_variant_story,    // 2: Story Opak
-            R.string.card_variant_clear,   // 3: Story Transparan (overlay)
-            R.string.card_variant_clear,    // 4: Stempel Transparan
+            R.string.card_variant_map,           // 0: 4:5 Opak
+            R.string.card_variant_overlay,       // 1: 4:5 Transparan (overlay)
+            R.string.card_variant_story,         // 2: Story Opak
+            R.string.card_variant_story_overlay, // 3: Story Transparan (overlay)
+            R.string.card_variant_sticker,       // 4: Stempel Transparan
     };
     private int pendingSavePage = -1;
 
@@ -168,16 +168,16 @@ public class ShareActivity extends Activity {
 
     private String namaKartu(int page) {
         String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
-        if (gpxName == null) gpxName = \"ride\";
+        if (gpxName == null) gpxName = "ride";
         int dot = gpxName.lastIndexOf('.');
         String base = dot > 0 ? gpxName.substring(0, dot) : gpxName;
         switch (page) {
-            case 0:  return base + \"_card.png\";
-            case 1:  return base + \"_overlay.png\";
-            case 2:  return base + \"_story.png\";
-            case 3:  return base + \"_story_overlay.png\";
-            case 4:  return base + \"_sticker.png\";
-            default: return base + \"_card.png\";
+            case 0:  return base + "_card.png";
+            case 1:  return base + "_overlay.png";
+            case 2:  return base + "_story.png";
+            case 3:  return base + "_story_overlay.png";
+            case 4:  return base + "_sticker.png";
+            default: return base + "_card.png";
         }
     }
 
@@ -201,14 +201,10 @@ public class ShareActivity extends Activity {
     }
 
     private void tulisGaleri(Bitmap bmp, int page) {
-        // Gunakan metode build yang benar sesuai varian untuk memastikan nama berkas konsisten
-        String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
-        File file = null;
-        List<GpxReader.P> track = java.util.Collections.emptyList(); // Tidak perlu track untuk build jika sudah punya bitmap, tapi ShareCard.build butuh track. 
-        // Lebih aman panggil ShareCard.writePngForShare langsung.
-        file = ShareCard.writePngForShare(this, bmp, namaKartu(page));
-        
-        Toast.makeText(this, file != null ? R.string.save_done : R.string.save_failed_gallery, Toast.LENGTH_LONG).show();
+        // Bitmap sudah jadi di memori, jadi cukup tulis ulang ke berkas PNG.
+        File file = ShareCard.writePngForShare(this, bmp, namaKartu(page));
+        Toast.makeText(this, file != null ? R.string.save_done : R.string.save_failed_gallery,
+                Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -237,9 +233,9 @@ public class ShareActivity extends Activity {
             Toast.makeText(this, R.string.card_failed, Toast.LENGTH_LONG).show();
             return;
         }
-        Uri uri = Uri.parse(\"content://\" + RideProvider.AUTHORITY + \"/\" + png.getName());
+        Uri uri = Uri.parse("content://" + RideProvider.AUTHORITY + "/" + png.getName());
         Intent i = new Intent(Intent.ACTION_SEND);
-        i.setType(\"image/png\");
+        i.setType("image/png");
         i.putExtra(Intent.EXTRA_STREAM, uri);
         i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject, png.getName()));
         i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -269,8 +265,8 @@ public class ShareActivity extends Activity {
                 Toast.makeText(this, R.string.copy_failed, Toast.LENGTH_LONG).show();
                 return;
             }
-            Uri uri = Uri.parse(\"content://\" + RideProvider.AUTHORITY + \"/\" + png.getName());
-            android.content.ClipData clip = android.content.ClipData.newUri(getContentResolver(), \"Zylo\", uri);
+            Uri uri = Uri.parse("content://" + RideProvider.AUTHORITY + "/" + png.getName());
+            android.content.ClipData clip = android.content.ClipData.newUri(getContentResolver(), "Zylo", uri);
             cm.setPrimaryClip(clip);
             if (Build.VERSION.SDK_INT <= 32) {
                 Toast.makeText(this, R.string.copy_done, Toast.LENGTH_SHORT).show();
@@ -288,7 +284,7 @@ public class ShareActivity extends Activity {
         }
         String nama = GpxStore.displayName(row.gpxPath);
         Intent i = new Intent(Intent.ACTION_SEND);
-        i.setType(\"application/gpx+xml\");
+        i.setType("application/gpx+xml");
         i.putExtra(Intent.EXTRA_STREAM, GpxStore.shareUri(this, row.gpxPath));
         i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject, nama));
         i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);

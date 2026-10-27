@@ -237,8 +237,11 @@
     <string name="card_share_subject">Kartu gowes %1$s</string>
     <string name="card_pick_title">Bentuk kartu mana?</string>
     <string name="card_variant_map">Kartu 4:5 - ada peta rute</string>
+    <string name="card_variant_overlay">Kartu 4:5 transparan - tempel di atas foto</string>
     <string name="card_variant_story">Kartu Story 9:16 - angka besar, latar hitam</string>
+    <string name="card_variant_story_overlay">Story 9:16 transparan - tempel di atas foto</string>
     <string name="card_variant_clear">Stempel transparan - bisa ditempel di atas foto</string>
+    <string name="card_variant_sticker">Stempel rute + angka inti - tempel di atas foto</string>
     <string name="share_pager_title">Bagikan kartu</string>
     <string name="share_generating">Menyiapkan kartu…</string>
     <string name="share_action_save">Simpan ke galeri</string>
