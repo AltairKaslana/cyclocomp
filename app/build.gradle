@@ -11,7 +11,7 @@ android {
         minSdk 23          // Android 6.0+ (diputuskan 23 Okt 2026)
         targetSdk 33
         versionCode 36
-        versionName "0.9.22"
+        versionName "0.9.23"
     }
 
     signingConfigs {
