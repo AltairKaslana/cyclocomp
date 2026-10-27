@@ -37,6 +37,10 @@ public class ShareActivity extends Activity {
     private LinearLayout pagerContent;
     /** Titik GPX yang sudah dibaca sekali; dipakai ulang tiap ganti halaman. */
     private List<GpxReader.P> trackCache = java.util.Collections.emptyList();
+    /** Halaman yang sedang diminta; dipakai membuang hasil render yang telat. */
+    private int halamanAktif = 0;
+    /** Nomor urut permintaan muat; yang telat dibatalkan. */
+    private int muatId = 0;
     private ImageView[] imgs = new ImageView[PAGE_COUNT];
     private View[] dotViews = new View[PAGE_COUNT];
     private Bitmap[] cards = new Bitmap[PAGE_COUNT];
@@ -158,17 +162,33 @@ public class ShareActivity extends Activity {
      * (OutOfMemoryError) sehingga slide tampil kosong dan tombol simpan
      * tidak punya apa-apa untuk ditulis. Karena itu hanya halaman aktif
      * yang dipegang; halaman lain dibuang dan dibangun ulang saat dibutuhkan.
+     *
+     * URUTANNYA PENTING: lepas gambar dari ImageView DULU (di thread UI),
+     * baru recycle bitmap-nya (di thread latar). Kalau dibalik, pager yang
+     * sedang scroll masih menggambar bitmap bekas dan aplikasi crash dengan
+     * "Canvas: trying to use a recycled bitmap".
      */
     private void muatHalaman(final int page) {
         if (page < 0 || page >= PAGE_COUNT) return;
+        halamanAktif = page;
+        final int req = ++muatId;
         if (cards[page] != null) {
             imgs[page].setImageBitmap(cards[page]);
             return;
         }
         tvGenerating.setVisibility(View.VISIBLE);
+
+        // 1) Lepas semua gambar yang bukan halaman aktif - WAJIB sebelum recycle.
+        for (int i = 0; i < PAGE_COUNT; i++) {
+            if (i != page) imgs[i].setImageDrawable(null);
+        }
+
         new Thread(new Runnable() {
             @Override public void run() {
-                // buang bitmap halaman lain dulu supaya memori cukup
+                // Geseran cepat bisa memicu beberapa permintaan sekaligus;
+                // yang sudah tidak berlaku dibatalkan di sini.
+                if (req != muatId) return;
+                // 2) Baru aman untuk membuang bitmap lama.
                 for (int i = 0; i < PAGE_COUNT; i++) {
                     if (i != page && cards[i] != null) {
                         if (!cards[i].isRecycled()) cards[i].recycle();
@@ -179,6 +199,12 @@ public class ShareActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override public void run() {
                         tvGenerating.setVisibility(View.GONE);
+                        // Pengguna sudah geser ke halaman lain selagi render
+                        // berjalan: jangan pasang gambar yang tak lagi diminta.
+                        if (req != muatId || page != halamanAktif) {
+                            if (b != null && !b.isRecycled()) b.recycle();
+                            return;
+                        }
                         if (b == null) {
                             imgs[page].setImageDrawable(null);
                             Toast.makeText(ShareActivity.this, R.string.card_failed,
@@ -395,7 +421,10 @@ public class ShareActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        for (int i = 0; i < cards.length; i++) {
+        // Lepas dulu dari ImageView, baru recycle - urutan sama seperti
+        // muatHalaman(), supaya tidak ada sisa gambar yang masih dirujuk.
+        for (int i = 0; i < PAGE_COUNT; i++) {
+            if (imgs[i] != null) imgs[i].setImageDrawable(null);
             if (cards[i] != null && !cards[i].isRecycled()) cards[i].recycle();
             cards[i] = null;
         }
