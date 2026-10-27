@@ -63,7 +63,7 @@
         android:layout_weight="1">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="horizontal">
 
@@ -145,6 +145,8 @@
             android:layout_height="@dimen/btn_action_h"
             android:layout_weight="1"
             android:layout_marginEnd="6dp"
+            android:drawableTop="@drawable/ic_action_save"
+            android:drawablePadding="3dp"
             android:text="@string/share_action_save" />
 
         <Button
@@ -154,6 +156,8 @@
             android:layout_height="@dimen/btn_action_h"
             android:layout_weight="1"
             android:layout_marginStart="6dp"
+            android:drawableTop="@drawable/ic_action_share"
+            android:drawablePadding="3dp"
             android:text="@string/share_action_share" />
     </LinearLayout>
 
@@ -172,6 +176,8 @@
             android:layout_height="@dimen/btn_action_h"
             android:layout_weight="1"
             android:layout_marginEnd="6dp"
+            android:drawableTop="@drawable/ic_action_copy"
+            android:drawablePadding="3dp"
             android:text="@string/share_action_copy" />
 
         <Button
@@ -181,6 +187,8 @@
             android:layout_height="@dimen/btn_action_h"
             android:layout_weight="1"
             android:layout_marginStart="6dp"
+            android:drawableTop="@drawable/ic_action_gpx"
+            android:drawablePadding="3dp"
             android:text="@string/share_action_gpx" />
     </LinearLayout>
 </LinearLayout>

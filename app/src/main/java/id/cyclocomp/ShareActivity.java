@@ -278,7 +278,11 @@ public class ShareActivity extends Activity {
             android.content.ClipData clip = android.content.ClipData.newUri(
                     getContentResolver(), "Zylo", uri);
             cm.setPrimaryClip(clip);
-            Toast.makeText(this, R.string.copy_done, Toast.LENGTH_SHORT).show();
+            // Android 13+ sudah menampilkan preview clipboard sendiri, jadi
+            // toast tambahan cuma dobel (Strava juga membatasi ke API <= 32).
+            if (Build.VERSION.SDK_INT <= 32) {
+                Toast.makeText(this, R.string.copy_done, Toast.LENGTH_SHORT).show();
+            }
         } catch (Throwable t) {
             Toast.makeText(this, R.string.copy_failed, Toast.LENGTH_LONG).show();
         }

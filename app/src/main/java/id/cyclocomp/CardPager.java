@@ -2,22 +2,25 @@ package id.cyclocomp;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 
 /**
- * Pager sederhana tanpa dependency: HorizontalScrollView yang melompat ke
- * halaman terdekat saat jari diangkat, dan memperkirakan arah gerak saat
- * pengguna "melempar" (fling). Dipakai layar Bagikan untuk menggeser preview
- * kartu kiri-kanan.
+ * Pager sederhana tanpa dependency: HorizontalScrollView dengan snap per
+ * halaman lebar penuh.
  *
- * Kenapa bukan ViewPager dari androidx: proyek ini sengaja tanpa dependency
- * pihak ketiga, dan kebutuhan kita sempit - tiga halaman lebar penuh dengan
- * penggeseran dan penanda titik.
+ * Kenapa bukan ViewPager: proyek ini sengaja tanpa dependency pihak ketiga.
  *
- * Halaman diisi oleh Activity sebagai anak LinearLayout (horizontal);
- * lebar tiap halaman disetel otomatis saat ukuran view diketahui.
+ * Dua hal yang menentukan "enak atau tidak" saat digeser:
+ * 1. Lebar konten harus benar. LinearLayout horizontal di dalam scroll view
+ *    WAJIB wrap_content - kalau match_parent, lebarnya dipaksa selebar
+ *    viewport, sisa halaman terpotong dan geseran terasa tertahan.
+ * 2. Ambang pindah halaman harus kecil. Cukup geser 20% lebar layar atau
+ *    lepas dengan kecepatan ringan; tidak perlu sampai setengah layar.
  */
 public class CardPager extends HorizontalScrollView {
 
@@ -25,10 +28,19 @@ public class CardPager extends HorizontalScrollView {
         void onPageSelected(int position);
     }
 
+    /** Ambang geser (fraksi lebar halaman) supaya pindah ke halaman sebelah. */
+    private static final float FLIP_FRACTION = 0.2f;
+    /** Ambang kecepatan lepas jari, px/detik. Ringan saja sudah cukup. */
+    private static final int FLIP_VELOCITY = 350;
+
     private int pageW = -1;
     private int pages = 0;
     private int current = 0;
     private OnPageSelectedListener listener;
+
+    private VelocityTracker tracker;
+    private int downX;
+    private int slop;
 
     public CardPager(Context c) { super(c); init(); }
     public CardPager(Context c, AttributeSet a) { super(c, a); init(); }
@@ -37,6 +49,8 @@ public class CardPager extends HorizontalScrollView {
     private void init() {
         setHorizontalScrollBarEnabled(false);
         setFillViewport(true);
+        setSmoothScrollingEnabled(true);
+        slop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
     }
 
     public void setOnPageSelectedListener(OnPageSelectedListener l) {
@@ -55,52 +69,93 @@ public class CardPager extends HorizontalScrollView {
     }
 
     /**
-     * Samakan lebar setiap halaman dengan lebar viewport. LinearLayout
-     * horizontal dengan anak match_parent TIDAK menumpuk dengan benar kalau
-     * dibiarkan diukur sendiri, jadi lebar dipasang di kode.
+     * Pastikan wadahnya selebar (jumlah halaman x lebar layar) dan tiap
+     * halaman selebar viewport.
      */
     private void sizeChildren() {
         if (getChildCount() != 1 || !(getChildAt(0) instanceof ViewGroup)) return;
         ViewGroup inner = (ViewGroup) getChildAt(0);
+        ViewGroup.LayoutParams ilp = inner.getLayoutParams();
+        if (ilp != null && ilp.width != ViewGroup.LayoutParams.WRAP_CONTENT) {
+            ilp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            inner.setLayoutParams(ilp);
+        }
         for (int i = 0; i < inner.getChildCount(); i++) {
             View ch = inner.getChildAt(i);
             ViewGroup.LayoutParams lp = ch.getLayoutParams();
-            if (lp == null) lp = new ViewGroup.LayoutParams(pageW, ViewGroup.LayoutParams.MATCH_PARENT);
+            if (lp == null) {
+                lp = new ViewGroup.LayoutParams(pageW, ViewGroup.LayoutParams.MATCH_PARENT);
+            }
             lp.width = pageW;
             ch.setLayoutParams(lp);
         }
         pages = inner.getChildCount();
+        inner.requestLayout();
         scrollTo(current * pageW, 0);
     }
 
     @Override
-    public boolean onTouchEvent(android.view.MotionEvent ev) {
-        boolean r = super.onTouchEvent(ev);
-        int a = ev.getAction();
-        if (a == android.view.MotionEvent.ACTION_UP
-                || a == android.view.MotionEvent.ACTION_CANCEL) {
-            snap();
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (pageW <= 0 || pages <= 1) return super.onTouchEvent(ev);
+
+        if (tracker == null) tracker = VelocityTracker.obtain();
+        tracker.addMovement(ev);
+
+        switch (ev.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                downX = (int) ev.getX();
+                return super.onTouchEvent(ev);
+
+            case MotionEvent.ACTION_MOVE:
+                return super.onTouchEvent(ev);
+
+            case MotionEvent.ACTION_UP: {
+                tracker.computeCurrentVelocity(1000);
+                float vx = tracker.getXVelocity();
+                int dx = (int) (ev.getX() - downX);
+                int target = decide(dx, vx);
+                // biarkan HorizontalScrollView menutup gestur dulu, lalu kita
+                // ambil alih posisinya - supaya tidak ada fling liar.
+                boolean r = super.onTouchEvent(ev);
+                goTo(target);
+                recycleTracker();
+                return r;
+            }
+
+            case MotionEvent.ACTION_CANCEL:
+                recycleTracker();
+                snapNearest();
+                return super.onTouchEvent(ev);
+
+            default:
+                return super.onTouchEvent(ev);
         }
-        return r;
     }
 
     /**
-     * Lemparan cepat: arah kecepatan menentukan halaman tujuan. Fling asli
-     * dari HorizontalScrollView sengaja TIDAK dipanggil supaya posisi akhir
-     * selalu rapi di batas halaman.
+     * Tentukan halaman tujuan dari jarak geser dan kecepatan lepas.
+     * Prioritas: lemparan ringan -> arah lemparan; geseran cukup jauh ->
+     * halaman sebelah; selain itu kembali ke halaman terdekat.
      */
+    private int decide(int dx, float vx) {
+        int jauh = (int) (pageW * FLIP_FRACTION);
+        if (vx > FLIP_VELOCITY) return current - 1;   // dilempar ke kanan
+        if (vx < -FLIP_VELOCITY) return current + 1;  // dilempar ke kiri
+        if (dx < -jauh) return current + 1;
+        if (dx > jauh) return current - 1;
+        return Math.round(getScrollX() / (float) pageW);
+    }
+
+    /** Fling bawaan dimatikan: posisi akhir selalu rapi di batas halaman. */
     @Override
     public void fling(int velocityX) {
         if (pageW <= 0) { super.fling(velocityX); return; }
-        int target;
-        if (velocityX > 1500) target = current + 1;
-        else if (velocityX < -1500) target = current - 1;
-        else target = Math.round(getScrollX() / (float) pageW);
-        goTo(target);
+        if (velocityX > FLIP_VELOCITY) goTo(current - 1);
+        else if (velocityX < -FLIP_VELOCITY) goTo(current + 1);
+        else snapNearest();
     }
 
-    /** Geser pelan tanpa lepas jari: lompat ke halaman terdekat. */
-    private void snap() {
+    private void snapNearest() {
         if (pageW <= 0) return;
         goTo(Math.round(getScrollX() / (float) pageW));
     }
@@ -114,5 +169,18 @@ public class CardPager extends HorizontalScrollView {
             current = target;
             if (listener != null) listener.onPageSelected(current);
         }
+    }
+
+    private void recycleTracker() {
+        if (tracker != null) {
+            tracker.recycle();
+            tracker = null;
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        recycleTracker();
+        super.onDetachedFromWindow();
     }
 }
