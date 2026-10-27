@@ -386,32 +386,81 @@ final class ShareCard {
 
     private static void drawRoute(Canvas cv, Context c, List<GpxReader.P> pts, float x, float y, float w, float h) {
         if (pts == null || pts.size() < 2) return;
-        float minLat = Float.MAX_VALUE, maxLat = -Float.MAX_VALUE, minLon = Float.MAX_VALUE, maxLon = -Float.MAX_VALUE;
+        double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE;
+        double minLon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
         for (GpxReader.P p : pts) {
-            if (p.lat < minLat) minLat = p.lat; if (p.lat > maxLat) maxLat = p.lat;
-            if (p.lon < minLon) minLon = p.lon; if (p.lon > maxLon) maxLon = p.lon;
+            if (p.lat < minLat) minLat = p.lat;
+            if (p.lat > maxLat) maxLat = p.lat;
+            if (p.lon < minLon) minLon = p.lon;
+            if (p.lon > maxLon) maxLon = p.lon;
         }
-        float latRange = maxLat - minLat;
-        float lonRange = maxLon - minLon;
-        if (latRange == 0) latRange = 0.001f;
-        if (lonRange == 0) lonRange = 0.001f;
-        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-        p.setColor(ACCENT);
-        p.setStrokeWidth(12f);
-        p.setStyle(Paint.Style.STROKE);
-        p.setStrokeJoin(Paint.Join.ROUND);
-        p.setStrokeCap(Paint.Cap.ROUND);
+        double latRange = maxLat - minLat;
+        double lonRange = maxLon - minLon;
+        if (latRange == 0) latRange = 0.0001;
+        if (lonRange == 0) lonRange = 0.0001;
+
+        // Skala seragam untuk kedua sumbu supaya bentuk rute tidak gepeng:
+        // ambil faktor terkecil, lalu pusatkan sisa ruang di kotak peta.
+        double pad = 0.10;
+        double sx = (w * (1.0 - 2.0 * pad)) / lonRange;
+        double sy = (h * (1.0 - 2.0 * pad)) / latRange;
+        double s = Math.min(sx, sy);
+        double cx = x + w / 2.0, cy = y + h / 2.0;
+        double mx = (minLon + maxLon) / 2.0, my = (minLat + maxLat) / 2.0;
+
         Path path = new Path();
         for (int i = 0; i < pts.size(); i++) {
-            GpxReader.P pPt = pts.get(i);
-            float px = x + (float) ((pPt.lon - minLon) / lonRange * w);
-            float py = y + h - (float) ((pPt.lat - minLat) / latRange * h);
+            GpxReader.P p = pts.get(i);
+            float px = (float) (cx + (p.lon - mx) * s);
+            float py = (float) (cy - (p.lat - my) * s);
             if (i == 0) path.moveTo(px, py); else path.lineTo(px, py);
         }
-        cv.drawPath(path, p);
+
+        // Dua lapis: halo gelap lebih dulu supaya garis tetap terbaca walau
+        // ditempel di atas foto ramai, lalu inti oranye di atasnya.
+        Paint pHalo = new Paint(Paint.ANTI_ALIAS_FLAG);
+        pHalo.setStyle(Paint.Style.STROKE);
+        pHalo.setStrokeJoin(Paint.Join.ROUND);
+        pHalo.setStrokeCap(Paint.Cap.ROUND);
+        pHalo.setColor(0xCC0E1013);
+        pHalo.setStrokeWidth(22f);
+        cv.drawPath(path, pHalo);
+
+        Paint pCore = new Paint(Paint.ANTI_ALIAS_FLAG);
+        pCore.setStyle(Paint.Style.STROKE);
+        pCore.setStrokeJoin(Paint.Join.ROUND);
+        pCore.setStrokeCap(Paint.Cap.ROUND);
+        pCore.setColor(ACCENT);
+        pCore.setStrokeWidth(12f);
+        cv.drawPath(path, pCore);
+
+        // Penanda titik mulai (hijau) dan selesai (oranye) - mirip Strava.
+        GpxReader.P first = pts.get(0);
+        GpxReader.P last = pts.get(pts.size() - 1);
+        Paint pStart = new Paint(Paint.ANTI_ALIAS_FLAG);
+        pStart.setColor(GREEN);
+        pStart.setStyle(Paint.Style.FILL);
+        Paint pFinish = new Paint(Paint.ANTI_ALIAS_FLAG);
+        pFinish.setColor(ACCENT);
+        pFinish.setStyle(Paint.Style.FILL);
+        Paint pRing = new Paint(Paint.ANTI_ALIAS_FLAG);
+        pRing.setColor(0xCC0E1013);
+        pRing.setStyle(Paint.Style.STROKE);
+        pRing.setStrokeWidth(5f);
+
+        float sx0 = (float) (cx + (first.lon - mx) * s);
+        float sy0 = (float) (cy - (first.lat - my) * s);
+        cv.drawCircle(sx0, sy0, 16f, pRing);
+        cv.drawCircle(sx0, sy0, 12f, pStart);
+
+        float sx1 = (float) (cx + (last.lon - mx) * s);
+        float sy1 = (float) (cy - (last.lat - my) * s);
+        cv.drawCircle(sx1, sy1, 16f, pRing);
+        cv.drawCircle(sx1, sy1, 12f, pFinish);
     }
 
-    private static File writePngForShare(Context c, Bitmap bmp, String name) {
+    /** Tulis bitmap sebagai PNG ke folder Download/Zylo dan daftarkan ke galeri. */
+    static File writePngForShare(Context c, Bitmap bmp, String name) {
         try {
             File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Zylo");
             if (!dir.exists()) dir.mkdirs();
