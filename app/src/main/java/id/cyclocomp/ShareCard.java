@@ -88,12 +88,12 @@ final class ShareCard {
         float y = MARGIN;
 
         // ---- kepala ----
-        Paint pLabel = text(body, LABEL, 30f);
+        Paint pLabel = text(body, transparent ? VALUE : LABEL, 34f);
         pLabel.setLetterSpacing(0.22f);
         cv.drawText(c.getString(R.string.summary_title).toUpperCase(Locale.getDefault()), x0, y + 26f, pLabel);
 
         DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault());
-        cv.drawText(df.format(new Date(row.startMs)), x0, y + 74f, text(body, LABEL, 30f));
+        cv.drawText(df.format(new Date(row.startMs)), x0, y + 74f, text(body, transparent ? VALUE : LABEL, 34f));
 
         Paint pAcc = new Paint();
         pAcc.setColor(ACCENT);
@@ -102,9 +102,9 @@ final class ShareCard {
 
         // ---- angka utama: jarak ----
         String km = Fmt.km(row.distanceM);
-        Paint pDist = text(cond, VALUE, 190f);
+        Paint pDist = text(cond, VALUE, 210f);
         cv.drawText(km, x0, y + 150f, pDist);
-        cv.drawText("km", x0 + pDist.measureText(km) + 18f, y + 150f, text(body, LABEL, 38f));
+        cv.drawText("km", x0 + pDist.measureText(km) + 18f, y + 150f, text(body, transparent ? VALUE : LABEL, 44f));
         y += 186f;
 
         // ---- rute ----
@@ -127,7 +127,7 @@ final class ShareCard {
         y += 30f;
 
         // ---- Detail: Tanjakan + Waktu Total ----
-        Paint pValLabel = text(body, LABEL, 26f);
+        Paint pValLabel = text(body, transparent ? VALUE : LABEL, 30f);
         pValLabel.setLetterSpacing(0.18f);
         float half = (x1 - x0) / 2f;
 
@@ -144,26 +144,26 @@ final class ShareCard {
 
         // ---- kaki ----
         if (!transparent) cv.drawRect(x0, y, x1, y + 1f, solid(DIVIDER));
-        cv.drawText(c.getString(R.string.card_footer), x0, y + 52f, text(body, LABEL, 28f));
-        Paint pRight = text(body, LABEL, 28f);
+        cv.drawText(c.getString(R.string.card_footer), x0, y + 52f, text(body, transparent ? VALUE : LABEL, 32f));
+        Paint pRight = text(body, transparent ? VALUE : LABEL, 32f);
         pRight.setTextAlign(Paint.Align.RIGHT);
         cv.drawText(c.getString(R.string.card_note), x1, y + 52f, pRight);
     }
 
     private static void drawStat(Canvas cv, Typeface cond, Typeface body, float x, float w, float top, String label, String value, boolean transparent) {
-        Paint pL = text(body, LABEL, 26f);
+        Paint pL = text(body, transparent ? VALUE : LABEL, 30f);
         pL.setTextAlign(Paint.Align.CENTER);
         cv.drawText(label, x + w / 2f, top + 26f, pL);
-        Paint pV = text(cond, VALUE, 62f);
+        Paint pV = text(cond, VALUE, 72f);
         pV.setTextAlign(Paint.Align.CENTER);
         cv.drawText(value, x + w / 2f, top + 84f, pV);
     }
 
     private static void drawStatPair(Canvas cv, Typeface cond, Typeface body, float x, float w, float top, String label, String value, boolean transparent) {
-        Paint pL = text(body, LABEL, 26f);
+        Paint pL = text(body, transparent ? VALUE : LABEL, 30f);
         pL.setTextAlign(Paint.Align.LEFT);
         cv.drawText(label, x + 12f, top + 22f, pL);
-        Paint pV = text(cond, VALUE, 62f);
+        Paint pV = text(cond, VALUE, 72f);
         pV.setTextAlign(Paint.Align.LEFT);
         cv.drawText(value, x + 12f, top + 84f, pV);
     }
@@ -172,8 +172,8 @@ final class ShareCard {
         String[] laps = lapsStr.split("\\|");
         int maxLaps = 3;
         float rowH = 40f;
-        Paint pL = text(body, LABEL, 24f);
-        Paint pV = text(cond, VALUE, 24f);
+        Paint pL = text(body, VALUE, 28f);
+        Paint pV = text(cond, VALUE, 28f);
 
         cv.drawText("SPLIT LAPS", x0, y + 20f, pL);
         y += 30f;
@@ -220,7 +220,7 @@ final class ShareCard {
 
         if (!transparent) cv.drawColor(Color.BLACK);
 
-        Paint pBrand = text(body, ACCENT, 52f);
+        Paint pBrand = text(body, transparent ? VALUE : ACCENT, 56f);
         pBrand.setLetterSpacing(0.34f);
         pBrand.setTextAlign(Paint.Align.CENTER);
         cv.drawText(c.getString(R.string.card_footer).toUpperCase(Locale.getDefault()), SW / 2f, 168f, pBrand);
@@ -228,7 +228,7 @@ final class ShareCard {
         Paint pRule = solid(ACCENT);
         cv.drawRect(SW / 2f - 62f, 204f, SW / 2f + 62f, 211f, pRule);
 
-        Paint pDate = text(body, LABEL, 34f);
+        Paint pDate = text(body, transparent ? VALUE : LABEL, 38f);
         pDate.setTextAlign(Paint.Align.CENTER);
         cv.drawText(DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(new Date(row.startMs)), SW / 2f, 274f, pDate);
 
@@ -243,13 +243,13 @@ final class ShareCard {
     }
 
     private static void storyStat(Canvas cv, Typeface cond, Typeface body, float top, float labelSize, float valueSize, String label, String value, String unit, boolean transparent) {
-        Paint pL = text(body, LABEL, labelSize);
+        Paint pL = text(body, transparent ? VALUE : LABEL, labelSize + 4f);
         pL.setLetterSpacing(0.20f);
         pL.setTextAlign(Paint.Align.CENTER);
         cv.drawText(label.toUpperCase(Locale.getDefault()), SW / 2f, top + labelSize, pL);
 
         float vBase = top + labelSize + 34f + valueSize;
-        Paint pV = text(cond, VALUE, valueSize);
+        Paint pV = text(cond, VALUE, valueSize + 14f);
         pV.setTextAlign(Paint.Align.CENTER);
 
         if (unit == null || unit.isEmpty()) {
@@ -257,7 +257,7 @@ final class ShareCard {
             return;
         }
 
-        Paint pU = text(body, LABEL, valueSize * 0.42f);
+        Paint pU = text(body, transparent ? VALUE : LABEL, valueSize * 0.42f + 4f);
         float gap = valueSize * 0.16f;
         float total = pV.measureText(value) + gap + pU.measureText(unit);
         float x0 = SW / 2f - total / 2f;
@@ -313,7 +313,7 @@ final class ShareCard {
         stickerStat(cv, cond, body, x0 + 2 * (colW + 1f), colW, y, c.getString(R.string.label_moving), Fmt.shortDuration(row.movingMs), null);
         y += 150f;
 
-        Paint pBrand = text(body, ACCENT, 52f);
+        Paint pBrand = text(body, VALUE, 56f);
         pBrand.setLetterSpacing(0.34f);
         cv.drawText(c.getString(R.string.card_footer).toUpperCase(Locale.getDefault()), x0, y + 46f, pBrand);
         Paint pRule = solid(ACCENT);
@@ -321,12 +321,12 @@ final class ShareCard {
     }
 
     private static void stickerStat(Canvas cv, Typeface cond, Typeface body, float x, float w, float top, String label, String value, String unit) {
-        Paint pL = text(body, LABEL, 26f);
+        Paint pL = text(body, VALUE, 30f);
         pL.setLetterSpacing(0.18f);
         float labelW = pL.measureText(label);
 
-        Paint pV = text(cond, VALUE, 62f);
-        Paint pU = unit == null ? null : text(body, LABEL, 26f);
+        Paint pV = text(cond, VALUE, 72f);
+        Paint pU = unit == null ? null : text(body, VALUE, 30f);
         float valW = pV.measureText(value) + (unit == null ? 0f : 12f + pU.measureText(unit));
 
         // Tanpa bantalan: stempel harus benar-benar transparan supaya foto
@@ -339,11 +339,7 @@ final class ShareCard {
         }
     }
 
-    /**
-     * Paint teks. Kalau {@code halo} true, hurufnya dapat bayangan gelap tipis
-     * (setShadowLayer) supaya tetap terbaca di atas foto terang - tanpa
-     * menggambar kotak/bantalan apa pun, jadi PNG tetap benar-benar transparan.
-     */
+    /** Paint teks polos - tanpa bayangan, tanpa kotak, apa adanya. */
     private static Paint text(Typeface tf, int color, float size) {
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setTypeface(tf);

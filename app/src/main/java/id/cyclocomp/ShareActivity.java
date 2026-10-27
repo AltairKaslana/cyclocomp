@@ -27,6 +27,7 @@ public class ShareActivity extends Activity {
 
     static final String EXTRA_ID = SummaryActivity.EXTRA_ID;
     private static final int REQ_WRITE_STORAGE = 78;
+    private static final int PAGE_COUNT = 5;
 
     private RideDb.Row row;
     private CardPager pager;
@@ -34,9 +35,11 @@ public class ShareActivity extends Activity {
     private TextView tvGenerating;
     private LinearLayout dots;
     private LinearLayout pagerContent;
-    private ImageView[] imgs = new ImageView[5];
-    private View[] dotViews = new View[5];
-    private Bitmap[] cards = new Bitmap[5];
+    /** Titik GPX yang sudah dibaca sekali; dipakai ulang tiap ganti halaman. */
+    private List<GpxReader.P> trackCache = java.util.Collections.emptyList();
+    private ImageView[] imgs = new ImageView[PAGE_COUNT];
+    private View[] dotViews = new View[PAGE_COUNT];
+    private Bitmap[] cards = new Bitmap[PAGE_COUNT];
     private int[] labelIds = {
             R.string.card_variant_map,           // 0: 4:5 Opak
             R.string.card_variant_overlay,       // 1: 4:5 Transparan (overlay)
@@ -66,7 +69,7 @@ public class ShareActivity extends Activity {
         dots = (LinearLayout) findViewById(R.id.dots);
 
         // Inisialisasi ImageView secara dinamis
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < PAGE_COUNT; i++) {
             ImageView iv = new ImageView(this);
             iv.setLayoutParams(new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -96,6 +99,7 @@ public class ShareActivity extends Activity {
         pager.setOnPageSelectedListener(new CardPager.OnPageSelectedListener() {
             @Override public void onPageSelected(int pos) {
                 perbaruiTitik();
+                muatHalaman(pos);
             }
         });
 
@@ -105,7 +109,7 @@ public class ShareActivity extends Activity {
     private void buatTitik() {
         dots.removeAllViews();
         float d = 8f * getResources().getDisplayMetrics().density;
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < PAGE_COUNT; i++) {
             View v = new View(this);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     Math.round(d), Math.round(d));
@@ -119,8 +123,8 @@ public class ShareActivity extends Activity {
 
     private void perbaruiTitik() {
         int pos = pager.getCurrentPage();
-        if (pos < 0 || pos >= 5) return;
-        for (int i = 0; i < 5; i++) {
+        if (pos < 0 || pos >= PAGE_COUNT) return;
+        for (int i = 0; i < PAGE_COUNT; i++) {
             dotViews[i].setBackgroundColor(i == pos ? 0xFFFC4C02 : 0xFF3A4048);
         }
         tvCardName.setText(labelIds[pos]);
@@ -135,35 +139,74 @@ public class ShareActivity extends Activity {
                 } catch (Throwable t) {
                     track = java.util.Collections.emptyList();
                 }
-                final List<GpxReader.P> t = track;
-                
-                // Bangun 5 varian
-                cards[0] = ShareCard.cardBitmap(ShareActivity.this, row, t, false); // 4:5 Opak
-                cards[1] = ShareCard.cardBitmap(ShareActivity.this, row, t, true);  // 4:5 Transparan
-                cards[2] = ShareCard.storyBitmap(ShareActivity.this, row, false);   // Story Opak
-                cards[3] = ShareCard.storyBitmap(ShareActivity.this, row, true);    // Story Transparan
-                cards[4] = ShareCard.stickerBitmap(ShareActivity.this, row, t);     // Stempel (Transparan)
-
+                trackCache = track;
                 runOnUiThread(new Runnable() {
                     @Override public void run() {
                         tvGenerating.setVisibility(View.GONE);
-                        boolean ada = false;
-                        for (int i = 0; i < 5; i++) {
-                            if (cards[i] != null) {
-                                imgs[i].setImageBitmap(cards[i]);
-                                ada = true;
-                            } else {
-                                imgs[i].setImageDrawable(null);
-                            }
-                        }
-                        if (!ada) {
-                            Toast.makeText(ShareActivity.this, R.string.card_failed, Toast.LENGTH_LONG).show();
-                            finish();
-                        }
+                        muatHalaman(pager.getCurrentPage());
                     }
                 });
             }
         }).start();
+    }
+
+    /**
+     * Muat bitmap untuk satu halaman saja.
+     *
+     * Kenapa tidak dibangun semua sekaligus: lima bitmap 1080x1350/1920
+     * habiskan ~34 MB. Di HP ber-RAM kecil, bitmap terakhir gagal dialokasi
+     * (OutOfMemoryError) sehingga slide tampil kosong dan tombol simpan
+     * tidak punya apa-apa untuk ditulis. Karena itu hanya halaman aktif
+     * yang dipegang; halaman lain dibuang dan dibangun ulang saat dibutuhkan.
+     */
+    private void muatHalaman(final int page) {
+        if (page < 0 || page >= PAGE_COUNT) return;
+        if (cards[page] != null) {
+            imgs[page].setImageBitmap(cards[page]);
+            return;
+        }
+        tvGenerating.setVisibility(View.VISIBLE);
+        new Thread(new Runnable() {
+            @Override public void run() {
+                // buang bitmap halaman lain dulu supaya memori cukup
+                for (int i = 0; i < PAGE_COUNT; i++) {
+                    if (i != page && cards[i] != null) {
+                        if (!cards[i].isRecycled()) cards[i].recycle();
+                        cards[i] = null;
+                    }
+                }
+                final Bitmap b = bitmapUntuk(page);
+                runOnUiThread(new Runnable() {
+                    @Override public void run() {
+                        tvGenerating.setVisibility(View.GONE);
+                        if (b == null) {
+                            imgs[page].setImageDrawable(null);
+                            Toast.makeText(ShareActivity.this, R.string.card_failed,
+                                    Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        cards[page] = b;
+                        imgs[page].setImageBitmap(b);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    /** Bangun bitmap satu varian; null kalau gagal. */
+    private Bitmap bitmapUntuk(int page) {
+        try {
+            switch (page) {
+                case 0: return ShareCard.cardBitmap(this, row, trackCache, false);
+                case 1: return ShareCard.cardBitmap(this, row, trackCache, true);
+                case 2: return ShareCard.storyBitmap(this, row, false);
+                case 3: return ShareCard.storyBitmap(this, row, true);
+                case 4: return ShareCard.stickerBitmap(this, row, trackCache);
+                default: return null;
+            }
+        } catch (Throwable t) {
+            return null;
+        }
     }
 
     private String namaKartu(int page) {
@@ -181,14 +224,18 @@ public class ShareActivity extends Activity {
         }
     }
 
+    /** Bitmap halaman ini; dibangun dulu kalau belum ada (mis. tombol ditekan sebelum render selesai). */
+    private Bitmap bitmapSiap(int page) {
+        if (page < 0 || page >= PAGE_COUNT) return null;
+        if (cards[page] == null || cards[page].isRecycled()) {
+            cards[page] = bitmapUntuk(page);
+        }
+        return cards[page];
+    }
+
     private void simpanKartu() {
         final int page = pager.getCurrentPage();
-        if (page < 0 || page >= 5) return;
-        final Bitmap bmp = cards[page];
-        if (bmp == null) {
-            Toast.makeText(this, R.string.card_failed, Toast.LENGTH_SHORT).show();
-            return;
-        }
+        if (page < 0 || page >= PAGE_COUNT) return;
         if (Build.VERSION.SDK_INT < 29) {
             int granted = checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
             if (granted != PackageManager.PERMISSION_GRANTED) {
@@ -197,7 +244,21 @@ public class ShareActivity extends Activity {
                 return;
             }
         }
-        tulisGaleri(bmp, page);
+        new Thread(new Runnable() {
+            @Override public void run() {
+                final Bitmap bmp = bitmapSiap(page);
+                runOnUiThread(new Runnable() {
+                    @Override public void run() {
+                        if (bmp == null) {
+                            Toast.makeText(ShareActivity.this, R.string.card_failed,
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        tulisGaleri(bmp, page);
+                    }
+                });
+            }
+        }).start();
     }
 
     private void tulisGaleri(Bitmap bmp, int page) {
@@ -212,8 +273,17 @@ public class ShareActivity extends Activity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode != REQ_WRITE_STORAGE) return;
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && pendingSavePage >= 0) {
-            Bitmap bmp = cards[pendingSavePage];
-            if (bmp != null) tulisGaleri(bmp, pendingSavePage);
+            final int pg = pendingSavePage;
+            new Thread(new Runnable() {
+                @Override public void run() {
+                    final Bitmap bmp = bitmapSiap(pg);
+                    runOnUiThread(new Runnable() {
+                        @Override public void run() {
+                            if (bmp != null) tulisGaleri(bmp, pg);
+                        }
+                    });
+                }
+            }).start();
         } else {
             Toast.makeText(this, R.string.save_need_permission, Toast.LENGTH_LONG).show();
         }
@@ -221,59 +291,86 @@ public class ShareActivity extends Activity {
     }
 
     private void bagikanKartu() {
-        int page = pager.getCurrentPage();
-        if (page < 0 || page >= 5) return;
-        Bitmap bmp = cards[page];
-        if (bmp == null) {
-            Toast.makeText(this, R.string.card_failed, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        File png = ShareCard.writePngForShare(this, bmp, namaKartu(page));
-        if (png == null) {
-            Toast.makeText(this, R.string.card_failed, Toast.LENGTH_LONG).show();
-            return;
-        }
-        Uri uri = Uri.parse("content://" + RideProvider.AUTHORITY + "/" + png.getName());
-        Intent i = new Intent(Intent.ACTION_SEND);
-        i.setType("image/png");
-        i.putExtra(Intent.EXTRA_STREAM, uri);
-        i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject, png.getName()));
-        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        try {
-            startActivity(Intent.createChooser(i, getString(R.string.share_title)));
-        } catch (Exception e) {
-            Toast.makeText(this, R.string.no_share_app, Toast.LENGTH_LONG).show();
-        }
+        final int page = pager.getCurrentPage();
+        if (page < 0 || page >= PAGE_COUNT) return;
+        new Thread(new Runnable() {
+            @Override public void run() {
+                final Bitmap bmp = bitmapSiap(page);
+                runOnUiThread(new Runnable() {
+                    @Override public void run() {
+                        if (bmp == null) {
+                            Toast.makeText(ShareActivity.this, R.string.card_failed,
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        File png = ShareCard.writePngForShare(ShareActivity.this, bmp, namaKartu(page));
+                        if (png == null) {
+                            Toast.makeText(ShareActivity.this, R.string.card_failed,
+                                    Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        Uri uri = Uri.parse("content://" + RideProvider.AUTHORITY + "/" + png.getName());
+                        Intent i = new Intent(Intent.ACTION_SEND);
+                        i.setType("image/png");
+                        i.putExtra(Intent.EXTRA_STREAM, uri);
+                        i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject, png.getName()));
+                        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        try {
+                            startActivity(Intent.createChooser(i, getString(R.string.share_title)));
+                        } catch (Exception e) {
+                            Toast.makeText(ShareActivity.this, R.string.no_share_app,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+            }
+        }).start();
     }
 
     private void salinKartu() {
-        int page = pager.getCurrentPage();
-        if (page < 0 || page >= 5) return;
-        Bitmap bmp = cards[page];
-        if (bmp == null) {
-            Toast.makeText(this, R.string.copy_failed, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        File png = ShareCard.writePngForShare(this, bmp, namaKartu(page));
-        if (png == null) {
-            Toast.makeText(this, R.string.copy_failed, Toast.LENGTH_LONG).show();
-            return;
-        }
-        try {
-            android.content.ClipboardManager cm = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-            if (cm == null) {
-                Toast.makeText(this, R.string.copy_failed, Toast.LENGTH_LONG).show();
-                return;
+        final int page = pager.getCurrentPage();
+        if (page < 0 || page >= PAGE_COUNT) return;
+        new Thread(new Runnable() {
+            @Override public void run() {
+                final Bitmap bmp = bitmapSiap(page);
+                runOnUiThread(new Runnable() {
+                    @Override public void run() {
+                        if (bmp == null) {
+                            Toast.makeText(ShareActivity.this, R.string.copy_failed,
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        File png = ShareCard.writePngForShare(ShareActivity.this, bmp, namaKartu(page));
+                        if (png == null) {
+                            Toast.makeText(ShareActivity.this, R.string.copy_failed,
+                                    Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        try {
+                            android.content.ClipboardManager cm = (android.content.ClipboardManager)
+                                    getSystemService(CLIPBOARD_SERVICE);
+                            if (cm == null) {
+                                Toast.makeText(ShareActivity.this, R.string.copy_failed,
+                                        Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                            Uri uri = Uri.parse("content://" + RideProvider.AUTHORITY + "/" + png.getName());
+                            android.content.ClipData clip = android.content.ClipData.newUri(
+                                    getContentResolver(), "Zylo", uri);
+                            cm.setPrimaryClip(clip);
+                            // Android 13+ sudah menampilkan preview clipboard sendiri.
+                            if (Build.VERSION.SDK_INT <= 32) {
+                                Toast.makeText(ShareActivity.this, R.string.copy_done,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (Throwable t) {
+                            Toast.makeText(ShareActivity.this, R.string.copy_failed,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
             }
-            Uri uri = Uri.parse("content://" + RideProvider.AUTHORITY + "/" + png.getName());
-            android.content.ClipData clip = android.content.ClipData.newUri(getContentResolver(), "Zylo", uri);
-            cm.setPrimaryClip(clip);
-            if (Build.VERSION.SDK_INT <= 32) {
-                Toast.makeText(this, R.string.copy_done, Toast.LENGTH_SHORT).show();
-            }
-        } catch (Throwable t) {
-            Toast.makeText(this, R.string.copy_failed, Toast.LENGTH_LONG).show();
-        }
+        }).start();
     }
 
     private void bagikanGpx() {
