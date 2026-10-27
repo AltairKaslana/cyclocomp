@@ -1,194 +1,121 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
-  Layar Bagikan: preview kartu yang bisa digeser kiri-kanan (pola Strava),
-  dengan baris aksi di bawahnya. Dipilih kartunya dulu, baru aksi:
-  simpan ke galeri / bagikan gambar / bagikan GPX.
--->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/bg">
+<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<RelativeLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"
+    android:layout_width=\"match_parent\"
+    android:layout_height=\"match_parent\"
+    android:background=\"#0E1013\">
 
-    <!-- kepala: judul + tombol tutup -->
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="8dp">
+    <Button
+        android:id=\"@+id/btnShareClose\"
+        android:layout_width=\"48dp\"
+        android:layout_height=\"48dp\"
+        android:layout_alignParentStart=\"true\"
+        android:layout_alignParentTop=\"true\"
+        android:layout_margin=\"16dp\"
+        android:background=\"#1A1D21\"
+        android:text=\"X\"
+        android:textColor=\"#FFFFFF\"
+        android:textSize=\"18sp\" />
 
-        <TextView
-            android:id="@+id/tvShareTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:layout_centerInParent="true"
-            android:text="@string/share_pager_title"
-            android:textColor="@color/value"
-            android:textSize="@dimen/text_body_m"
-            android:includeFontPadding="false"
-            android:maxLines="1" />
-
-        <TextView
-            android:id="@+id/btnShareClose"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:gravity="center"
-            android:text="✕"
-            android:textColor="@color/label"
-            android:textSize="20sp"
-            android:background="?android:attr/selectableItemBackground" />
-    </RelativeLayout>
-
-    <!-- nama kartu yang sedang tampil -->
-    <TextView
-        android:id="@+id/tvCardName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:paddingTop="4dp"
-        android:paddingBottom="12dp"
-        android:textColor="@color/label"
-        android:textSize="@dimen/text_body"
-        android:includeFontPadding="false"
-        android:maxLines="2" />
-
-    <!-- preview: geser kiri-kanan -->
     <id.cyclocomp.CardPager
-        android:id="@+id/pager"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:id=\"@+id/pager\"
+        android:layout_width=\"match_parent\"
+        android:layout_height=\"match_parent\"
+        android:layout_above=\"@+id/actionBar\"
+        android:layout_below=\"@+id/btnShareClose\"
+        android:paddingTop=\"24dp\"
+        android:paddingBottom=\"24dp\">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <ImageView
-                    android:id="@+id/img0"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="fitCenter"
-                    android:padding="8dp"
-                    android:contentDescription="@string/card_variant_map" />
-            </FrameLayout>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <ImageView
-                    android:id="@+id/img1"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="fitCenter"
-                    android:padding="8dp"
-                    android:contentDescription="@string/card_variant_story" />
-            </FrameLayout>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <!-- latar papan catur supaya transparansi stempel terlihat -->
-                <ImageView
-                    android:id="@+id/img2"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="fitCenter"
-                    android:padding="8dp"
-                    android:background="#20242A"
-                    android:contentDescription="@string/card_variant_clear" />
-            </FrameLayout>
-        </LinearLayout>
+            android:id=\"@+id/pagerContent\"
+            android:layout_width=\"wrap_content\"
+            android:layout_height=\"match_parent\"
+            android:orientation=\"horizontal\" />
     </id.cyclocomp.CardPager>
 
-    <!-- penanda halaman: tiga titik -->
     <LinearLayout
-        android:id="@+id/dots"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal" />
+        android:id=\"@+id/actionBar\"
+        android:layout_width=\"match_parent\"
+        android:layout_height=\"wrap_content\"
+        android:layout_alignParentBottom=\"true\"
+        android:background=\"#1A1D21\"
+        android:orientation=\"vertical\"
+        android:padding=\"24dp\">
 
-    <!-- status saat kartu sedang dibuat -->
-    <TextView
-        android:id="@+id/tvGenerating"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:text="@string/share_generating"
-        android:textColor="@color/label"
-        android:textSize="@dimen/text_body"
-        android:includeFontPadding="false" />
+        <LinearLayout
+            android:layout_width=\"match_parent\"
+            android:layout_height=\"wrap_content\"
+            android:gravity=\"center\"
+            android:orientation=\"vertical\"
+            android:layout_marginBottom=\"24dp\">
 
-    <!-- baris aksi, persis di bawah gambar -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="12dp">
+            <TextView
+                android:id=\"@+id/tvCardName\"
+                android:layout_width=\"wrap_content\"
+                android:layout_height=\"wrap_content\"
+                android:textColor=\"#8A9099\"
+                android:textSize=\"14sp\"
+                android:textStyle=\"bold\" />
 
-        <Button
-            android:id="@+id/btnCardSave"
-            style="@style/ActionBtn"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/btn_action_h"
-            android:layout_weight="1"
-            android:layout_marginEnd="6dp"
-            android:drawableTop="@drawable/ic_action_save"
-            android:drawablePadding="3dp"
-            android:text="@string/share_action_save" />
+            <TextView
+                android:id=\"@+id/tvGenerating\"
+                android:layout_width=\"wrap_content\"
+                android:layout_height=\"wrap_content\"
+                android:textColor=\"#FC4C02\"
+                android:textSize=\"12sp\"
+                android:text=\"Membangun kartu...\" />
 
-        <Button
-            android:id="@+id/btnCardShare"
-            style="@style/ActionBtnPrimary"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/btn_action_h"
-            android:layout_weight="1"
-            android:layout_marginStart="6dp"
-            android:drawableTop="@drawable/ic_action_share"
-            android:drawablePadding="3dp"
-            android:text="@string/share_action_share" />
+            <LinearLayout
+                android:id=\"@+id/dots\"
+                android:layout_width=\"wrap_content\"
+                android:layout_height=\"wrap_content\"
+                android:layout_marginTop=\"8dp\"
+                android:orientation=\"horizontal\" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width=\"match_parent\"
+            android:layout_height=\"wrap_content\"
+            android:gravity=\"center\"
+            android:orientation=\"horizontal\">
+
+            <Button
+                android:id=\"@+id/btnCardSave\"
+                android:layout_width=\"0dp\"
+                android:layout_height=\"48dp\"
+                android:layout_weight=\"1\"
+                android:layout_marginEnd=\"8dp\"
+                android:background=\"#2A2F35\"
+                android:text=\"Simpan\"
+                android:textColor=\"#FFFFFF\" />
+
+            <Button
+                android:id=\"@+id/btnCardShare\"
+                android:layout_width=\"0dp\"
+                android:layout_height=\"48dp\"
+                android:layout_weight=\"1\"
+                android:layout_marginEnd=\"8dp\"
+                android:background=\"#FC4C02\"
+                android:text=\"Bagikan\"
+                android:textColor=\"#FFFFFF\" />
+
+            <Button
+                android:id=\"@+id/btnCardCopy\"
+                android:layout_width=\"0dp\"
+                android:layout_height=\"48dp\"
+                android:layout_weight=\"1\"
+                android:layout_marginEnd=\"8dp\"
+                android:background=\"#2A2F35\"
+                android:text=\"Salin\"
+                android:textColor=\"#FFFFFF\" />
+
+            <Button
+                android:id=\"@+id/btnCardGpx\"
+                android:layout_width=\"0dp\"
+                android:layout_height=\"48dp\"
+                android:layout_weight=\"1\"
+                android:background=\"#2A2F35\"
+                android:text=\"GPX\"
+                android:textColor=\"#FFFFFF\" />
+        </LinearLayout>
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="16dp">
-
-        <Button
-            android:id="@+id/btnCardCopy"
-            style="@style/ActionBtn"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/btn_action_h"
-            android:layout_weight="1"
-            android:layout_marginEnd="6dp"
-            android:drawableTop="@drawable/ic_action_copy"
-            android:drawablePadding="3dp"
-            android:text="@string/share_action_copy" />
-
-        <Button
-            android:id="@+id/btnCardGpx"
-            style="@style/ActionBtn"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/btn_action_h"
-            android:layout_weight="1"
-            android:layout_marginStart="6dp"
-            android:drawableTop="@drawable/ic_action_gpx"
-            android:drawablePadding="3dp"
-            android:text="@string/share_action_gpx" />
-    </LinearLayout>
-</LinearLayout>
+</RelativeLayout>
