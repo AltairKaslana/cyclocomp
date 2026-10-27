@@ -66,13 +66,13 @@ final class ShareCard {
         }
     }
 
-    static File buildCard(Context c, RideDb.Row row, List<GpxReader.P> track, boolean transparent) {
+    static Uri buildCard(Context c, RideDb.Row row, List<GpxReader.P> track, boolean transparent) {
         Bitmap bmp = cardBitmap(c, row, track, transparent);
         if (bmp == null) return null;
         try {
             String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
             String suffix = transparent ? "_overlay" : "_card";
-            return writePngForShare(c, bmp, fileName(gpxName, suffix));
+            return writePngToGallery(c, bmp, fileName(gpxName, suffix));
         } finally {
             bmp.recycle();
         }
@@ -202,13 +202,13 @@ final class ShareCard {
         }
     }
 
-    static File buildStory(Context c, RideDb.Row row, boolean transparent) {
+    static Uri buildStory(Context c, RideDb.Row row, boolean transparent) {
         Bitmap bmp = storyBitmap(c, row, transparent);
         if (bmp == null) return null;
         try {
             String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
             String suffix = transparent ? "_story_overlay" : "_story";
-            return writePngForShare(c, bmp, fileName(gpxName, suffix));
+            return writePngToGallery(c, bmp, fileName(gpxName, suffix));
         } finally {
             bmp.recycle();
         }
@@ -285,12 +285,12 @@ final class ShareCard {
         }
     }
 
-    static File buildSticker(Context c, RideDb.Row row, List<GpxReader.P> track) {
+    static Uri buildSticker(Context c, RideDb.Row row, List<GpxReader.P> track) {
         Bitmap bmp = stickerBitmap(c, row, track);
         if (bmp == null) return null;
         try {
             String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
-            return writePngForShare(c, bmp, fileName(gpxName, "_sticker"));
+            return writePngToGallery(c, bmp, fileName(gpxName, "_sticker"));
         } finally {
             bmp.recycle();
         }
@@ -436,18 +436,147 @@ final class ShareCard {
         cv.drawCircle(sx1, sy1, 12f, pFinish);
     }
 
-    /** Tulis bitmap sebagai PNG ke folder Download/Zylo dan daftarkan ke galeri. */
-    static File writePngForShare(Context c, Bitmap bmp, String name) {
+    /** Folder galeri tempat PNG disimpan; sama dengan yang dijanjikan di strings.xml. */
+    static final String GALLERY_DIR = "Zylo";
+
+    /**
+     * Alasan kegagalan {@link #writePngToGallery} yang terakhir. Dibaca
+     * ShareActivity supaya pesan ke pengguna spesifik dan bisa ditindaklanjuti,
+     * bukan "gagal" tanpa sebab — pengecualian yang ditelan diam-diam di sinilah
+     * yang membuat "gagal menyimpan" tidak pernah bisa didiagnosis.
+     */
+    static volatile String lastErrorReason = null;
+
+    /**
+     * Tulis bitmap PNG ke penyimpanan bersama supaya muncul di Galeri.
+     *
+     * <p>Android 10+ (API 29) <b>wajib</b> lewat MediaStore: jalur {@code File}
+     * ke folder publik sudah ditolak dengan EACCES karena {@code targetSdk 33}
+     * tanpa {@code requestLegacyExternalStorage}. Itulah sebab tombol Simpan
+     * melaporkan gagal padahal bitmap-nya sudah jadi di memori. API 23-28 tetap
+     * memakai jalur File lama, tetapi butuh izin runtime WRITE_EXTERNAL_STORAGE.
+     *
+     * @return uri berkas yang tertulis, atau null kalau gagal (lihat lastErrorReason)
+     */
+    static Uri writePngToGallery(Context c, Bitmap bmp, String name) {
+        lastErrorReason = null;
+        if (bmp == null || bmp.isRecycled()) {
+            lastErrorReason = "bitmap sudah tidak ada";
+            return null;
+        }
+
+        if (Build.VERSION.SDK_INT >= 29) {
+            Uri uri = null;
+            try {
+                ContentResolver cr = c.getContentResolver();
+                ContentValues v = new ContentValues();
+                v.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+                v.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
+                v.put(MediaStore.MediaColumns.RELATIVE_PATH,
+                        Environment.DIRECTORY_PICTURES + "/" + GALLERY_DIR);
+                // IS_PENDING: berkas "sedang ditulis", belum terlihat penuh oleh
+                // aplikasi lain sampai IS_PENDING dilepas di bawah.
+                v.put(MediaStore.MediaColumns.IS_PENDING, 1);
+                uri = cr.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, v);
+                if (uri == null) {
+                    lastErrorReason = "MediaStore menolak membuat berkas";
+                    return null;
+                }
+                OutputStream os = cr.openOutputStream(uri, "w");
+                if (os == null) {
+                    lastErrorReason = "tidak bisa membuka stream tulis";
+                    cr.delete(uri, null, null);
+                    return null;
+                }
+                boolean ok = bmp.compress(Bitmap.CompressFormat.PNG, 100, os);
+                os.close();
+                if (!ok) {
+                    // Bitmap sudah direcycle atau konfigurasinya tak bisa dikodekan:
+                    // berkas setengah tertulis harus dibuang, jangan dibiarkan.
+                    lastErrorReason = "gagal mengompres PNG";
+                    cr.delete(uri, null, null);
+                    return null;
+                }
+                ContentValues done = new ContentValues();
+                done.put(MediaStore.MediaColumns.IS_PENDING, 0);
+                cr.update(uri, done, null, null);
+                return uri;
+            } catch (Throwable t) {
+                if (uri != null) {
+                    try { c.getContentResolver().delete(uri, null, null); } catch (Throwable ignored) { }
+                }
+                lastErrorReason = t.getClass().getSimpleName() + ": " + t.getMessage();
+                return null;
+            }
+        }
+
+        // API 23-28: folder publik Pictures/Zylo lewat File, butuh izin runtime.
         try {
-            File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Zylo");
-            if (!dir.exists()) dir.mkdirs();
+            if (c.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                lastErrorReason = "izin WRITE_EXTERNAL_STORAGE belum diberikan";
+                return null;
+            }
+            File dir = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES), GALLERY_DIR);
+            if (!dir.exists() && !dir.mkdirs()) {
+                lastErrorReason = "tidak bisa membuat folder " + GALLERY_DIR;
+                return null;
+            }
             File file = new File(dir, name);
             FileOutputStream fos = new FileOutputStream(file);
-            bmp.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            boolean ok = bmp.compress(Bitmap.CompressFormat.PNG, 100, fos);
             fos.close();
+            if (!ok) {
+                lastErrorReason = "gagal mengompres PNG";
+                //noinspection ResultOfMethodCallIgnored
+                file.delete();
+                return null;
+            }
+            // Daftarkan ke galeri supaya langsung terlihat tanpa restart perangkat.
             MediaScannerConnection.scanFile(c, new String[]{file.getAbsolutePath()}, null, null);
+            return Uri.fromFile(file);
+        } catch (Throwable t) {
+            lastErrorReason = t.getClass().getSimpleName() + ": " + t.getMessage();
+            return null;
+        }
+    }
+
+    /**
+     * Tulis bitmap PNG ke folder milik aplikasi sendiri, untuk <b>dibagikan</b>.
+     *
+     * <p>Tujuannya berbeda dari {@link #writePngToGallery} dan itu menentukan
+     * lokasinya: berkas ini hanya perlu hidup selama aplikasi penerima selesai
+     * membacanya, jadi tidak boleh ditaruh di penyimpanan publik. Di Android 10+
+     * aplikasi tidak bisa lagi menulis folder publik lewat jalur {@code File}
+     * (EACCES), dan {@link RideProvider} juga tidak bisa lagi membacanya dari
+     * sana — sehingga tombol Bagikan/Salin ikut gagal dengan gejala yang sama.
+     * Folder aplikasi sendiri selalu bisa ditulis dan dibaca, dan sudah menjadi
+     * root pertama yang dicari {@code RideProvider.resolve()}.
+     *
+     * @return berkas yang tertulis, atau null kalau gagal (lihat lastErrorReason)
+     */
+    static File writePngForShare(Context c, Bitmap bmp, String name) {
+        lastErrorReason = null;
+        try {
+            File dir = new File(c.getExternalFilesDir(null), "rides");
+            if (!dir.exists() && !dir.mkdirs()) {
+                lastErrorReason = "tidak bisa membuat folder rides";
+                return null;
+            }
+            File file = new File(dir, name);
+            FileOutputStream fos = new FileOutputStream(file);
+            boolean ok = bmp.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+            if (!ok) {
+                lastErrorReason = "gagal mengompres PNG";
+                //noinspection ResultOfMethodCallIgnored
+                file.delete();
+                return null;
+            }
             return file;
         } catch (Throwable t) {
+            lastErrorReason = t.getClass().getSimpleName() + ": " + t.getMessage();
             return null;
         }
     }

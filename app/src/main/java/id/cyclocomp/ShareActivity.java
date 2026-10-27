@@ -287,10 +287,20 @@ public class ShareActivity extends Activity {
         }).start();
     }
 
+    /** Pesan gagal + sebabnya kalau ada, supaya bisa ditindaklanjuti. */
+    private String pesanGagal(int resId) {
+        String why = ShareCard.lastErrorReason;
+        return getString(resId) + ((why == null || why.length() == 0) ? "" : "\n" + why);
+    }
+
     private void tulisGaleri(Bitmap bmp, int page) {
         // Bitmap sudah jadi di memori, jadi cukup tulis ulang ke berkas PNG.
-        File file = ShareCard.writePngForShare(this, bmp, namaKartu(page));
-        Toast.makeText(this, file != null ? R.string.save_done : R.string.save_failed_gallery,
+        Uri uri = ShareCard.writePngToGallery(this, bmp, namaKartu(page));
+        // Sebutkan sebabnya kalau gagal: "gagal" tanpa alasan tidak bisa
+        // ditindaklanjuti, dan tanpa ini EACCES scoped storage terlihat
+        // seperti bug misterius.
+        Toast.makeText(this, uri != null ? getString(R.string.save_done)
+                        : pesanGagal(R.string.save_failed_gallery),
                 Toast.LENGTH_LONG).show();
     }
 
@@ -331,8 +341,8 @@ public class ShareActivity extends Activity {
                         }
                         File png = ShareCard.writePngForShare(ShareActivity.this, bmp, namaKartu(page));
                         if (png == null) {
-                            Toast.makeText(ShareActivity.this, R.string.card_failed,
-                                    Toast.LENGTH_LONG).show();
+                            Toast.makeText(ShareActivity.this,
+                                    pesanGagal(R.string.card_failed), Toast.LENGTH_LONG).show();
                             return;
                         }
                         Uri uri = Uri.parse("content://" + RideProvider.AUTHORITY + "/" + png.getName());
@@ -368,8 +378,8 @@ public class ShareActivity extends Activity {
                         }
                         File png = ShareCard.writePngForShare(ShareActivity.this, bmp, namaKartu(page));
                         if (png == null) {
-                            Toast.makeText(ShareActivity.this, R.string.copy_failed,
-                                    Toast.LENGTH_LONG).show();
+                            Toast.makeText(ShareActivity.this,
+                                    pesanGagal(R.string.copy_failed), Toast.LENGTH_LONG).show();
                             return;
                         }
                         try {
