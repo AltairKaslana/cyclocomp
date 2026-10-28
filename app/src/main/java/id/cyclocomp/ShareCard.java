@@ -495,12 +495,13 @@ final class ShareCard {
 
         // Barcode dekoratif: lebar batang dari hash baris rincian, supaya tiap
         // struk terlihat berbeda tanpa perlu generator barcode sungguhan.
+        // distanceM adalah double, jadi dipaksa ke long dulu sebelum di-XOR.
         Paint pBar = solid(VALUE);
         float bx = W / 2f - 200f;
-        int seed = (int) (row.startMs ^ (row.distanceM * 31L));
+        long seed = row.startMs ^ ((long) row.distanceM * 31L);
         for (int i = 0; i < 44; i++) {
-            seed = seed * 1103515245 + 12345;
-            int bw = 2 + (Math.abs(seed >> 16) % 6);
+            seed = seed * 1103515245L + 12345L;
+            int bw = 2 + (int) (Math.abs(seed >> 16) % 6);
             cv.drawRect(bx, footY + 26f, bx + bw, footY + 92f, pBar);
             bx += bw + 4f;
             if (bx > W / 2f + 200f) break;
