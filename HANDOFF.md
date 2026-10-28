@@ -3,6 +3,14 @@
 Dokumen serah-terima untuk developer / sesi AI berikutnya. Baca ini dulu sebelum mengubah kode.
 Versi kerangka: 0.1.0 · Bahasa UI: Indonesia · Bahasa kode/komentar: Java + komentar Indonesia.
 
+## ⚠️ Multi-Agent Setup (2026-10-28)
+
+Project ini dikerjakan **dua agent**: **HERMEST** (Armbian ARM — dev host utama, build via CI)
+dan **WIN** (Windows x86_64 — build lokal + tes di HP fisik via USB).
+
+**Wajib baca `handoff/PROTOCOL.md`** dan update `handoff/STATUS.md` + `handoff/TASKS.md`
+setiap akhir sesi.
+
 ---
 
 ## 1. Tujuan
