@@ -457,8 +457,10 @@ public class MainActivity extends Activity implements RideService.Listener {
         tvElev2.setText(Fmt.meters(s.elevGainM));
         tvAlt2.setText(Double.isNaN(s.altitudeM) ? "--" : Fmt.meters(s.altitudeM));
         // Kalori dihitung dari daya perkiraan supaya tanjakan ikut terhitung.
+        // "Settings" di kelas ini berarti android.provider.Settings (dipakai untuk
+        // ACTION_LOCATION_SOURCE_SETTINGS), jadi perlu nama lengkap.
         tvKcal2.setText(Fmt.kcal(Calories.estimate(s.distanceM, s.movingMs,
-                s.elevGainM, Settings.weight(this))));
+                s.elevGainM, id.cyclocomp.Settings.weight(this))));
         // "-" bukan "0" kalau belum ada sensor: nol terbaca seperti detak nol.
         tvHr2.setText(s.hr > 0 ? String.valueOf(s.hr) : "-");
 
