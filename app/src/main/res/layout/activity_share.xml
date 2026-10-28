@@ -18,12 +18,14 @@
 
   Kontras yang diperbaiki: tombol "Bagikan" dulu teks PUTIH di oranye
   (#FFFFFF / #FC4C02 ~= 3,0:1, gagal WCAG AA untuk teks normal). Kini memakai
-  @style/ActionBtnPrimary, yaitu teks GELAP di oranye (~7:1) — sama seperti
+  @style/ActionBtnPrimary, yaitu teks GELAP di aksen — sama seperti
   tombol MULAI di layar utama.
 
   Warna tombol sekunder dulu #2A2F35 (token "divider", yang untuk GARIS
-  pemisah) padahal token untuk pil/tombol adalah card2 (#23272C). Kini lewat
-  @drawable/bg_btn.
+  pemisah) padahal token untuk pil/tombol adalah card2. Sejak T-03 tombol
+  sekunder tidak lagi berisi warna sama sekali: transparan + garis tepi 1,5dp
+  @color/stroke_ctrl lewat @drawable/bg_btn_secondary. bg_btn yang masih
+  dipakai di bawah hanya untuk tombol X bulat di bilah atas.
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"

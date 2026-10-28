@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Tombol BAHAYA (BERHENTI, hapus gowes).
+
+  Kenapa garis, bukan isi: tombol berhenti mengakhiri perjalanan - kalau warnanya
+  pekat seperti tombol MULAI, keduanya terlihat setara. Padahal satu memulai,
+  satu lagi menghapus. Outline merah membuatnya jelas terbaca sebagai "jalur
+  keluar yang merusak" tanpa bersaing dengan tombol utama.
+
+  Tekanan: isi danger 18% supaya tetap terbaca bahwa tombol ini yang ditekan,
+  tapi tidak sampai setebal tombol utama.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/danger" android:alpha="0.18" />
+            <stroke android:width="1.5dp" android:color="@color/danger" />
+            <corners android:radius="@dimen/radius_capsule" />
+        </shape>
+    </item>
+
+    <item android:state_enabled="false">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke android:width="1.5dp" android:color="@color/card_disabled" />
+            <corners android:radius="@dimen/radius_capsule" />
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke android:width="1.5dp" android:color="@color/danger" />
+            <corners android:radius="@dimen/radius_capsule" />
+        </shape>
+    </item>
+
+</selector>

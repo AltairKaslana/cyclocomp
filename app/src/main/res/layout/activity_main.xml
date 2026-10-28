@@ -134,9 +134,14 @@
             android:layout_marginLeft="@dimen/gap_loose"
             android:text="@string/btn_start" />
 
+        <!--
+          BERHENTI memakai ActionBtnDanger, bukan ActionBtn: tombol ini mengakhiri
+          perjalanan, jadi harus terbaca sebagai jalur keluar - bukan sekadar aksi
+          biasa yang sama bobotnya dengan LAP.
+        -->
         <Button
             android:id="@+id/btnStop"
-            style="@style/ActionBtn"
+            style="@style/ActionBtnDanger"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="@dimen/btn_action_h"

@@ -81,7 +81,7 @@
     <dimen name="text_body">15sp</dimen>       <!-- teks biasa -->
     <dimen name="text_body_m">15sp</dimen>     <!-- judul baris pengaturan -->
     <dimen name="text_empty">15sp</dimen>      <!-- pesan daftar kosong -->
-    <dimen name="text_btn_primary">15sp</dimen><!-- tombol utama; menonjol dari warna + tebal -->
+    <dimen name="text_btn_primary">20sp</dimen><!-- tombol utama; menonjol dari warna + tebal -->
     <dimen name="text_chevron">20sp</dimen>    <!-- tanda › di pengaturan, glif tombol tutup -->
     <dimen name="text_value_s">32sp</dimen>    <!-- nilai metrik sedang -->
     <dimen name="text_value_row">28sp</dimen>  <!-- angka utama di baris daftar -->

@@ -101,14 +101,23 @@
         <item name="android:includeFontPadding">false</item>
     </style>
 
-    <!-- tombol utama: kapsul oranye, teks gelap.
-         Huruf TEBAL, bukan lebih besar: skala huruf kini punya satu nilai 15sp untuk
-         tombol, jadi yang membuat tombol ini menonjol adalah warna (oranye) + bobot,
-         bukan selisih ukuran yang tidak bisa dibedakan mata. -->
+    <!--
+      Tombol UTAMA (MULAI / JEDA / LANJUT, dan kartu gambar di layar Bagikan).
+
+      Isi aksen penuh + teks gelap: satu-satunya tombol di layar yang berisi
+      warna, jadi perhatian langsung jatuh ke sana. Yang membuatnya menonjol
+      adalah WARNA dan BOBOT, bukan ukuran huruf yang berbeda drastis.
+
+      Ukuran 20sp, bukan 22sp seperti mockup: mockup dirancang untuk layar
+      390dp, sementara HP pemilik (Xperia E1 Dual) hanya 320dp lebar. Pada
+      320dp, "BERHENTI" di tombol paling sempit (bobot 1 dari 1:1,5:1) hanya
+      dapat ~78dp - 22sp akan terpotong jadi "BERHE…". 20sp masih masuk dan
+      tetap berada di tangga ukuran huruf aplikasi.
+    -->
     <style name="ActionBtnPrimary">
         <item name="android:textSize">@dimen/text_btn_primary</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/bg</item>
+        <item name="android:textColor">@color/on_accent</item>
         <item name="android:background">@drawable/bg_btn_primary</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:maxLines">1</item>
@@ -120,15 +129,46 @@
         <item name="android:paddingRight">@dimen/gap_snug</item>
     </style>
 
-    <!-- tombol sekunder: kapsul gelap, teks putih -->
+    <!--
+      Tombol SEKUNDER (LAP, Tutup, Bagikan GPX, ...).
+
+      Garis tepi, bukan isi. Dulu berisi card2 - hampir sama terangnya dengan
+      latar kartu, jadi di layar Ringkasan ada empat tombol abu yang semuanya
+      terlihat sama pentingnya padahal hanya satu yang paling sering dipakai.
+      Outline membuat hierarki terbaca dari JARAK, bukan dari selisih abu-abu
+      yang samar.
+    -->
     <style name="ActionBtn">
         <item name="android:textSize">@dimen/text_body</item>
         <item name="android:textColor">@color/value</item>
-        <item name="android:background">@drawable/bg_btn</item>
+        <item name="android:background">@drawable/bg_btn_secondary</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:maxLines">1</item>
         <!-- Label lebih panjang dari tombol (mis. "PENGATURAN" di layar sempit)
              dipotong dengan "…", bukan terpotong bisu di tepi. -->
+        <item name="android:ellipsize">end</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:paddingLeft">@dimen/gap_tight</item>
+        <item name="android:paddingRight">@dimen/gap_tight</item>
+    </style>
+
+    <!--
+      Tombol BAHAYA (BERHENTI, hapus gowes).
+
+      Garis dan teks merah, isi transparan. Kalau tombol ini berisi warna pekat
+      seperti tombol MULAI, keduanya terlihat setara - padahal satu memulai dan
+      satu lagi mengakhiri perjalanan. Outline merah membuatnya jelas terbaca
+      sebagai jalur keluar tanpa bersaing dengan tombol utama.
+    -->
+    <style name="ActionBtnDanger">
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/danger</item>
+        <item name="android:background">@drawable/bg_btn_danger</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
         <item name="android:stateListAnimator">@null</item>
         <item name="android:minWidth">0dp</item>
