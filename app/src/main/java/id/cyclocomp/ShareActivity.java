@@ -27,7 +27,7 @@ public class ShareActivity extends Activity {
 
     static final String EXTRA_ID = SummaryActivity.EXTRA_ID;
     private static final int REQ_WRITE_STORAGE = 78;
-    private static final int PAGE_COUNT = 5;
+    private static final int PAGE_COUNT = 8;
 
     private RideDb.Row row;
     private CardPager pager;
@@ -50,6 +50,9 @@ public class ShareActivity extends Activity {
             R.string.card_variant_story,         // 2: Story Opak
             R.string.card_variant_story_overlay, // 3: Story Transparan (overlay)
             R.string.card_variant_sticker,       // 4: Stempel Transparan
+            R.string.card_variant_receipt,       // 5: Struk
+            R.string.card_variant_capsules,      // 6: Kapsul
+            R.string.card_variant_wallpaper,     // 7: Polyline besar (latar HP)
     };
     private int pendingSavePage = -1;
 
@@ -212,6 +215,9 @@ public class ShareActivity extends Activity {
                 case 2: return ShareCard.storyBitmap(this, row, false);
                 case 3: return ShareCard.storyBitmap(this, row, true);
                 case 4: return ShareCard.stickerBitmap(this, row, trackCache);
+                case 5: return ShareCard.receiptBitmap(this, row, trackCache);
+                case 6: return ShareCard.capsulesBitmap(this, row, trackCache);
+                case 7: return ShareCard.wallpaperBitmap(this, row, trackCache);
                 default: return null;
             }
         } catch (Throwable t) {
@@ -230,6 +236,9 @@ public class ShareActivity extends Activity {
             case 2:  return base + "_story.png";
             case 3:  return base + "_story_overlay.png";
             case 4:  return base + "_sticker.png";
+            case 5:  return base + "_receipt.png";
+            case 6:  return base + "_capsules.png";
+            case 7:  return base + "_wallpaper.png";
             default: return base + "_card.png";
         }
     }

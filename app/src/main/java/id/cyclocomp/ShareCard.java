@@ -339,6 +339,417 @@ final class ShareCard {
         }
     }
 
+    // =====================================================================
+    //  TIGA TEMPLATE BARU - daftar template Strava (TransparentStatsType)
+    // =====================================================================
+
+    /**
+     * Template STRUK - angka berjajar seperti nota kasir.
+     *
+     * Dipakai huruf badan (bukan Barlow Condensed) dan garis putus-putus,
+     * bukan garis penuh. Struk dikenali dari kerapatan barisnya, bukan dari
+     * warnanya; kalau garisnya penuh dan hurufnya tebal hasilnya jadi tabel
+     * biasa.
+     */
+    static Bitmap receiptBitmap(Context c, RideDb.Row row, List<GpxReader.P> track) {
+        try {
+            Bitmap bmp = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
+            Canvas cv = new Canvas(bmp);
+            drawReceipt(c, cv, row, track);
+            return bmp;
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    static Uri buildReceipt(Context c, RideDb.Row row, List<GpxReader.P> track) {
+        Bitmap bmp = receiptBitmap(c, row, track);
+        if (bmp == null) return null;
+        try {
+            String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
+            return writePngToGallery(c, bmp, fileName(gpxName, "_receipt"));
+        } finally {
+            bmp.recycle();
+        }
+    }
+
+    private static void drawReceipt(Context c, Canvas cv, RideDb.Row row, List<GpxReader.P> track) {
+        Typeface cond = Ui.condBold(c);
+        Typeface body = Ui.body(c);
+
+        cv.drawColor(BG);
+
+        // Pinggiran bergerigi di atas dan bawah: struk dibedakan oleh bentuknya,
+        // bukan hanya oleh isinya. Tanpa ini ia terbaca sebagai kartu biasa.
+        float paperTop = 0f, paperBottom = H;
+        float x0 = MARGIN, x1 = W - MARGIN;
+        float notchW = 26f, notchH = 20f;
+        Paint pNotch = solid(BG);
+        for (float x = 0; x < W; x += notchW * 2f) {
+            Path t = new Path();
+            t.moveTo(x, paperTop);
+            t.lineTo(x + notchW, paperTop);
+            t.lineTo(x + notchW / 2f, paperTop + notchH);
+            t.close();
+            cv.drawPath(t, pNotch);
+            Path b = new Path();
+            b.moveTo(x, paperBottom);
+            b.lineTo(x + notchW, paperBottom);
+            b.lineTo(x + notchW / 2f, paperBottom - notchH);
+            b.close();
+            cv.drawPath(b, pNotch);
+        }
+
+        float y = notchH + 30f;
+
+        // ---- kepala struk ----
+        Paint pBrand = text(cond, VALUE, 76f);
+        pBrand.setLetterSpacing(0.30f);
+        pBrand.setTextAlign(Paint.Align.CENTER);
+        cv.drawText(c.getString(R.string.card_footer).toUpperCase(Locale.getDefault()), W / 2f, y + 58f, pBrand);
+
+        Paint pTitle = text(body, LABEL, 30f);
+        pTitle.setLetterSpacing(0.30f);
+        pTitle.setTextAlign(Paint.Align.CENTER);
+        cv.drawText(c.getString(R.string.receipt_title), W / 2f, y + 100f, pTitle);
+        y += 128f;
+
+        y = dashed(cv, x0, x1, y);
+
+        Paint pDate = text(body, LABEL, 28f);
+        pDate.setLetterSpacing(0.12f);
+        DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault());
+        cv.drawText(df.format(new Date(row.startMs)).toUpperCase(Locale.getDefault()), x0, y + 30f, pDate);
+        y += 52f;
+
+        y = dashed(cv, x0, x1, y);
+
+        // ---- baris rincian: label kiri, nilai kanan, pemisah titik ----
+        int kcal = row.caloriesKcal > 0 ? row.caloriesKcal
+                : Calories.estimate(row.distanceM, row.movingMs, row.elevGainM, 70f);
+        int hrAvg = 0, hrMax = 0, hrCount = 0;
+        if (track != null) {
+            for (GpxReader.P p : track) {
+                if (p.hr > 0) {
+                    hrAvg += p.hr;
+                    hrCount++;
+                    if (p.hr > hrMax) hrMax = p.hr;
+                }
+            }
+        }
+        if (hrCount > 0) hrAvg = Math.round((float) hrAvg / hrCount);
+
+        receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_distance),
+                Fmt.km(row.distanceM) + " " + c.getString(R.string.unit_distance));
+        y += 62f;
+        receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_moving),
+                Fmt.shortDuration(row.movingMs));
+        y += 62f;
+        receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_total),
+                Fmt.duration(row.durationMs));
+        y += 62f;
+        receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_avg),
+                Fmt.speed(row.avgSpeedMs()) + " " + c.getString(R.string.unit_speed));
+        y += 62f;
+        receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_max),
+                Fmt.speed((float) row.maxSpeedMs) + " " + c.getString(R.string.unit_speed));
+        y += 62f;
+        receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_elev),
+                Fmt.meters(row.elevGainM) + " " + c.getString(R.string.unit_elev_short));
+        y += 62f;
+        if (kcal > 0) {
+            receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_kcal),
+                    "\u2248 " + Fmt.kcal(kcal));
+            y += 62f;
+        }
+        if (hrCount > 0) {
+            receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_hr_avg),
+                    String.valueOf(hrAvg) + " " + c.getString(R.string.unit_hr));
+            y += 62f;
+            receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_hr_max),
+                    String.valueOf(hrMax) + " " + c.getString(R.string.unit_hr));
+            y += 62f;
+        }
+
+        y = dashed(cv, x0, x1, y);
+
+        // ---- TOTAL: hanya jarak, besar. Sisanya sudah dirinci di atas. ----
+        Paint pTotLabel = text(body, LABEL, 30f);
+        pTotLabel.setLetterSpacing(0.30f);
+        pTotLabel.setTextAlign(Paint.Align.RIGHT);
+        cv.drawText(c.getString(R.string.receipt_total), x1, y + 26f, pTotLabel);
+
+        Paint pTotVal = text(cond, ACCENT, 128f);
+        pTotVal.setTextAlign(Paint.Align.RIGHT);
+        cv.drawText(Fmt.km(row.distanceM), x1, y + 148f, pTotVal);
+        Paint pTotUnit = text(body, LABEL, 34f);
+        pTotUnit.setTextAlign(Paint.Align.RIGHT);
+        cv.drawText(c.getString(R.string.unit_distance), x1, y + 190f, pTotUnit);
+
+        // ---- kaki: ucapan + garis barcode tiruan ----
+        float footY = H - notchH - 200f;
+        Paint pThanks = text(body, LABEL, 26f);
+        pThanks.setLetterSpacing(0.24f);
+        pThanks.setTextAlign(Paint.Align.CENTER);
+        cv.drawText(c.getString(R.string.receipt_thanks), W / 2f, footY, pThanks);
+
+        // Barcode dekoratif: lebar batang dari hash baris rincian, supaya tiap
+        // struk terlihat berbeda tanpa perlu generator barcode sungguhan.
+        Paint pBar = solid(VALUE);
+        float bx = W / 2f - 200f;
+        int seed = (int) (row.startMs ^ (row.distanceM * 31L));
+        for (int i = 0; i < 44; i++) {
+            seed = seed * 1103515245 + 12345;
+            int bw = 2 + (Math.abs(seed >> 16) % 6);
+            cv.drawRect(bx, footY + 26f, bx + bw, footY + 92f, pBar);
+            bx += bw + 4f;
+            if (bx > W / 2f + 200f) break;
+        }
+        Paint pFoot = text(body, LABEL, 22f);
+        pFoot.setLetterSpacing(0.18f);
+        pFoot.setTextAlign(Paint.Align.CENTER);
+        cv.drawText(df.format(new Date(row.startMs)), W / 2f, footY + 124f, pFoot);
+    }
+
+    /** Garis putus-putus; kembalikan y setelah garis. */
+    private static float dashed(Canvas cv, float x0, float x1, float y) {
+        Paint p = new Paint();
+        p.setColor(DIVIDER);
+        p.setStrokeWidth(2f);
+        float x = x0;
+        while (x < x1) {
+            cv.drawRect(x, y, Math.min(x + 14f, x1), y + 2f, p);
+            x += 26f;
+        }
+        return y + 16f;
+    }
+
+    /**
+     * Satu baris struk: label kiri, nilai kanan, dihubungkan titik-titik.
+     *
+     * Titik penghubung digambar terpisah, bukan dengan satu Path ber- dashed
+     * effect, supaya jaraknya konsisten di semua kerapatan layar.
+     */
+    private static void receiptRow(Canvas cv, Typeface cond, Typeface body,
+                                   float x0, float x1, float y, String label, String value) {
+        Paint pL = text(body, LABEL, 30f);
+        pL.setLetterSpacing(0.10f);
+        cv.drawText(label.toUpperCase(Locale.getDefault()), x0, y + 26f, pL);
+
+        Paint pV = text(cond, VALUE, 38f);
+        pV.setTextAlign(Paint.Align.RIGHT);
+        cv.drawText(value, x1, y + 28f, pV);
+
+        float dotStart = pL.measureText(label.toUpperCase(Locale.getDefault())) + 22f;
+        float dotEnd = x1 - pV.measureText(value) - 22f;
+        if (dotEnd - dotStart < 20f) return;
+        Paint pDot = solid(DIVIDER);
+        float r = 3f;
+        float cx = dotStart;
+        while (cx < dotEnd) {
+            cv.drawCircle(cx, y + 21f, r, pDot);
+            cx += 16f;
+        }
+    }
+
+    /**
+     * Template KAPSUL - angka di dalam pil, rute jadi latar redup.
+     *
+     * Rute digambar lebih dulu dengan alpha rendah supaya terbaca sebagai
+     * tekstur, lalu pil diletakkan di atasnya. Kalau urutnya terbalik, garis
+     * rute akan terpotong-potong oleh tepi pil dan hasilnya berantakan.
+     */
+    static Bitmap capsulesBitmap(Context c, RideDb.Row row, List<GpxReader.P> track) {
+        try {
+            Bitmap bmp = Bitmap.createBitmap(SW, SH, Bitmap.Config.ARGB_8888);
+            Canvas cv = new Canvas(bmp);
+            drawCapsules(c, cv, row, track);
+            return bmp;
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    static Uri buildCapsules(Context c, RideDb.Row row, List<GpxReader.P> track) {
+        Bitmap bmp = capsulesBitmap(c, row, track);
+        if (bmp == null) return null;
+        try {
+            String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
+            return writePngToGallery(c, bmp, fileName(gpxName, "_capsules"));
+        } finally {
+            bmp.recycle();
+        }
+    }
+
+    private static void drawCapsules(Context c, Canvas cv, RideDb.Row row, List<GpxReader.P> track) {
+        Typeface cond = Ui.condBold(c);
+        Typeface body = Ui.body(c);
+
+        cv.drawColor(BG);
+
+        // ---- rute sebagai latar: seluruh kanwas, alpha rendah ----
+        if (track != null && track.size() >= 2) {
+            Paint save = new Paint();
+            int layer = cv.saveLayer(0f, 0f, SW, SH, save);
+            drawRoute(cv, c, track, 40f, 260f, SW - 80f, SH - 520f);
+            Paint fade = new Paint();
+            fade.setColor(0x660E1013);   // 40% latar di atas garis
+            fade.setStyle(Paint.Style.FILL);
+            cv.drawRect(0f, 0f, SW, SH, fade);
+            cv.restoreToCount(layer);
+        }
+
+        float cx = SW / 2f;
+        Paint pTitle = text(body, LABEL, 32f);
+        pTitle.setLetterSpacing(0.34f);
+        pTitle.setTextAlign(Paint.Align.CENTER);
+        cv.drawText(c.getString(R.string.capsule_title), cx, 190f, pTitle);
+
+        Paint pBrand = text(cond, VALUE, 58f);
+        pBrand.setLetterSpacing(0.30f);
+        pBrand.setTextAlign(Paint.Align.CENTER);
+        cv.drawText(c.getString(R.string.card_footer).toUpperCase(Locale.getDefault()), cx, 258f, pBrand);
+
+        int kcal = row.caloriesKcal > 0 ? row.caloriesKcal
+                : Calories.estimate(row.distanceM, row.movingMs, row.elevGainM, 70f);
+
+        float y = 360f;
+        float pillH = 132f;
+        float gap = 26f;
+        float x0 = 88f, x1 = SW - 88f;
+
+        capsule(cv, cond, body, x0, x1, y, pillH,
+                c.getString(R.string.label_distance),
+                Fmt.km(row.distanceM), c.getString(R.string.unit_distance));
+        y += pillH + gap;
+        capsule(cv, cond, body, x0, x1, y, pillH,
+                c.getString(R.string.label_moving),
+                Fmt.shortDuration(row.movingMs), null);
+        y += pillH + gap;
+        capsule(cv, cond, body, x0, x1, y, pillH,
+                c.getString(R.string.label_avg),
+                Fmt.speed(row.avgSpeedMs()), c.getString(R.string.unit_speed));
+        y += pillH + gap;
+        capsule(cv, cond, body, x0, x1, y, pillH,
+                c.getString(R.string.label_max),
+                Fmt.speed((float) row.maxSpeedMs), c.getString(R.string.unit_speed));
+        y += pillH + gap;
+        capsule(cv, cond, body, x0, x1, y, pillH,
+                c.getString(R.string.label_elev),
+                Fmt.meters(row.elevGainM), c.getString(R.string.unit_elev_short));
+        y += pillH + gap;
+        if (kcal > 0) {
+            capsule(cv, cond, body, x0, x1, y, pillH,
+                    c.getString(R.string.label_kcal),
+                    "\u2248 " + Fmt.kcal(kcal), null);
+            y += pillH + gap;
+        }
+
+        Paint pDate = text(body, LABEL, 28f);
+        pDate.setLetterSpacing(0.20f);
+        pDate.setTextAlign(Paint.Align.CENTER);
+        cv.drawText(DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault())
+                .format(new Date(row.startMs)), cx, SH - 120f, pDate);
+    }
+
+    /** Satu pil: sudut membulat penuh (radius = setengah tinggi). */
+    private static void capsule(Canvas cv, Typeface cond, Typeface body,
+                                float x0, float x1, float y, float h,
+                                String label, String value, String unit) {
+        Paint pFill = new Paint(Paint.ANTI_ALIAS_FLAG);
+        pFill.setColor(CARD);
+        cv.drawRoundRect(new RectF(x0, y, x1, y + h), h / 2f, h / 2f, pFill);
+
+        // Garis tipis di tepi pil: kalau pil ditempel di atas foto terang,
+        // isinya tetap bisa dibedakan dari latar.
+        Paint pEdge = new Paint(Paint.ANTI_ALIAS_FLAG);
+        pEdge.setColor(DIVIDER);
+        pEdge.setStyle(Paint.Style.STROKE);
+        pEdge.setStrokeWidth(2f);
+        cv.drawRoundRect(new RectF(x0, y, x1, y + h), h / 2f, h / 2f, pEdge);
+
+        Paint pL = text(body, LABEL, 28f);
+        pL.setLetterSpacing(0.22f);
+        cv.drawText(label.toUpperCase(Locale.getDefault()), x0 + 56f, y + h / 2f + 10f, pL);
+
+        Paint pV = text(cond, VALUE, 66f);
+        pV.setTextAlign(Paint.Align.RIGHT);
+        float right = x1 - 56f;
+        cv.drawText(value, right, y + h / 2f + 24f, pV);
+        if (unit != null) {
+            Paint pU = text(body, LABEL, 26f);
+            pU.setTextAlign(Paint.Align.RIGHT);
+            cv.drawText(unit, right, y + h / 2f + 62f, pU);
+        }
+    }
+
+    /**
+     * Template POLYLINE BESAR - tanpa angka, untuk latar HP.
+     *
+     * Rasio 9:19.5 (1080x2340) mengikuti layar HP sekarang, bukan 9:16 seperti
+     * kartu Story. Struk dan kapsul dipakai untuk dibagikan; yang ini dipakai
+     * sebagai latar, jadi harus setinggi layar supaya tidak terpotong.
+     *
+     * Tidak ada satu pun angka gowes di sini — sengaja. Yang tampil hanya
+     * tanda tangan kecil (nama aplikasi + tanggal), bukan statistik.
+     */
+    private static final int WW = 1080;
+    private static final int WH = 2340;
+
+    static Bitmap wallpaperBitmap(Context c, RideDb.Row row, List<GpxReader.P> track) {
+        try {
+            Bitmap bmp = Bitmap.createBitmap(WW, WH, Bitmap.Config.ARGB_8888);
+            Canvas cv = new Canvas(bmp);
+            drawWallpaper(c, cv, row, track);
+            return bmp;
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    static Uri buildWallpaper(Context c, RideDb.Row row, List<GpxReader.P> track) {
+        Bitmap bmp = wallpaperBitmap(c, row, track);
+        if (bmp == null) return null;
+        try {
+            String gpxName = row.gpxPath == null ? null : GpxStore.displayName(row.gpxPath);
+            return writePngToGallery(c, bmp, fileName(gpxName, "_wallpaper"));
+        } finally {
+            bmp.recycle();
+        }
+    }
+
+    private static void drawWallpaper(Context c, Canvas cv, RideDb.Row row, List<GpxReader.P> track) {
+        Typeface cond = Ui.condBold(c);
+        Typeface body = Ui.body(c);
+
+        cv.drawColor(BG);
+
+        if (track == null || track.size() < 2) {
+            // Tanpa rute yang bisa digambar, kartu ini tidak ada isinya.
+            // Ditandai supaya ShareActivity bisa menolak dengan jelas.
+            Paint pErr = text(body, LABEL, 36f);
+            pErr.setTextAlign(Paint.Align.CENTER);
+            cv.drawText(c.getString(R.string.card_failed), WW / 2f, WH / 2f, pErr);
+            return;
+        }
+
+        // Rute memenuhi hampir seluruh kanwas; padding kecil supaya garis
+        // tidak menyentuh tepi layar saat dipasang sebagai latar.
+        drawRoute(cv, c, track, 30f, 200f, WW - 60f, WH - 400f);
+
+        Paint pMark = text(body, LABEL, 30f);
+        pMark.setLetterSpacing(0.40f);
+        pMark.setTextAlign(Paint.Align.CENTER);
+        cv.drawText(c.getString(R.string.wallpaper_mark).toUpperCase(Locale.getDefault()),
+                WW / 2f, WH - 176f, pMark);
+
+        Paint pDate = text(body, LABEL, 26f);
+        pDate.setLetterSpacing(0.18f);
+        pDate.setTextAlign(Paint.Align.CENTER);
+        cv.drawText(DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault())
+                .format(new Date(row.startMs)), WW / 2f, WH - 132f, pDate);
+    }
+
     /** Paint teks polos - tanpa bayangan, tanpa kotak, apa adanya. */
     private static Paint text(Typeface tf, int color, float size) {
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);

@@ -272,6 +272,17 @@
     <string name="card_variant_story_overlay">Story 9:16 transparent - paste on top of a photo</string>
     <string name="card_variant_clear">Clear stamp - can be pasted on photos</string>
     <string name="card_variant_sticker">Route + core numbers stamp - paste on top of a photo</string>
+
+    <!-- v0.9.31: three new templates from the Strava template list -->
+    <string name="card_variant_receipt">Receipt - numbers laid out like a till slip</string>
+    <string name="card_variant_capsules">Capsules - numbers in pills, route behind</string>
+    <string name="card_variant_wallpaper">Big polyline - no numbers, for a phone wallpaper</string>
+    <string name="receipt_title">RIDE RECEIPT</string>
+    <string name="receipt_thanks">THANK YOU FOR RIDING</string>
+    <string name="receipt_total">TOTAL</string>
+    <string name="receipt_item">ITEM</string>
+    <string name="capsule_title">SUMMARY</string>
+    <string name="wallpaper_mark">Zylo</string>
     <string name="share_pager_title">Share card</string>
     <string name="share_generating">Preparing cards…</string>
 
@@ -297,6 +308,7 @@
     <string name="save_need_permission">Storage permission required to save the card</string>
     <string name="unit_distance">km</string>
     <string name="unit_elev_short">m</string>
+    <string name="unit_hr">bpm</string>
 
     <!-- Strava -->
     <string name="group_strava">STRAVA</string>

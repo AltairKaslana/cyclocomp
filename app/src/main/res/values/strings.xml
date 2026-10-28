@@ -273,6 +273,17 @@
     <string name="card_variant_story_overlay">Story 9:16 transparan - tempel di atas foto</string>
     <string name="card_variant_clear">Stempel transparan - bisa ditempel di atas foto</string>
     <string name="card_variant_sticker">Stempel rute + angka inti - tempel di atas foto</string>
+
+    <!-- v0.9.31: tiga template baru dari daftar template Strava -->
+    <string name="card_variant_receipt">Struk - angka berjajar seperti nota</string>
+    <string name="card_variant_capsules">Kapsul - angka dalam pil, rute jadi latar</string>
+    <string name="card_variant_wallpaper">Polyline besar - tanpa angka, buat latar HP</string>
+    <string name="receipt_title">STRUK GOWES</string>
+    <string name="receipt_thanks">TERIMA KASIH SUDAH GOWES</string>
+    <string name="receipt_total">TOTAL</string>
+    <string name="receipt_item">JENIS</string>
+    <string name="capsule_title">RINGKASAN</string>
+    <string name="wallpaper_mark">Zylo</string>
     <string name="share_pager_title">Bagikan kartu</string>
     <string name="share_generating">Menyiapkan kartu…</string>
 
@@ -298,6 +309,7 @@
     <string name="save_need_permission">Izin penyimpanan diperlukan untuk menyimpan kartu</string>
     <string name="unit_distance">km</string>
     <string name="unit_elev_short">m</string>
+    <string name="unit_hr">bpm</string>
 
     <!-- Strava -->
     <string name="group_strava">STRAVA</string>
