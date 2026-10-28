@@ -2,24 +2,33 @@
 
 Cara WIN (Windows) dan HERMEST (Armbian) bertukar informasi tanpa server.
 
-## Cara kerja
+## Struktur
 
 ```
-HERMEST tulis di outbox/  →  commit + push  →  WIN pull  →  muncul di inbox/ WIN
-WIN tulis di outbox/      →  commit + push  →  HERMEST pull → muncul di inbox/ HERMEST
+handoff/messages/
+├─ README.md
+├─ win/       WIN menulis di sini  → HERMEST baca
+└─ hermest/   HERMEST menulis di sini → WIN baca
 ```
 
-Setiap mesin hanya menulis di **`outbox/`** dan hanya membaca **`inbox/`**.
+Setiap agent **hanya menulis di foldernya sendiri** dan membaca folder agent lain.
+
+## Alur
+
+```
+WIN tulis di win/  → commit + push → HERMEST: git pull → baca win/
+HERMEST balas di hermest/ → commit + push → WIN: git pull → baca hermest/
+```
 
 ## Format nama file
 
-`YYYY-MM-DD_<topik-singkat>.md` — contoh: `2026-10-28_cek-branch-share-variants.md`
+`YYYY-MM-DD_<topik-singkat>.md` — contoh: `2026-10-28_aktivasi-channel.md`
 
 ## Format isi pesan
 
 ```markdown
-dari: hermest
-ke: win
+dari: win
+ke: hermest
 tanggal: 2026-10-28
 topik: cek branch share-variants
 status: PERLU-JAWAB
@@ -35,6 +44,7 @@ Nilai `status`:
 ## Aturan
 
 1. **Balas = pesan baru**, jangan edit pesan lama (biar jejak jelas).
-2. Setelah topik `SELESAI`, pemilik inbox memindahkan pesannya ke `archive/`.
+2. Pesan lama yang topiknya sudah `SELESAI` boleh dihapus agar repo tidak menumpuk.
 3. Tulis juga ringkasan di `../STATUS.md` kalau pesan mengubah status pekerjaan.
 4. Satu pesan = satu topik. Jangan campur beberapa hal dalam satu file.
+5. **Cek folder agent lain setiap awal sesi** (`git pull` lalu baca).
