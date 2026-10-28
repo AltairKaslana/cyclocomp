@@ -61,6 +61,12 @@ public class HistoryActivity extends Activity {
         for (RideDb.Row r : rows) {
             List<Lap> lp = RideService.decodeLaps(r.laps);
             String tag = lp.isEmpty() ? null : getString(R.string.row_laps, lp.size());
+            // Komuter masuk ke tag, bukan ke baris keterangan: kalau tidak ada lap,
+            // tag masih bisa menampung satu penanda tanpa mengubah format baris
+            // keterangan yang sudah dipakai di seluruh layar.
+            if (r.commute) {
+                tag = (tag == null ? "" : tag) + getString(R.string.row_commute);
+            }
             items.add(new RowItem(
                     df.format(new Date(r.startMs)),
                     tag,

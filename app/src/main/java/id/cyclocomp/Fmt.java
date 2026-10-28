@@ -34,4 +34,15 @@ final class Fmt {
         if (s < 3600) return String.format(Locale.US, "%d:%02d", s / 60, s % 60);
         return String.format(Locale.US, "%d:%02d:%02d", s / 3600, (s % 3600) / 60, s % 60);
     }
+
+    /**
+     * Kalori bulat dengan pemisah ribuan.
+     *
+     * Tanpa pemisah, 1234 terbaca 1.234 di Indonesia (di mana titik = desimal) —
+     * justru kebalikannya di tempat lain. Locale dipakai supaya benar di kedua
+     * tempat.
+     */
+    static String kcal(int kcal) {
+        return String.format(Locale.getDefault(), "%,d", Math.max(0, kcal));
+    }
 }

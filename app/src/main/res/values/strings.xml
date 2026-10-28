@@ -20,6 +20,10 @@
     <string name="label_max">MAKS</string>
     <string name="label_elev">TANJAKAN</string>
     <string name="label_alt">KETINGGIAN</string>
+    <string name="label_kcal">KALORI</string>
+    <string name="label_hr">DETAK</string>
+    <string name="label_hr_avg">DETAK RATA-RATA</string>
+    <string name="label_hr_max">DETAK MAKS</string>
 
     <!-- tombol -->
     <string name="btn_start">MULAI</string>
@@ -207,6 +211,33 @@
     <string name="share_subject">Rekaman gowes %1$s</string>
     <string name="share_title">Bagikan rute GPX</string>
     <string name="no_share_app">Tidak ada aplikasi untuk membagikan</string>
+
+    <!-- ===== v3: kalori, komuter, RPE ===== -->
+    <!-- Kalori adalah PERKIRAAN dari daya (watt) yang dihitung dari fisika, bukan
+         angka dari sensor. Tanda "≈" dipakai supaya tidak terbaca sebagai ukuran. -->
+    <string name="kcal_est">≈ %1$s kcal</string>
+    <string name="kcal_watts">≈ %1$d W rata-rata</string>
+    <string name="kcal_none">Kalori belum dihitung</string>
+    <string name="summary_kcal_row">KALORI</string>
+    <string name="summary_hr_none">Tidak ada data detak jantung</string>
+
+    <!-- komuter -->
+    <string name="label_commute">Komuter</string>
+    <string name="sum_commute">Perjalanan pulang-pergi</string>
+    <string name="row_commute"> • komuter</string>
+
+    <!-- RPE (perceived exertion): skala 1-10, dinilai SETELAH gowes -->
+    <string name="rpe_title">Seberapa berat?</string>
+    <string name="rpe_sum">Nilai usaha gowes ini, 1 (ringan) sampai 10 (maksimal)</string>
+    <string name="rpe_none">Belum dinilai</string>
+    <string name="rpe_clear">Hapus nilai</string>
+    <string name="rpe_saved">Nilai tersimpan</string>
+    <string name="rpe_hint">Ketuk angka untuk menilai</string>
+
+    <!-- massa pengendara (dipakai memperkira kalori) -->
+    <string name="settings_weight">Massa badan</string>
+    <string name="sum_weight">Dipakai memperkira kalori</string>
+    <string name="opt_kg">%1$d kg</string>
 
     <!-- layar utama -->
     <string name="recovered_msg">Rekaman sebelumnya dipulihkan ke Riwayat</string>

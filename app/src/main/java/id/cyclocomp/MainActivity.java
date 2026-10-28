@@ -49,7 +49,7 @@ public class MainActivity extends Activity implements RideService.Listener {
     private TextView tvSpeed, tvDist, tvTime, tvAvg, tvMax, tvElev, tvAlt, tvGrade;
     private GradeRoad gradeRoad;
     private TextView tvHr, tvHrHeart;
-    private TextView tvSpeed2, tvDist2, tvTime2, tvAvg2, tvMax2, tvElev2, tvAlt2;
+    private TextView tvSpeed2, tvDist2, tvTime2, tvAvg2, tvMax2, tvElev2, tvAlt2, tvKcal2, tvHr2;
     private TextView tvMoving, tvTotal, tvLapDist, tvLapTime, tvLapAvg, tvLapMoving, tvLapTitle;
     private ListView lapList;
     private TextView lapEmpty;
@@ -127,6 +127,8 @@ public class MainActivity extends Activity implements RideService.Listener {
         tvTotal = (TextView) findViewById(R.id.tvTotal);
         tvElev2 = (TextView) findViewById(R.id.tvElev2);
         tvAlt2 = (TextView) findViewById(R.id.tvAlt2);
+        tvKcal2 = (TextView) findViewById(R.id.tvKcal2);
+        tvHr2 = (TextView) findViewById(R.id.tvHr2);
 
         // halaman LAP
         tvLapTitle = (TextView) findViewById(R.id.tvLapTitle);
@@ -454,6 +456,11 @@ public class MainActivity extends Activity implements RideService.Listener {
         tvTotal.setText(Fmt.duration(elapsed));
         tvElev2.setText(Fmt.meters(s.elevGainM));
         tvAlt2.setText(Double.isNaN(s.altitudeM) ? "--" : Fmt.meters(s.altitudeM));
+        // Kalori dihitung dari daya perkiraan supaya tanjakan ikut terhitung.
+        tvKcal2.setText(Fmt.kcal(Calories.estimate(s.distanceM, s.movingMs,
+                s.elevGainM, Settings.weight(this))));
+        // "-" bukan "0" kalau belum ada sensor: nol terbaca seperti detak nol.
+        tvHr2.setText(s.hr > 0 ? String.valueOf(s.hr) : "-");
 
         // ---------- status ----------
         switch (st) {

@@ -22,6 +22,10 @@
     <string name="label_max">MAX</string>
     <string name="label_elev">ELEVATION</string>
     <string name="label_alt">ALTITUDE</string>
+    <string name="label_kcal">CALORIES</string>
+    <string name="label_hr">HEART RATE</string>
+    <string name="label_hr_avg">AVG HEART RATE</string>
+    <string name="label_hr_max">MAX HEART RATE</string>
 
     <!-- tombol -->
     <string name="btn_start">START</string>
@@ -209,6 +213,31 @@
     <string name="share_subject">Ride recording %1$s</string>
     <string name="share_title">Share GPX route</string>
     <string name="no_share_app">No app available to share</string>
+
+    <!-- ===== v3: calories, commute, RPE ===== -->
+    <string name="kcal_est">≈ %1$s kcal</string>
+    <string name="kcal_watts">≈ %1$d W average</string>
+    <string name="kcal_none">Calories not calculated</string>
+    <string name="summary_kcal_row">CALORIES</string>
+    <string name="summary_hr_none">No heart rate data</string>
+
+    <!-- commute -->
+    <string name="label_commute">Commute</string>
+    <string name="sum_commute">Round-trip ride</string>
+    <string name="row_commute"> • commute</string>
+
+    <!-- RPE (perceived exertion): 1-10, rated AFTER the ride -->
+    <string name="rpe_title">How hard was it?</string>
+    <string name="rpe_sum">Rate this ride, 1 (easy) to 10 (maximal)</string>
+    <string name="rpe_none">Not rated</string>
+    <string name="rpe_clear">Clear rating</string>
+    <string name="rpe_saved">Rating saved</string>
+    <string name="rpe_hint">Tap a number to rate</string>
+
+    <!-- rider weight (used to estimate calories) -->
+    <string name="settings_weight">Body weight</string>
+    <string name="sum_weight">Used to estimate calories</string>
+    <string name="opt_kg">%1$d kg</string>
 
     <!-- layar utama -->
     <string name="recovered_msg">Previous recording was recovered into History</string>

@@ -194,4 +194,55 @@
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
+        <!-- baris 5: kalori & detak jantung.
+             Dua angka ini TIDAK bisa ditampilkan di halaman SEKILAS karena bukan
+             metrik navigasi: kalori berguna sesudah gowes, dan detak jantung hanya
+             ada kalau sensor BLE terhubung. Karena itu keduanya tinggal di halaman
+             rujukan ini, mengikuti pola Strava yang memuatnya di detail aktivitas.
+
+             Kalori dihitung dari daya perkiraan (gulung + udara + tanjakan) lihat
+             Calories. Angka detak disembunyikan (-) kalau tidak ada sensor. -->
+        <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+            android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/label_kcal" />
+                <TextView android:id="@+id/tvKcal2" style="@style/ValueSmall"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num"
+                    android:text="0" />
+            </LinearLayout>
+
+            <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/label_hr" />
+                <TextView android:id="@+id/tvHr2" style="@style/ValueSmall"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num"
+                    android:text="-" />
+            </LinearLayout>
+        </LinearLayout>
 </LinearLayout>

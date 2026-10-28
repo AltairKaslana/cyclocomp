@@ -29,6 +29,7 @@ final class Settings {
     private static final String K_HR_MAC      = "hr_mac";        // alamat sensor detak jantung
     private static final String K_HR_NAME     = "hr_name";
     private static final String K_MAP         = "map";           // peta ubin di Ringkasan
+    private static final String K_WEIGHT      = "weight";        // kg, dipakai hitung kalori
 
     // mode lap
     public static final int LAP_MANUAL = 0, LAP_DISTANCE = 1, LAP_TIME = 2;
@@ -109,4 +110,20 @@ final class Settings {
     /** Bunyi bip saat peringatan & lap. */
     public static boolean beep(Context c) { return sp(c).getBoolean(K_BEEP, true); }
     public static void setBeep(Context c, boolean v) { sp(c).edit().putBoolean(K_BEEP, v).apply(); }
+
+    // ---------- massa pengendara ----------
+
+    /**
+     * Massa pengendara (kg), dipakai memperkira kalori.
+     *
+     * Bawaan 70 kg: angka rata-rata orang dewasa Asia Tenggara, supaya aplikasi
+     * tetap memberi perkiraan masuk akal tanpa pernah membuka Pengaturan.
+     */
+    public static float weight(Context c) { return sp(c).getFloat(K_WEIGHT, 70f); }
+    public static void setWeight(Context c, float v) {
+        float kg = v;
+        if (Float.isNaN(kg) || kg < 30f) kg = 30f;
+        if (kg > 150f) kg = 150f;
+        sp(c).edit().putFloat(K_WEIGHT, kg).apply();
+    }
 }

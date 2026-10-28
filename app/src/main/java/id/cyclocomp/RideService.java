@@ -282,6 +282,10 @@ public class RideService extends Service implements LocationListener {
                 r.elevGainM = stats.elevGainM;
                 r.gpxPath = gpxLoc;
                 r.laps = encodeLaps(laps);
+                // Kalori dihitung dari daya perkiraan (gulung + udara + tanjakan),
+                // bukan dari jarak saja. Lihat Calories untuk asumsinya.
+                r.caloriesKcal = Calories.estimate(stats.distanceM, stats.movingMs,
+                        stats.elevGainM, Settings.weight(this));
                 long id = db.insert(r);
                 Settings.setLastRideId(this, id);
             } catch (Throwable t) {

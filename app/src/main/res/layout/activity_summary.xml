@@ -160,6 +160,109 @@
         </LinearLayout>
     </LinearLayout>
 
+
+        <!-- ===== kalori & daya (selalu tampil) =====
+             Dua angka ini sengaja berdampingan: kalori TANPA daya terlihat seperti
+             angka ajaib. Dengan watt rata-rata terlihat, pengguna bisa menilai
+             sendiri apakah perkiraannya masuk akal untuk gowes yang baru dilakukan. -->
+        <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+            android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
+            android:layout_marginTop="@dimen/gap_loose" android:layout_marginBottom="@dimen/gap_loose"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/label_kcal" />
+                <TextView android:id="@+id/tvKcal" style="@style/ValueSmall"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num"
+                    android:maxLines="2" android:text="0" />
+            </LinearLayout>
+
+            <View android:layout_width="@dimen/hairline" android:layout_height="@dimen/divider_lap_small"
+                android:layout_gravity="center_vertical" android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="@string/summary_kcal_row" />
+                <TextView android:id="@+id/tvWatts" style="@style/ValueSmall"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gap_tight" android:tag="num"
+                    android:text="0" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===== detak jantung (hanya kalau sensor mengirim data) =====
+             Wadah ini disembunyikan SELURUHNYA dari kode kalau GPX tidak memuat satu
+             pun nilai hr - bukan dikosongkan, supaya tidak ada baris hampa yang
+             membuat kartu terasa bolong. -->
+        <LinearLayout
+            android:id="@+id/hrRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+                android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
+                android:layout_marginTop="@dimen/gap_loose" android:layout_marginBottom="@dimen/gap_loose"
+                android:background="@color/divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <TextView style="@style/Label" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="@string/label_hr_avg" />
+                    <TextView android:id="@+id/tvHrAvg" style="@style/ValueSmall"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gap_tight" android:tag="num"
+                        android:text="0" />
+                </LinearLayout>
+
+                <View android:layout_width="@dimen/hairline" android:layout_height="@dimen/divider_lap_small"
+                    android:layout_gravity="center_vertical" android:background="@color/divider" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <TextView style="@style/Label" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="@string/label_hr_max" />
+                    <TextView android:id="@+id/tvHrMax" style="@style/ValueSmall"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gap_tight" android:tag="num"
+                        android:text="0" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
     <!-- lap -->
     <LinearLayout
         android:id="@+id/lapWrap"
@@ -184,6 +287,76 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" />
+    </LinearLayout>
+
+    <!-- ===== penilaian sesudah gowes =====
+         Dua hal yang TIDAK bisa dihitung aplikasi saat pengguna sedang mengayuh:
+         apakah ini perjalanan komuter, dan seberapa berat rasanya. Strava punya
+         keduanya (commute + perceived_exertion) dan keduanya dinilai SETELAH
+         berkendara, jadi wadahnya sendiri - tidak dicampur ke kartu metrik.
+
+         RPE memakai 10 tombol kecil, bukan SeekBar: dengan SeekBar pengguna harus
+         memutuskan "berapa" secara abstrak; dengan angka 1..10 ia memilih tingkat
+         yang sudah punya nama. Setiap pilihan langsung tersimpan, tanpa tombol
+         SIMPAN terpisah - satu ketukan lebih sedikit, dan tidak ada keadaan
+         "sudah pilih tapi lupa simpan". -->
+    <LinearLayout
+        android:id="@+id/afterCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/gap_loose"
+        android:background="@drawable/bg_card"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/gap_roomy"
+        android:paddingRight="@dimen/gap_roomy"
+        android:paddingTop="@dimen/gap_roomy"
+        android:paddingBottom="@dimen/gap_roomy">
+
+        <TextView
+            android:id="@+id/tvRpeTitle"
+            style="@style/SectionLabelAccent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/rpe_title" />
+
+        <TextView
+            android:id="@+id/tvRpeSum"
+            style="@style/EmptyText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/gap_tight"
+            android:paddingBottom="@dimen/gap_cozy"
+            android:text="@string/rpe_sum" />
+
+        <!-- Baris angka 1..10 dibuat di kode; wadahnya di sini supaya tingginya
+             mengikuti jumlah tombol, bukan tinggi tetap yang menyisakan ruang hampa. -->
+        <LinearLayout
+            android:id="@+id/rpeRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+
+        <TextView
+            android:id="@+id/tvRpeClear"
+            style="@style/EmptyText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/gap_snug"
+            android:text="@string/rpe_clear"
+            android:textColor="@color/accent"
+            android:visibility="gone" />
+
+        <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+            android:layout_marginTop="@dimen/gap_cozy"
+            android:layout_marginBottom="@dimen/gap_cozy"
+            android:background="@color/divider" />
+
+        <CheckBox
+            android:id="@+id/swCommute"
+            style="@style/EmptyText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_commute" />
     </LinearLayout>
 
     <!-- Kartu gambar adalah jalur utama (paling sering dipakai untuk dibagikan),

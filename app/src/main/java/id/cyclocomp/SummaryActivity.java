@@ -7,7 +7,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,6 +49,7 @@ public class SummaryActivity extends Activity {
         }
         try {
             bind();
+            bindPenilaian();
         } catch (Throwable t) {
             // Layar Ringkasan bukan tempat untuk mati: angka tetap yang paling penting,
             // dan kalau ada yang gagal, pengguna dapat pesan alih-alih aplikasi tertutup.
@@ -96,6 +100,8 @@ public class SummaryActivity extends Activity {
         ((TextView) findViewById(R.id.tvMax)).setText(Fmt.speed((float) row.maxSpeedMs));
         ((TextView) findViewById(R.id.tvElev)).setText(Fmt.meters(row.elevGainM));
 
+        bindKalori();
+
         // rute & peta: kalau gagal, angka di atas tetap tampil (rute tidak, itu saja)
         File gpx = GpxStore.materialize(this, row.gpxPath);
         try {
@@ -103,6 +109,7 @@ public class SummaryActivity extends Activity {
             rv.setMapEnabled(Settings.map(this));
             List<GpxReader.P> track = GpxReader.read(gpx);
             rv.setTrack(track);
+            bindDetak(track);
         } catch (Throwable t) {
             Log.e("Summary", "rute gagal ditampilkan", t);
         }
@@ -147,6 +154,64 @@ public class SummaryActivity extends Activity {
         Button share = (Button) findViewById(R.id.btnShare);
         share.setEnabled(adaGpx);
         share.setAlpha(adaGpx ? 1f : 0.4f);
+    }
+
+    /**
+     * Kalori & daya rata-rata.
+     *
+     * Kalau rekaman dibuat sebelum v3 (kolom belum ada), nilainya dihitung ulang di
+     * sini daripada ditampilkan kosong — pengguna tidak perlu tahu bahwa skema basis
+     * data pernah berubah.
+     */
+    private void bindKalori() {
+        int kcal = row.caloriesKcal;
+        if (kcal <= 0) {
+            kcal = Calories.estimate(row.distanceM, row.movingMs, row.elevGainM,
+                    Settings.weight(this));
+        }
+        TextView tvKcal = (TextView) findViewById(R.id.tvKcal);
+        TextView tvWatts = (TextView) findViewById(R.id.tvWatts);
+        if (kcal <= 0) {
+            tvKcal.setText(R.string.kcal_none);
+            tvWatts.setText("-");
+            return;
+        }
+        // Tanda "≈" supaya terbaca sebagai perkiraan, bukan hasil pengukuran.
+        tvKcal.setText(getString(R.string.kcal_est, Fmt.kcal(kcal)));
+        tvWatts.setText(getString(R.string.kcal_watts,
+                Calories.avgWatts(row.distanceM, row.movingMs, row.elevGainM,
+                        Settings.weight(this))));
+    }
+
+    /**
+     * Detak jantung rata-rata & maksimum, dibaca dari titik GPX.
+     *
+     * Kalau tidak ada satu pun nilai hr (tidak pakai sensor, atau berkas rekaman
+     * lama), seluruh baris disembunyikan. Sengaja GONE, bukan dikosongkan: baris
+     * hampa membuat kartu metrik terasa rusak.
+     */
+    private void bindDetak(List<GpxReader.P> track) {
+        View hrRow = findViewById(R.id.hrRow);
+        if (hrRow == null) return;
+
+        int sum = 0, count = 0, max = 0;
+        if (track != null) {
+            for (GpxReader.P p : track) {
+                if (p.hr > 0) {
+                    sum += p.hr;
+                    count++;
+                    if (p.hr > max) max = p.hr;
+                }
+            }
+        }
+        if (count == 0) {
+            hrRow.setVisibility(View.GONE);
+            return;
+        }
+        hrRow.setVisibility(View.VISIBLE);
+        ((TextView) findViewById(R.id.tvHrAvg)).setText(
+                String.valueOf(Math.round((float) sum / count)));
+        ((TextView) findViewById(R.id.tvHrMax)).setText(String.valueOf(max));
     }
 
     /**
@@ -229,5 +294,108 @@ public class SummaryActivity extends Activity {
 
     private int dp(int v) {
         return Math.round(getResources().getDisplayMetrics().density * v);
+    }
+
+    // ---------- penilaian sesudah gowes: komuter + RPE ----------
+
+    /**
+     * Pasang tombol angka RPE 1..10 dan sakelar Komuter.
+     *
+     * Dipisah dari {@link #bind()} supaya kegagalan di sini tidak membatalkan
+     * tampilan angka utama — pola yang sama dipakai untuk lap.
+     */
+    private void bindPenilaian() {
+        final LinearLayout rpeRow = (LinearLayout) findViewById(R.id.rpeRow);
+        final TextView clear = (TextView) findViewById(R.id.tvRpeClear);
+        final CheckBox commute = (CheckBox) findViewById(R.id.swCommute);
+        if (rpeRow == null || clear == null || commute == null) return;
+
+        rpeRow.removeAllViews();
+        final int[] nilai = {row.rpe};
+        for (int i = 1; i <= 10; i++) {
+            final int n = i;
+            Button b = new Button(this);
+            b.setText(String.valueOf(n));
+            b.setTag("num");
+            b.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
+            b.setTypeface(Ui.condBold(this));
+            b.setAllCaps(false);
+            b.setMinWidth(0);
+            b.setMinHeight(0);
+            b.setStateListAnimator(null);
+            b.setPadding(0, dp(8), 0, dp(8));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            b.setLayoutParams(lp);
+            gayaTombolRpe(b, n == nilai[0]);
+            b.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    // Ketuk angka yang sama lagi = batalkan nilai. Lebih mudah
+                    // ditemukan daripada mencari tombol "hapus" yang terpisah.
+                    nilai[0] = (nilai[0] == n) ? 0 : n;
+                    simpanPenilaian(commute.isChecked(), nilai[0]);
+                    perbaruiGayaRpe(rpeRow, nilai[0]);
+                    clear.setVisibility(nilai[0] > 0 ? View.VISIBLE : View.GONE);
+                    if (nilai[0] > 0) {
+                        Toast.makeText(SummaryActivity.this, R.string.rpe_saved,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            rpeRow.addView(b);
+        }
+        perbaruiGayaRpe(rpeRow, nilai[0]);
+        clear.setVisibility(nilai[0] > 0 ? View.VISIBLE : View.GONE);
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                nilai[0] = 0;
+                simpanPenilaian(commute.isChecked(), 0);
+                perbaruiGayaRpe(rpeRow, 0);
+                clear.setVisibility(View.GONE);
+            }
+        });
+
+        commute.setChecked(row.commute);
+        commute.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton b, boolean on) {
+                simpanPenilaian(on, nilai[0]);
+            }
+        });
+    }
+
+    private void simpanPenilaian(boolean isCommute, int rpe) {
+        try {
+            db.updateMeta(row.id, isCommute, rpe);
+            row.commute = isCommute;
+            row.rpe = rpe;
+        } catch (Throwable t) {
+            // Menilai bukan hal wajib. Kalau gagal, pengguna boleh terus melihat
+            // ringkasan; jangan matikan layar hanya karena satu kolom.
+            Log.e("Summary", "penilaian gagal disimpan", t);
+        }
+    }
+
+    private void perbaruiGayaRpe(LinearLayout row, int terpilih) {
+        for (int i = 0; i < row.getChildCount(); i++) {
+            View v = row.getChildAt(i);
+            if (v instanceof Button) gayaTombolRpe(v, i + 1 == terpilih);
+        }
+    }
+
+    /**
+     * Angka terpilih dibedakan lewat WARNA, bukan ukuran.
+     *
+     * Sebelumnya dicoba memakai ukuran/tebal berbeda; di layar 320dp selisih itu
+     * tidak terbaca dan 10 tombol jadi terasa tidak seragam. Warna aksen pada
+     * latar gelap terbaca jelas sekaligus.
+     */
+    private void gayaTombolRpe(View v, boolean terpilih) {
+        if (terpilih) {
+            v.setBackgroundColor(getResources().getColor(R.color.accent));
+            ((Button) v).setTextColor(getResources().getColor(R.color.bg));
+        } else {
+            v.setBackgroundColor(getResources().getColor(R.color.card2));
+            ((Button) v).setTextColor(getResources().getColor(R.color.value));
+        }
     }
 }

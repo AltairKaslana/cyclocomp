@@ -34,6 +34,7 @@ public class SettingsActivity extends Activity {
     private static final int R_HR = 11, R_HR_FORGET = 12;
     private static final int R_STRAVA_ID = 21, R_STRAVA_SECRET = 22, R_STRAVA_LINK = 23;
     private static final int R_MAP = 13;
+    private static final int R_WEIGHT = 14;
 
     private static final int REQ_BLE = 71;
 
@@ -86,6 +87,10 @@ public class SettingsActivity extends Activity {
         if (!Settings.hrMac(this).isEmpty()) {
             valueRow(R_HR_FORGET, R.string.settings_hr_forget, getString(R.string.sum_hr_forget));
         }
+        // Massa badan diletakkan di kelompok Sensor, bukan kelompok baru sendiri:
+        // satu-satunya kegunaannya adalah memasukkan angka ke perhitungan kalori,
+        // jadi ia lebih dekat ke detak jantung daripada ke lap atau peringatan.
+        valueRow(R_WEIGHT, R.string.settings_weight, getString(R.string.sum_weight));
 
         group(getString(R.string.group_map));
         switchRow(R_MAP, R.string.settings_map, getString(R.string.sum_map));
@@ -301,6 +306,7 @@ public class SettingsActivity extends Activity {
                 int mn = Settings.alertMin(this);
                 return mn <= 0 ? getString(R.string.settings_off) : getString(R.string.settings_minutes, mn);
             case R_BEEP:      return onOff(Settings.beep(this));
+            case R_WEIGHT:    return getString(R.string.opt_kg, Math.round(Settings.weight(this)));
             case R_MAP:       return onOff(Settings.map(this));
             case R_HR: {
                 String n = Settings.hrName(this);
@@ -433,6 +439,29 @@ public class SettingsActivity extends Activity {
             case R_HR:
                 pickSensor();
                 break;
+            case R_WEIGHT: {
+                // Langkah 1 kg dari 40 sampai 120: cukup rapat untuk orang normal,
+                // cukup sedikit supaya dialog tidak perlu digulir di layar 320dp.
+                final int[] vals = new int[81];
+                for (int i = 0; i < vals.length; i++) vals[i] = 40 + i;
+                String[] labels = new String[vals.length];
+                for (int i = 0; i < vals.length; i++) {
+                    labels[i] = getString(R.string.opt_kg, vals[i]);
+                }
+                int now = Math.round(Settings.weight(this));
+                int sel = 0;
+                for (int i = 0; i < vals.length; i++) {
+                    if (vals[i] == now) { sel = i; break; }
+                    if (vals[i] > now) { sel = Math.max(0, i - 1); break; }
+                }
+                choose(R.string.settings_weight, labels, sel, new Pick() {
+                    @Override public void set(int i) {
+                        Settings.setWeight(SettingsActivity.this, vals[i]);
+                        paint();
+                    }
+                });
+                break;
+            }
             case R_HR_FORGET:
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.settings_hr_forget)

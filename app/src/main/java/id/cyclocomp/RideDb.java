@@ -12,13 +12,21 @@ import java.util.List;
 /** Ringkasan tiap rekaman. Titik detailnya ada di file GPX. */
 public class RideDb extends SQLiteOpenHelper {
     private static final String NAME = "cyclocomp.db";
-    private static final int VERSION = 2;
+    private static final int VERSION = 3;
 
     public static class Row {
         public long id, startMs, durationMs, movingMs;
         public double distanceM, maxSpeedMs, elevGainM;
         public String gpxPath;
         public String laps;      // "jarak;gerak;total|jarak;gerak;total|..."
+
+        // ---- v3 ----
+        /** Perkiraan kalori terbakar (kcal); 0 = belum dihitung (rekaman lama). */
+        public int caloriesKcal;
+        /** Perceived exertion 1..10 (skala RPE); 0 = belum dinilai. */
+        public int rpe;
+        /** true kalau perjalanan ini komuter/pulang-pergi. */
+        public boolean commute;
 
         public float avgSpeedMs() {
             return movingMs > 0 ? (float) (distanceM / (movingMs / 1000.0)) : 0f;
@@ -35,7 +43,7 @@ public class RideDb extends SQLiteOpenHelper {
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + "start_ms INTEGER, duration_ms INTEGER, moving_ms INTEGER,"
                 + "distance_m REAL, max_speed REAL, elev_gain REAL, gpx_path TEXT,"
-                + "laps TEXT)");
+                + "laps TEXT, calories_kcal INTEGER, rpe INTEGER, commute INTEGER)");
     }
 
     @Override
@@ -46,6 +54,19 @@ public class RideDb extends SQLiteOpenHelper {
                 db.execSQL("ALTER TABLE rides ADD COLUMN laps TEXT");
             } catch (Exception ignored) { }   // sudah ada (mis. downgrade-upgrade)
         }
+        if (oldV < 3) {
+            // v3: kalori, RPE, penanda komuter. Tiap kolom dipisah supaya satu
+            // kegagalan tidak membatalkan kolom lain.
+            addColumn(db, "calories_kcal INTEGER");
+            addColumn(db, "rpe INTEGER");
+            addColumn(db, "commute INTEGER");
+        }
+    }
+
+    private static void addColumn(SQLiteDatabase db, String ddl) {
+        try {
+            db.execSQL("ALTER TABLE rides ADD COLUMN " + ddl);
+        } catch (Exception ignored) { }   // sudah ada
     }
 
     public long insert(Row r) {
@@ -58,6 +79,9 @@ public class RideDb extends SQLiteOpenHelper {
         v.put("elev_gain", r.elevGainM);
         v.put("gpx_path", r.gpxPath);
         v.put("laps", r.laps);
+        v.put("calories_kcal", r.caloriesKcal);
+        v.put("rpe", r.rpe);
+        v.put("commute", r.commute ? 1 : 0);
         return getWritableDatabase().insert("rides", null, v);
     }
 
@@ -77,6 +101,7 @@ public class RideDb extends SQLiteOpenHelper {
                 r.gpxPath = c.getString(c.getColumnIndexOrThrow("gpx_path"));
                 int li = c.getColumnIndex("laps");
                 r.laps = li >= 0 && !c.isNull(li) ? c.getString(li) : null;
+                readMeta(c, r);
                 out.add(r);
             }
         } finally {
@@ -119,7 +144,36 @@ public class RideDb extends SQLiteOpenHelper {
         r.gpxPath = c.getString(c.getColumnIndexOrThrow("gpx_path"));
         int li = c.getColumnIndex("laps");
         r.laps = li >= 0 && !c.isNull(li) ? c.getString(li) : null;
+        readMeta(c, r);
         return r;
+    }
+
+    /**
+     * Baca kolom v3. Sengaja lewat getColumnIndex (bukan OrThrow) supaya basis data
+     * yang belum sempat di-upgrade tidak membuat layar Riwayat dan Ringkasan mati —
+     * rekaman lama cukup tampil tanpa kalori/RPE/komuter.
+     */
+    private static void readMeta(Cursor c, Row r) {
+        int ci = c.getColumnIndex("calories_kcal");
+        r.caloriesKcal = ci >= 0 && !c.isNull(ci) ? c.getInt(ci) : 0;
+        int ri = c.getColumnIndex("rpe");
+        r.rpe = ri >= 0 && !c.isNull(ri) ? c.getInt(ri) : 0;
+        int mi = c.getColumnIndex("commute");
+        r.commute = mi >= 0 && !c.isNull(mi) && c.getInt(mi) != 0;
+    }
+
+    /**
+     * Perbarui penanda komuter dan nilai RPE sebuah rekaman.
+     *
+     * Dipakai layar Ringkasan setelah gowes selesai. Kedua kolom ini memang
+     * dinilai SETELAH berkendara, jadi tidak masuk saat insert.
+     */
+    public void updateMeta(long id, boolean commute, int rpe) {
+        if (id <= 0) return;
+        ContentValues v = new ContentValues();
+        v.put("commute", commute ? 1 : 0);
+        v.put("rpe", rpe < 1 || rpe > 10 ? 0 : rpe);
+        getWritableDatabase().update("rides", v, "id=?", new String[]{String.valueOf(id)});
     }
 
     public void delete(long id) {
