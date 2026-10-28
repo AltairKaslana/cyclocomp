@@ -60,6 +60,29 @@
         <item name="android:colorControlNormal">@color/dot_off</item>
     </style>
 
+    <!--
+      Satuan di samping angka (km, km/jam, m, kcal, bpm, W).
+
+      Kenapa TextView terpisah, bukan ikut dalam string angka: kalau satuan
+      menempel di string ("12,5 km/jam"), satu-satunya cara mengubah warna atau
+      ukurannya adalah mewarnai sebagian string - dan kalau bahasa berganti
+      (values-en), posisi satuan bisa pindah. TextView terpisah membuat satuan
+      bisa diatur sendiri warnanya (label, resesif) dan ukurannya (caption),
+      sehingga angka tetap yang paling menonjol.
+
+      Ukuran text_caption (13sp), bukan 14sp seperti mockup: tangga ukuran huruf
+      aplikasi sudah punya 13sp untuk peran "satuan/keterangan" (dipakai GradeUnit
+      dan SpeedUnit). Menambah 14sp akan membuat tiga nilai berturut-turut 13-14-15
+      yang tidak bisa dibedakan mata - itu bising, bukan hierarki. Selisih 1sp
+      tidak terlihat; hierarki datang dari WARNA.
+    -->
+    <style name="ValueUnit">
+        <item name="android:textSize">@dimen/text_caption</item>
+        <item name="android:textColor">@color/label</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
     <!-- label kecil di atas angka: huruf besar, renggang, abu -->
     <style name="Label">
         <item name="android:textSize">@dimen/text_label</item>

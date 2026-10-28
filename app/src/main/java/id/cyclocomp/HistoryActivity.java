@@ -88,7 +88,7 @@ public class HistoryActivity extends Activity {
                 break;
             }
             sb.append("\n").append(getString(R.string.hist_lap_row, l.index,
-                    Fmt.km(l.distanceM), Fmt.shortDuration(l.elapsedMs),
+                    Fmt.km(l.distanceM), Fmt.duration(l.elapsedMs),
                     Fmt.speed(l.avgSpeedMs())));
             n++;
         }

@@ -42,9 +42,21 @@
                 android:orientation="vertical">
                 <TextView style="@style/Label" android:layout_width="wrap_content"
                     android:layout_height="wrap_content" android:text="@string/label_distance" />
-                <TextView android:id="@+id/tvLapDist" style="@style/ValueBig"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0,00" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gap_tight"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:baselineAligned="false">
+                    <TextView android:id="@+id/tvLapDist" style="@style/ValueBig"
+    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,00"/>
+                    <TextView style="@style/ValueUnit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="@dimen/gap_tight"
+                        android:text="@string/unit_km" />
+                </LinearLayout>
             </LinearLayout>
 
             <View android:layout_width="@dimen/hairline" android:layout_height="@dimen/divider_lap"
@@ -83,9 +95,21 @@
                 android:orientation="vertical">
                 <TextView style="@style/Label" android:layout_width="wrap_content"
                     android:layout_height="wrap_content" android:text="@string/label_lap_avg" />
-                <TextView android:id="@+id/tvLapAvg" style="@style/ValueSmall"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0,0" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gap_tight"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:baselineAligned="false">
+                    <TextView android:id="@+id/tvLapAvg" style="@style/ValueSmall"
+    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,0"/>
+                    <TextView style="@style/ValueUnit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="@dimen/gap_tight"
+                        android:text="@string/unit_speed" />
+                </LinearLayout>
             </LinearLayout>
 
             <View android:layout_width="@dimen/hairline" android:layout_height="@dimen/divider_lap_small"

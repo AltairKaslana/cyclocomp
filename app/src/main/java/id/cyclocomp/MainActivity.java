@@ -547,9 +547,9 @@ public class MainActivity extends Activity implements RideService.Listener {
         tvLapBadge.setText(getString(R.string.lap_badge, idx));
         tvLapTitle.setText(getString(R.string.lap_current) + " " + idx);
         tvLapDist.setText(Fmt.km(d));
-        tvLapTime.setText(Fmt.shortDuration(cur == null ? 0 : cur.elapsedMs));
+        tvLapTime.setText(Fmt.duration(cur == null ? 0 : cur.elapsedMs));
         tvLapAvg.setText(Fmt.speed(mv > 0 ? (float) (d / (mv / 1000.0)) : 0f));
-        tvLapMoving.setText(Fmt.shortDuration(mv));
+        tvLapMoving.setText(Fmt.duration(mv));
 
         List<Lap> done = service.getLaps();
         if (done.isEmpty()) {
@@ -564,7 +564,7 @@ public class MainActivity extends Activity implements RideService.Listener {
                         getString(R.string.lap_badge, l.index),
                         null,
                         Fmt.km(l.distanceM),
-                        getString(R.string.row_sub_lap, Fmt.shortDuration(l.elapsedMs),
+                        getString(R.string.row_sub_lap, Fmt.duration(l.elapsedMs),
                                 Fmt.speed(l.avgSpeedMs()))));
             }
             lapList.setAdapter(new RowAdapter(this, rows));

@@ -150,7 +150,7 @@ public class SummaryActivity extends Activity {
             for (Lap l : laps) {
                 TextView t = new TextView(this);
                 t.setText(getString(R.string.summary_lap_row, l.index,
-                        Fmt.km(l.distanceM), Fmt.shortDuration(l.elapsedMs),
+                        Fmt.km(l.distanceM), Fmt.duration(l.elapsedMs),
                         Fmt.speed(l.avgSpeedMs())));
                 t.setTextColor(getResources().getColor(R.color.value));
                 // Ukuran lewat token, sama seperti tombol RPE di atas. Sebelumnya

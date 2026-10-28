@@ -146,7 +146,7 @@ final class ShareCard {
         // ---- Metrik: 3 kolom ----
         float colW = (x1 - x0 - 2f) / 3f;
         float statTop = y;
-        drawStat(cv, cond, body, x0, colW, statTop, c.getString(R.string.label_moving), Fmt.shortDuration(row.movingMs), transparent);
+        drawStat(cv, cond, body, x0, colW, statTop, c.getString(R.string.label_moving), Fmt.duration(row.movingMs), transparent);
         drawStat(cv, cond, body, x0 + colW + 1f, colW, statTop, c.getString(R.string.label_avg), Fmt.speed(row.avgSpeedMs()) + " " + c.getString(R.string.unit_speed), transparent);
         drawStat(cv, cond, body, x0 + 2 * (colW + 1f), colW, statTop, c.getString(R.string.label_max), Fmt.speed((float) row.maxSpeedMs) + " " + c.getString(R.string.unit_speed), transparent);
         y = statTop + 100f;
@@ -208,9 +208,22 @@ final class ShareCard {
 
         for (int i = 0; i < Math.min(laps.length, maxLaps); i++) {
             String[] d = laps[i].split(";");
-            if (d.length < 3) continue;
-            String rowText = String.format(Locale.US, "Lap %d: %s km  •  %s  •  %s km/h", i + 1, d[0], d[1], d[2]);
-            cv.drawText(rowText, x0, y + 20f, pV);
+            if (d.length < 4) continue;
+            // Lewat Fmt.lap() supaya format dan satuannya sama dengan layar lain.
+            // Sebelumnya string-nya ditulis manual di sini dengan satuan "km/h" -
+            // bahasa Inggris di kartu berbahasa Indonesia, dan kedua-duanya jadi
+            // dua sumber kebenaran untuk format yang sama.
+            try {
+                int idx = Integer.parseInt(d[0]);
+                double meters = Double.parseDouble(d[1]);
+                long movingMs = Long.parseLong(d[2]);
+                long elapsedMs = Long.parseLong(d[3]);
+                float avg = movingMs > 0 ? (float) (meters / (movingMs / 1000.0)) : 0f;
+                String rowText = Fmt.lap(idx, meters, elapsedMs, avg);
+                cv.drawText(rowText, x0, y + 20f, pV);
+            } catch (NumberFormatException ignored) {
+                continue;   // data rusak: lewati barisnya, jangan retakkan kartu
+            }
             y += rowH;
         }
     }
@@ -264,9 +277,9 @@ final class ShareCard {
         final float top = 430f, step = 282f;
         final float labelSize = 38f, valueSize = 96f;
 
-        storyStat(cv, cond, body, top, labelSize, valueSize, c.getString(R.string.label_distance), Fmt.km(row.distanceM), c.getString(R.string.unit_distance), transparent);
+        storyStat(cv, cond, body, top, labelSize, valueSize, c.getString(R.string.label_distance), Fmt.km(row.distanceM), c.getString(R.string.unit_km), transparent);
         storyStat(cv, cond, body, top + step, labelSize, valueSize, c.getString(R.string.label_moving), storyDuration(row.movingMs), null, transparent);
-        storyStat(cv, cond, body, top + 2 * step, labelSize, valueSize, c.getString(R.string.label_elev), Fmt.meters(row.elevGainM), c.getString(R.string.unit_elev_short), transparent);
+        storyStat(cv, cond, body, top + 2 * step, labelSize, valueSize, c.getString(R.string.label_elev), Fmt.meters(row.elevGainM), c.getString(R.string.unit_m), transparent);
         storyStat(cv, cond, body, top + 3 * step, labelSize, valueSize, c.getString(R.string.label_avg), Fmt.speed(row.avgSpeedMs()), c.getString(R.string.unit_speed), transparent);
         storyStat(cv, cond, body, top + 4 * step, labelSize, valueSize, c.getString(R.string.label_max), Fmt.speed((float) row.maxSpeedMs), c.getString(R.string.unit_speed), transparent);
     }
@@ -338,9 +351,9 @@ final class ShareCard {
         float y = mapTop + mapH + 40f;
 
         float colW = (x1 - x0 - 2f) / 3f;
-        stickerStat(cv, cond, body, x0, colW, y, c.getString(R.string.label_distance), Fmt.km(row.distanceM), c.getString(R.string.unit_distance));
-        stickerStat(cv, cond, body, x0 + colW + 1f, colW, y, c.getString(R.string.label_elev), Fmt.meters(row.elevGainM), c.getString(R.string.unit_elev_short));
-        stickerStat(cv, cond, body, x0 + 2 * (colW + 1f), colW, y, c.getString(R.string.label_moving), Fmt.shortDuration(row.movingMs), null);
+        stickerStat(cv, cond, body, x0, colW, y, c.getString(R.string.label_distance), Fmt.km(row.distanceM), c.getString(R.string.unit_km));
+        stickerStat(cv, cond, body, x0 + colW + 1f, colW, y, c.getString(R.string.label_elev), Fmt.meters(row.elevGainM), c.getString(R.string.unit_m));
+        stickerStat(cv, cond, body, x0 + 2 * (colW + 1f), colW, y, c.getString(R.string.label_moving), Fmt.duration(row.movingMs), null);
         y += 150f;
 
         Paint pBrand = text(body, VALUE, 56f);
@@ -471,10 +484,10 @@ final class ShareCard {
         if (hrCount > 0) hrAvg = Math.round((float) hrAvg / hrCount);
 
         receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_distance),
-                Fmt.km(row.distanceM) + " " + c.getString(R.string.unit_distance));
+                Fmt.km(row.distanceM) + " " + c.getString(R.string.unit_km));
         y += 62f;
         receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_moving),
-                Fmt.shortDuration(row.movingMs));
+                Fmt.duration(row.movingMs));
         y += 62f;
         receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_total),
                 Fmt.duration(row.durationMs));
@@ -486,7 +499,7 @@ final class ShareCard {
                 Fmt.speed((float) row.maxSpeedMs) + " " + c.getString(R.string.unit_speed));
         y += 62f;
         receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_elev),
-                Fmt.meters(row.elevGainM) + " " + c.getString(R.string.unit_elev_short));
+                Fmt.meters(row.elevGainM) + " " + c.getString(R.string.unit_m));
         y += 62f;
         if (kcal > 0) {
             receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_kcal),
@@ -495,10 +508,10 @@ final class ShareCard {
         }
         if (hrCount > 0) {
             receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_hr_avg),
-                    String.valueOf(hrAvg) + " " + c.getString(R.string.unit_hr));
+                    String.valueOf(hrAvg) + " " + c.getString(R.string.unit_bpm));
             y += 62f;
             receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_hr_max),
-                    String.valueOf(hrMax) + " " + c.getString(R.string.unit_hr));
+                    String.valueOf(hrMax) + " " + c.getString(R.string.unit_bpm));
             y += 62f;
         }
 
@@ -515,7 +528,7 @@ final class ShareCard {
         cv.drawText(Fmt.km(row.distanceM), x1, y + 148f, pTotVal);
         Paint pTotUnit = text(body, LABEL, 34f);
         pTotUnit.setTextAlign(Paint.Align.RIGHT);
-        cv.drawText(c.getString(R.string.unit_distance), x1, y + 190f, pTotUnit);
+        cv.drawText(c.getString(R.string.unit_km), x1, y + 190f, pTotUnit);
 
         // ---- kaki: ucapan + garis barcode tiruan ----
         float footY = H - notchH - 200f;
@@ -653,11 +666,11 @@ final class ShareCard {
 
         capsule(cv, cond, body, x0, x1, y, pillH,
                 c.getString(R.string.label_distance),
-                Fmt.km(row.distanceM), c.getString(R.string.unit_distance));
+                Fmt.km(row.distanceM), c.getString(R.string.unit_km));
         y += pillH + gap;
         capsule(cv, cond, body, x0, x1, y, pillH,
                 c.getString(R.string.label_moving),
-                Fmt.shortDuration(row.movingMs), null);
+                Fmt.duration(row.movingMs), null);
         y += pillH + gap;
         capsule(cv, cond, body, x0, x1, y, pillH,
                 c.getString(R.string.label_avg),
@@ -669,7 +682,7 @@ final class ShareCard {
         y += pillH + gap;
         capsule(cv, cond, body, x0, x1, y, pillH,
                 c.getString(R.string.label_elev),
-                Fmt.meters(row.elevGainM), c.getString(R.string.unit_elev_short));
+                Fmt.meters(row.elevGainM), c.getString(R.string.unit_m));
         y += pillH + gap;
         if (kcal > 0) {
             capsule(cv, cond, body, x0, x1, y, pillH,
