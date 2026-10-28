@@ -47,6 +47,8 @@
 
     <dimen name="rec_dot">7dp</dimen>
     <dimen name="hairline">1dp</dimen>
+    <dimen name="hold_bar_h">4dp</dimen>     <!-- bar progres tahan-untuk-berhenti (T-08) -->
+    <dimen name="text_hint_tiny">10sp</dimen> <!-- keterangan kecil di dalam tombol (TAHAN) -->
     <dimen name="dot_radius">2dp</dimen>
 
     <!-- GradeRoad: ruas jalan miring. Ukuran dipilih supaya ruas jalan yang sudah

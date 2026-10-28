@@ -24,6 +24,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -46,6 +47,9 @@ public class MainActivity extends Activity implements RideService.Listener {
 
     private TextView tvStatus, tvLapBadge;
     private View vRec;
+    private ImageButton btnHistory, btnSettings, btnLock;
+    private View vStopProgress;
+    private LinearLayout lapCard;
     private TextView tvSpeed, tvDist, tvTime, tvAvg, tvMax, tvElev, tvAlt, tvGrade;
     private GradeRoad gradeRoad;
     private TextView tvHr, tvHrHeart;
@@ -146,40 +150,73 @@ public class MainActivity extends Activity implements RideService.Listener {
         tvLapMoving = (TextView) findViewById(R.id.tvLapMoving);
         lapList = (ListView) findViewById(R.id.lapList);
         lapEmpty = (TextView) findViewById(R.id.lapEmpty);
+        lapCard = (LinearLayout) findViewById(R.id.lapCard);
 
         btnStartPause = (Button) findViewById(R.id.btnStartPause);
         btnStop = (Button) findViewById(R.id.btnStop);
         btnLap = (Button) findViewById(R.id.btnLap);
+        btnHistory = (ImageButton) findViewById(R.id.btnHistory);
+        btnSettings = (ImageButton) findViewById(R.id.btnSettings);
+        btnLock = (ImageButton) findViewById(R.id.btnLock);
+        vStopProgress = findViewById(R.id.vStopProgress);
 
         // Umpan balik tekan: tombol menyusut sedikit saat disentuh. Lihat Nav.pressFeedback.
         Nav.pressFeedback(btnStartPause);
-        Nav.pressFeedback(btnStop);
         Nav.pressFeedback(btnLap);
+        // btnStop TIDAK dapat pressFeedback: HoldToStop mengambil alih onTouch-nya
+        // (satu View hanya bisa punya satu OnTouchListener) dan sudah memberi
+        // umpan balik tekan yang sama lewat Nav.pressScale.
 
         btnStartPause.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { onStartPause(); }
         });
-        // Berhenti harus ditahan lama supaya tidak kepencet di jalan bergelombang
-        btnStop.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                Toast.makeText(MainActivity.this, R.string.hint_stop, Toast.LENGTH_SHORT).show();
-            }
-        });
-        btnStop.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override public boolean onLongClick(View v) {
-                send(RideService.ACTION_STOP);
-                return true;
-            }
-        });
+
+        // T-08: tahan-untuk-berhenti. Sebelumnya tombol ini memakai
+        // OnLongClickListener - aman dari kepencet, tapi TANPA umpan balik:
+        // pengguna menahan, tidak ada yang bergerak, lalu gowesnya tiba-tiba
+        // berakhir setelah jeda yang tidak diketahui lamanya. Sekarang bar
+        // progres 4dp di dasar tombol tumbuh selama ditahan, jadi "berapa lama
+        // lagi" terlihat daripada dirasakan.
+        // T-08: label tombol jadi dua baris - "BERHENTI" besar, "TAHAN" kecil di
+        // bawahnya. Kenapa satu Button dengan Spannable dan bukan dua TextView
+        // terpisah: teks tombol tetap satu objek, jadi warna, padding, dan
+        // ellipsize-nya tidak perlu diulang di dua tempat. Dan yang kedua baris
+        // ini justru inti T-08 - tanpa "TAHAN", bar progres yang tumbuh tidak
+        // menjelaskan apa pun sampai pengguna sudah menahan.
+        android.text.SpannableStringBuilder stopLabel =
+                new android.text.SpannableStringBuilder();
+        stopLabel.append(getString(R.string.btn_stop));
+        stopLabel.append('\n');
+        int hintStart = stopLabel.length();
+        stopLabel.append(getString(R.string.hint_hold));
+        stopLabel.setSpan(
+                new android.text.style.AbsoluteSizeSpan(
+                        getResources().getDimensionPixelSize(R.dimen.text_hint_tiny)),
+                hintStart, stopLabel.length(),
+                android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        btnStop.setText(stopLabel);
+
+        btnStop.setOnTouchListener(new HoldToStop(vStopProgress,
+                new HoldToStop.Callback() {
+                    @Override public void onStop() { send(RideService.ACTION_STOP); }
+                },
+                new HoldToStop.AbortListener() {
+                    @Override public void onAbort(float fraction) {
+                        // Dilepas sebelum penuh. Ingatkan, tapi jangan menegur
+                        // yang sudah menahan hampir penuh - lihat HoldToStop.
+                        Toast.makeText(MainActivity.this, R.string.hint_stop,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }));
         btnLap.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { send(RideService.ACTION_LAP); }
         });
-        findViewById(R.id.btnHistory).setOnClickListener(new View.OnClickListener() {
+        btnHistory.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 Nav.open(MainActivity.this, HistoryActivity.class);
             }
         });
-        findViewById(R.id.btnSettings).setOnClickListener(new View.OnClickListener() {
+        btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 Nav.open(MainActivity.this, SettingsActivity.class);
             }
@@ -485,13 +522,52 @@ public class MainActivity extends Activity implements RideService.Listener {
             case RECORDING:
                 btnStartPause.setText(R.string.btn_pause);
                 long age = service.getFixAgeMs();
-                if (age < 0 || age > 5000) tvStatus.setText(R.string.status_search);
-                else tvStatus.setText(getString(R.string.status_ok, Math.round(service.getLastAccuracy())));
+                if (age < 0 || age > 5000) tvStatus.setText(R.string.status_searching);
+                else tvStatus.setText(getString(R.string.status_recording_fmt,
+                        Math.round(service.getLastAccuracy())));
                 break;
         }
 
-        // titik hijau berkedip-tetap hanya saat merekam
-        if (vRec != null) vRec.setVisibility(st == RideService.State.RECORDING ? View.VISIBLE : View.GONE);
+        // T-07: warna titik status. Hijau = merekam dan akurat. Kuning = merekam
+        // tapi sinyal masih dicari (angka masih bisa berubah kasar). Merah = GPS
+        // mati total, angka tidak bisa dipercaya.
+        //
+        // Titik hanya tampil saat merekam - saat idle tidak ada status GPS yang
+        // perlu diberitahukan, dan titik yang diam tanpa arti cuma menambah bising.
+        if (vRec != null) {
+            if (st == RideService.State.RECORDING) {
+                long age2 = service.getFixAgeMs();
+                if (age2 < 0 || age2 > 5000) {
+                    vRec.setBackgroundResource(R.drawable.dot_warn);
+                } else {
+                    // rec_dot: oval hijau @color/rec. Bukan dot_on - itu kotak
+                    // membulat berwarna aksen, dipakai indikator lain.
+                    vRec.setBackgroundResource(R.drawable.rec_dot);
+                }
+                vRec.setVisibility(View.VISIBLE);
+            } else if (st == RideService.State.PAUSED) {
+                // Dijeda: sinyal tidak relevan, tapi titik merah mengingatkan
+                // bahwa angka yang tampil tidak sedang bertambah.
+                vRec.setBackgroundResource(R.drawable.dot_danger);
+                vRec.setVisibility(View.VISIBLE);
+            } else {
+                vRec.setVisibility(View.GONE);
+            }
+        }
+
+        // T-07: menu terkunci saat merekam. Riwayat dan Pengaturan diganti satu
+        // ikon gembok non-aktif. Kenapa digembok dan bukan sekadar setEnabled(false):
+        // tombol mati yang masih terlihat membuat orang mencoba mengkliknya, dan
+        // menekan sesuatu yang tidak bereaksi terlihat seperti bug. Satu gembok
+        // yang jelas "terkunci" menjelaskan diri sendiri.
+        //
+        // Alasan menguncinya: membuka Riwayat atau Pengaturan saat merekam
+        // memindahkan fokus dari jalan, dan di Pengaturan ada Client ID/Secret
+        // yang mengubah tempat data gowes berikutnya dikirim.
+        boolean locked = st == RideService.State.RECORDING || st == RideService.State.PAUSED;
+        if (btnHistory != null) btnHistory.setVisibility(locked ? View.GONE : View.VISIBLE);
+        if (btnSettings != null) btnSettings.setVisibility(locked ? View.GONE : View.VISIBLE);
+        if (btnLock != null) btnLock.setVisibility(locked ? View.VISIBLE : View.GONE);
 
         // Saat perekaman berakhir, buka Ringkasan sekali (rute + angka akhir).
         if (service != null && prevState != RideService.State.IDLE && st == RideService.State.IDLE) {
@@ -529,11 +605,14 @@ public class MainActivity extends Activity implements RideService.Listener {
             tvLapBadge.setVisibility(View.GONE);
             tvLapTitle.setText(R.string.lap_current);
             tvLapDist.setText(Fmt.km(0));
-            tvLapTime.setText("0:00");
+            // Lewat Fmt.duration, bukan "0:00" ditulis langsung: itu format
+            // kedua yang justru dibuang di T-04. Saat idle nilainya nol, tapi
+            // bentuknya harus sama dengan saat lap berjalan.
+            tvLapTime.setText(Fmt.duration(0));
             tvLapAvg.setText(Fmt.speed(0));
-            tvLapMoving.setText("0:00");
+            tvLapMoving.setText(Fmt.duration(0));
             lapList.setAdapter(null);
-            lapEmpty.setVisibility(View.VISIBLE);
+            applyLapCardMode(true);
             lapEmpty.setText(R.string.lap_none);
             return;
         }
@@ -554,10 +633,10 @@ public class MainActivity extends Activity implements RideService.Listener {
         List<Lap> done = service.getLaps();
         if (done.isEmpty()) {
             lapList.setAdapter(null);
-            lapEmpty.setVisibility(View.VISIBLE);
+            applyLapCardMode(true);
             lapEmpty.setText(R.string.lap_none);
         } else {
-            lapEmpty.setVisibility(View.GONE);
+            applyLapCardMode(false);
             List<RowItem> rows = new ArrayList<RowItem>();
             for (Lap l : done) {
                 rows.add(new RowItem(
@@ -569,5 +648,42 @@ public class MainActivity extends Activity implements RideService.Listener {
             }
             lapList.setAdapter(new RowAdapter(this, rows));
         }
+    }
+
+    /**
+     * T-08b: kartu "LAP SELESAI" menyusut sesuai isi.
+     *
+     * Sebelumnya kartunya selalu setinggi ruang yang tersisa (weight=1). Jadi
+     * saat belum ada lap yang selesai, yang tampil adalah kartu kosong setinggi
+     * separuh layar dengan satu baris teks berdiri sendiri di LUAR kartu. Itu
+     * terbaca seperti "ada yang rusak" - padahal maksudnya cuma "belum ada data".
+     *
+     * Sekarang: kalau kosong, daftarnya disembunyikan dan kartunya mengecil pas
+     * di sekeliling pesan kosongnya. Kalau ada isi, kartunya kembali mengisi
+     * ruang yang tersisa supaya daftarnya bisa digulir sendiri.
+     *
+     * Kenapa tinggi terbatas (weight=1) TIDAK bisa langsung diganti
+     * wrap_content di XML: ListView dengan tinggi wrap_content mengukur SELURUH
+     * barisnya. Dengan banyak lap, isi halaman meluber keluar layar dan tidak ada
+     * yang bisa digulir - daftarnya justru kehilangan kemampuan menggulir. Karena
+     * itu tinggi terbatas tetap dipakai saat ada isi, dan hanya dibuang saat
+     * kosong, ketika daftarnya sendiri juga disembunyikan.
+     */
+    private void applyLapCardMode(boolean empty) {
+        if (lapCard == null) return;
+        ViewGroup.LayoutParams lp = lapCard.getLayoutParams();
+        if (lp instanceof LinearLayout.LayoutParams) {
+            LinearLayout.LayoutParams mlp = (LinearLayout.LayoutParams) lp;
+            if (empty) {
+                mlp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                mlp.weight = 0f;
+            } else {
+                mlp.height = 0;
+                mlp.weight = 1f;
+            }
+            lapCard.setLayoutParams(mlp);
+        }
+        lapList.setVisibility(empty ? View.GONE : View.VISIBLE);
+        lapEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
     }
 }

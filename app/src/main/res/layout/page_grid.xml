@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Halaman 2 "DETAIL" - gaya Strava: satu kartu besar berisi kisi 2x4 dengan
-  pembatas tipis. Karena halaman rujukan, angka tetap jelas hierarkinya.
+  Halaman 2 "DETAIL" - SATU kartu berisi kisi 2x5, lima baris sama tinggi.
+
+  Sebelumnya (bug B5) baris ke-5 - KALORI dan DETAK - berdiri di LUAR kartu,
+  dengan garis pemisahnya sendiri, jadi terbaca seperti tambalan. Kedua angka
+  itu memang bukan metrik navigasi (kalori berguna sesudah gowes, detak hanya
+  ada kalau sensor BLE terhubung), tapi halaman rujukan justru tempatnya:
+  satu kartu utuh, bukan kartu + sisa.
+
+  Kartu memakai layout_weight=1 pada height (bukan wrap_content) supaya ia
+  mengisi ruang yang tersisa dan lima baris terbagi rata - tinggi baris tidak
+  pernah perlu ditebak manual.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -22,323 +31,315 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginBottom="@dimen/gap_loose"
         android:background="@drawable/bg_card"
         android:orientation="vertical">
 
-        <!-- baris 1 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:orientation="horizontal"
-            android:baselineAligned="false">
-
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_speed" />
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-                <TextView style="@style/Label" android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:text="@string/label_speed" />
-                <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvSpeed2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,0"/>
+                <TextView style="@style/ValueUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gap_tight"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:baselineAligned="false">
-                    <TextView android:id="@+id/tvSpeed2" style="@style/ValueSmall"
-    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,0"/>
-                    <TextView style="@style/ValueUnit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="@dimen/gap_tight"
-                        android:text="@string/unit_speed" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
-                android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
-                android:background="@color/divider" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-                <TextView style="@style/Label" android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:text="@string/label_avg" />
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gap_tight"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:baselineAligned="false">
-                    <TextView android:id="@+id/tvAvg2" style="@style/ValueSmall"
-    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,0"/>
-                    <TextView style="@style/ValueUnit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="@dimen/gap_tight"
-                        android:text="@string/unit_speed" />
-                </LinearLayout>
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_speed" />
             </LinearLayout>
         </LinearLayout>
 
-        <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
-            android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
+        <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
             android:background="@color/divider" />
 
-        <!-- baris 2 -->
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:orientation="horizontal"
-            android:baselineAligned="false">
-
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_avg" />
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-                <TextView style="@style/Label" android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:text="@string/label_max" />
-                <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvAvg2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,0"/>
+                <TextView style="@style/ValueUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gap_tight"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:baselineAligned="false">
-                    <TextView android:id="@+id/tvMax2" style="@style/ValueSmall"
-    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,0"/>
-                    <TextView style="@style/ValueUnit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="@dimen/gap_tight"
-                        android:text="@string/unit_speed" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
-                android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
-                android:background="@color/divider" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-                <TextView style="@style/Label" android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:text="@string/label_distance" />
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gap_tight"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:baselineAligned="false">
-                    <TextView android:id="@+id/tvDist2" style="@style/ValueSmall"
-    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,00"/>
-                    <TextView style="@style/ValueUnit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="@dimen/gap_tight"
-                        android:text="@string/unit_km" />
-                </LinearLayout>
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_speed" />
             </LinearLayout>
         </LinearLayout>
 
-        <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
-            android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
-            android:background="@color/divider" />
-
-        <!-- baris 3 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:baselineAligned="false">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-                <TextView style="@style/Label" android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:text="@string/label_moving" />
-                <TextView android:id="@+id/tvMoving" style="@style/ValueSmall"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00:00" />
-            </LinearLayout>
-
-            <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
-                android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
-                android:background="@color/divider" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-                <TextView style="@style/Label" android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:text="@string/label_total" />
-                <TextView android:id="@+id/tvTotal" style="@style/ValueSmall"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00:00" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
-            android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
-            android:background="@color/divider" />
-
-        <!-- baris 4 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:baselineAligned="false">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-                <TextView style="@style/Label" android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:text="@string/label_elev" />
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gap_tight"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:baselineAligned="false">
-                    <TextView android:id="@+id/tvElev2" style="@style/ValueSmall"
-    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0"/>
-                    <TextView style="@style/ValueUnit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="@dimen/gap_tight"
-                        android:text="@string/unit_m" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
-                android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
-                android:background="@color/divider" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-                <TextView style="@style/Label" android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:text="@string/label_alt" />
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gap_tight"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:baselineAligned="false">
-                    <TextView android:id="@+id/tvAlt2" style="@style/ValueSmall"
-    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="--"/>
-                    <TextView style="@style/ValueUnit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="@dimen/gap_tight"
-                        android:text="@string/unit_m" />
-                </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
     </LinearLayout>
-        <!-- baris 5: kalori & detak jantung.
-             Dua angka ini TIDAK bisa ditampilkan di halaman SEKILAS karena bukan
-             metrik navigasi: kalori berguna sesudah gowes, dan detak jantung hanya
-             ada kalau sensor BLE terhubung. Karena itu keduanya tinggal di halaman
-             rujukan ini, mengikuti pola Strava yang memuatnya di detail aktivitas.
 
-             Kalori dihitung dari daya perkiraan (gulung + udara + tanjakan) lihat
-             Calories. Angka detak disembunyikan (-) kalau tidak ada sensor. -->
-        <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
-            android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
+    <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+        android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
+        android:background="@color/divider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_max" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvMax2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,0"/>
+                <TextView style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_speed" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
             android:background="@color/divider" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:orientation="horizontal"
-            android:baselineAligned="false">
-
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_distance" />
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-                <TextView style="@style/Label" android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:text="@string/label_kcal" />
-                <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvDist2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,00"/>
+                <TextView style="@style/ValueUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gap_tight"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:baselineAligned="false">
-                    <TextView android:id="@+id/tvKcal2" style="@style/ValueSmall"
-    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num"
-    android:text="0"/>
-                    <TextView style="@style/ValueUnit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="@dimen/gap_tight"
-                        android:text="@string/unit_kcal" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
-                android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
-                android:background="@color/divider" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-                <TextView style="@style/Label" android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:text="@string/label_hr" />
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gap_tight"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:baselineAligned="false">
-                    <TextView android:id="@+id/tvHr2" style="@style/ValueSmall"
-    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num"
-    android:text="-"/>
-                    <TextView style="@style/ValueUnit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="@dimen/gap_tight"
-                        android:text="@string/unit_bpm" />
-                </LinearLayout>
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_km" />
             </LinearLayout>
         </LinearLayout>
+
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+        android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
+        android:background="@color/divider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_moving" />
+            <TextView android:id="@+id/tvMoving" style="@style/ValueBig"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00:00" />
+        </LinearLayout>
+
+        <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_total" />
+            <TextView android:id="@+id/tvTotal" style="@style/ValueBig"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00:00" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+        android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
+        android:background="@color/divider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_elev" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvElev2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0"/>
+                <TextView style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_m" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_alt" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvAlt2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="--"/>
+                <TextView style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_m" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+        android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
+        android:background="@color/divider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_kcal" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvKcal2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0"/>
+                <TextView style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_kcal" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_hr" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvHr2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="-"/>
+                <TextView style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_bpm" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    </LinearLayout>
 </LinearLayout>

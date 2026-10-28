@@ -138,24 +138,53 @@
         android:paddingBottom="@dimen/gap_cozy"
         android:text="@string/lap_done" />
 
-    <ListView
-        android:id="@+id/lapList"
+    <!--
+      Kartu "LAP SELESAI" (T-08b).
+
+      Tingginya diatur dari kode lewat applyLapCardMode(): kalau belum ada lap
+      yang selesai, kartunya mengecil pas di sekeliling pesan kosongnya; kalau
+      sudah ada isi, ia mengisi ruang yang tersisa supaya daftarnya bisa
+      digulir sendiri.
+
+      Kenapa tidak cukup wrap_content di XML: ListView dengan tinggi wrap_content
+      di dalam LinearLayout vertikal akan mengukur SELURUH barisnya. Dengan
+      banyak lap, isi halaman meluber keluar layar dan tidak ada yang bisa
+      digulir - daftarnya tidak lagi bisa digulir sendiri. Jadi tinggi yang
+      terbatas (weight=1) tetap perlu saat ada isi, dan hanya dibuang saat
+      kosong.
+    -->
+    <LinearLayout
+        android:id="@+id/lapCard"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginBottom="@dimen/gap_loose"
         android:background="@drawable/bg_card"
-        android:divider="@color/divider"
-        android:dividerHeight="1dp"
-        android:paddingLeft="@dimen/screen_edge"
-        android:paddingRight="@dimen/screen_edge" />
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/lapEmpty"
-        style="@style/EmptyText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/gap_wide"
-        android:text="@string/lap_none"
-        android:visibility="gone" />
+        <ListView
+            android:id="@+id/lapList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@color/divider"
+            android:dividerHeight="1dp"
+            android:paddingLeft="@dimen/screen_edge"
+            android:paddingRight="@dimen/screen_edge" />
+
+        <!--
+          Pesan kosong. Ia ada DI DALAM kartu, bukan di bawahnya: dulu pesannya
+          berdiri sendiri di luar kartu, jadi yang tampil adalah kartu kosong
+          setinggi setengah layar plus satu baris teks di bawahnya - terbaca
+          seperti ada yang rusak, bukan "belum ada data".
+        -->
+        <TextView
+            android:id="@+id/lapEmpty"
+            style="@style/EmptyText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:padding="@dimen/gap_wide"
+            android:text="@string/lap_none"
+            android:visibility="gone" />
+    </LinearLayout>
 </LinearLayout>

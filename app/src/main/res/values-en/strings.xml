@@ -48,9 +48,10 @@
     <!-- status -->
     <string name="status_idle">Ready to ride</string>
     <string name="status_paused">Paused</string>
-    <string name="status_search">Searching for GPS…</string>
-    <string name="status_ok">GPS OK (±%d m)</string>
     <string name="status_autopaused">Auto-paused</string>
+    <!-- T-07: the lock replaces History/Settings while recording -->
+    <string name="lock_locked">Locked while recording</string>
+    <string name="lock_hint">Finish or stop the ride first</string>
 
     <!-- halaman data -->
     <string name="page_detail">DETAIL</string>

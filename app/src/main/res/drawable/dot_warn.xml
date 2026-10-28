@@ -1,0 +1,15 @@
+<!--
+  Titik status "mencari sinyal GPS" (T-07).
+
+  Perekaman sudah berjalan, tapi posisi belum cukup akurat - jadi angka jarak
+  dan kecepatan masih bisa berubah kasar. Warna warn dipakai supaya beda dari
+  hijau "merekam dan akurat", tanpa harus membaca teksnya dulu.
+
+  Bentuknya identik dengan rec_dot; hanya warnanya yang beda. Tiga berkas
+  terpisah (bukan satu berkas + tint lewat kode) supaya warnanya tetap lewat
+  token @color dan bisa dibaca langsung dari resource tanpa menjalankan
+  aplikasi.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="@color/warn" />
+</shape>

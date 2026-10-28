@@ -125,6 +125,28 @@
     </style>
 
     <!--
+      Tombol IKON di bilah atas (Riwayat, Pengaturan, gembok).
+
+      Kenapa ikon, bukan teks "RIWAYAT / PENGATURAN": di layar 320dp, dua
+      tombol teks 48dp memakan hampir seluruh lebar bilah atas dan memaksa
+      status "MEREKAM · GPS ±5 m" terpotong jadi "MEREKAM ·…". Ikon 48dp
+      menyingkat separuh lebarnya, dan target sentuhnya tetap 48dp - ambang
+      aksesibilitas tidak turun sedikit pun.
+
+      Latarnya bg_btn_secondary: sama dengan tombol sekunder lain, termasuk
+      keadaannya yang non-aktif (garis memudar) - jadi gembok terkunci
+      terbaca "mati" tanpa perlu kode tambahan.
+    -->
+    <style name="IconBtn">
+        <item name="android:layout_width">@dimen/touch_target_min</item>
+        <item name="android:layout_height">@dimen/touch_target_min</item>
+        <item name="android:background">@drawable/bg_btn_secondary</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:padding">@dimen/gap_roomy</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <!--
       Tombol UTAMA (MULAI / JEDA / LANJUT, dan kartu gambar di layar Bagikan).
 
       Isi aksen penuh + teks gelap: satu-satunya tombol di layar yang berisi
@@ -193,6 +215,33 @@
         <item name="android:includeFontPadding">false</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:paddingLeft">@dimen/gap_tight</item>
+        <item name="android:paddingRight">@dimen/gap_tight</item>
+    </style>
+
+    <!--
+      Isi teks tombol BERHENTI (T-08).
+
+      Sama dengan ActionBtnDanger kecuali latarnya transparan. Kenapa perlu
+      varian terpisah: bar progres tahan-untuk-berhenti harus bertumpuk DI DALAM
+      tombol, tapi Button adalah TextView dan tidak bisa punya anak. Jadi tombol
+      BERHENTI dipecah - FrameLayout menggantikan latar (garis danger) dan
+      menampung bar progres, sementara Button di atasnya hanya mengurus teks.
+
+      Kalau latar Button ini tidak transparan, ia menutupi bar progres dan
+      progresnya tidak pernah terlihat - persis masalah yang T-08 datang untuk
+      menyelesaikan.
+    -->
+    <style name="ActionBtnDangerText">
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/danger</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:gravity">center</item>
         <item name="android:stateListAnimator">@null</item>
         <item name="android:minWidth">0dp</item>
         <item name="android:minHeight">0dp</item>

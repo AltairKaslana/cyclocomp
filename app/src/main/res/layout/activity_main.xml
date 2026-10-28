@@ -54,19 +54,36 @@
             android:textColor="@color/accent"
             android:visibility="gone" />
 
-        <Button
-            android:id="@+id/btnHistory"
-            style="@style/TinyBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/touch_target_min"
-            android:text="@string/btn_history" />
+        <!--
+          Saat IDLE: dua ikon - Riwayat dan Pengaturan.
+          Saat MEREKAM / DIJEDA: keduanya disembunyikan dan digantikan satu
+          ikon gembok non-aktif (btnLock). Logikanya di MainActivity.refresh().
 
-        <Button
+          Kenapa digembok, bukan cuma setEnabled(false): tombol mati yang
+          masih terlihat membuat orang mencoba mengkliknya - dan menekan
+          sesuatu yang tidak bereaksi terlihat seperti bug. Satu gembok yang
+          jelas "terkunci" menjelaskan diri sendiri.
+        -->
+        <ImageButton
+            android:id="@+id/btnHistory"
+            style="@style/IconBtn"
+            android:contentDescription="@string/btn_history"
+            android:src="@drawable/ic_history" />
+
+        <ImageButton
             android:id="@+id/btnSettings"
-            style="@style/TinyBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/touch_target_min"
-            android:text="@string/btn_settings" />
+            style="@style/IconBtn"
+            android:layout_marginLeft="@dimen/gap_tight"
+            android:contentDescription="@string/btn_settings"
+            android:src="@drawable/ic_settings" />
+
+        <ImageButton
+            android:id="@+id/btnLock"
+            style="@style/IconBtn"
+            android:contentDescription="@string/lock_locked"
+            android:enabled="false"
+            android:src="@drawable/ic_lock"
+            android:visibility="gone" />
     </LinearLayout>
 
     <!-- ===== wadah halaman ===== -->
@@ -135,17 +152,41 @@
             android:text="@string/btn_start" />
 
         <!--
-          BERHENTI memakai ActionBtnDanger, bukan ActionBtn: tombol ini mengakhiri
-          perjalanan, jadi harus terbaca sebagai jalur keluar - bukan sekadar aksi
-          biasa yang sama bobotnya dengan LAP.
+          BERHENTI: jalur bahaya (garis danger), bukan isi aksen. Tombol ini
+          mengakhiri perjalanan, jadi harus terbaca sebagai jalur keluar - bukan
+          sekadar aksi biasa yang sama bobotnya dengan LAP.
+
+          T-08 - dibungkus FrameLayout supaya bar progres tahan-untuk-berhenti
+          bisa diletakkan di dasar tombol. Button adalah TextView: ia tidak bisa
+          punya anak, jadi progres harus bertumpuk di LUAR tombolnya. Karena itu
+          latar (garis danger) pindah ke FrameLayout, dan Button di atasnya hanya
+          mengurus teks dengan latar transparan (ActionBtnDangerText).
+
+          clipToOutline memotong bar progres mengikuti sudut kapsul tombol.
+          Tanpa itu bar yang lurus akan menonjol keluar dari sudut yang bulat di
+          kedua ujung bawah.
         -->
-        <Button
-            android:id="@+id/btnStop"
-            style="@style/ActionBtnDanger"
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="@dimen/btn_action_h"
             android:layout_marginLeft="@dimen/gap_loose"
-            android:text="@string/btn_stop" />
+            android:background="@drawable/bg_btn_danger"
+            android:clipToOutline="true">
+
+            <View
+                android:id="@+id/vStopProgress"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/hold_bar_h"
+                android:layout_gravity="bottom"
+                android:background="@color/danger" />
+
+            <Button
+                android:id="@+id/btnStop"
+                style="@style/ActionBtnDangerText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/btn_stop" />
+        </FrameLayout>
     </LinearLayout>
 </LinearLayout>

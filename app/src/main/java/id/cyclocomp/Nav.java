@@ -53,6 +53,19 @@ final class Nav {
     }
 
     /**
+     * Skala tombol ke nilai tertentu (1f = ukuran asli).
+     *
+     * Dipisah dari {@link #pressFeedback(View)} supaya kelas yang mengambil alih
+     * onTouch sebuah tombol - {@link HoldToStop} pada tombol BERHENTI - bisa
+     * memberi umpan balik tekan yang SAMA tanpa menduplikasi konstanta skala dan
+     * durasi. Kalau konstanta itu tersalin, suatu hari tombol BERHENTI menyusut
+     * dengan durasi berbeda dari tombol LAP dan tidak ada yang tahu kenapa.
+     */
+    static void pressScale(View v, float scale) {
+        v.animate().scaleX(scale).scaleY(scale).setDuration(PRESS_MS).start();
+    }
+
+    /**
      * Umpan balik tekan: tombol menyusut sedikit saat disentuh, kembali saat dilepas.
      *
      * Emil-design-eng: "Feedback: a button scales down on press, confirming the
@@ -73,17 +86,11 @@ final class Nav {
             public boolean onTouch(View view, MotionEvent e) {
                 switch (e.getActionMasked()) {
                     case MotionEvent.ACTION_DOWN:
-                        view.animate()
-                                .scaleX(PRESS_SCALE).scaleY(PRESS_SCALE)
-                                .setDuration(PRESS_MS)
-                                .start();
+                        pressScale(view, PRESS_SCALE);
                         break;
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL:
-                        view.animate()
-                                .scaleX(1f).scaleY(1f)
-                                .setDuration(PRESS_MS)
-                                .start();
+                        pressScale(view, 1f);
                         break;
                     default:
                         break;

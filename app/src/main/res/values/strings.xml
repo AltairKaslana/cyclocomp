@@ -50,9 +50,10 @@
     <!-- status -->
     <string name="status_idle">Siap gowes</string>
     <string name="status_paused">Dijeda</string>
-    <string name="status_search">Mencari sinyal GPS…</string>
-    <string name="status_ok">GPS OK (±%d m)</string>
     <string name="status_autopaused">Dijeda otomatis</string>
+    <!-- T-07: gembok menggantikan Riwayat/Pengaturan saat merekam -->
+    <string name="lock_locked">Terkunci saat merekam</string>
+    <string name="lock_hint">Selesaikan atau hentikan gowes dulu</string>
 
     <!-- halaman data -->
     <string name="page_detail">DETAIL</string>
