@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -154,8 +153,13 @@ public class SummaryActivity extends Activity {
                         Fmt.km(l.distanceM), Fmt.shortDuration(l.elapsedMs),
                         Fmt.speed(l.avgSpeedMs())));
                 t.setTextColor(getResources().getColor(R.color.value));
-                t.setTextSize(13);
-                t.setPadding(0, dp(6), 0, dp(6));
+                // Ukuran lewat token, sama seperti tombol RPE di atas. Sebelumnya
+                // 13 dan dp(6) ditulis langsung — dua-satunya nilai di layar ini
+                // yang tidak lewat dimens.xml.
+                t.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
+                        getResources().getDimensionPixelSize(R.dimen.text_body_s));
+                int padLap = getResources().getDimensionPixelSize(R.dimen.gap_cozy);
+                t.setPadding(0, padLap, 0, padLap);
                 Ui.fonts(t, this);
                 rows.addView(t);
             }
@@ -303,10 +307,6 @@ public class SummaryActivity extends Activity {
         }).start();
     }
 
-    private int dp(int v) {
-        return Math.round(getResources().getDisplayMetrics().density * v);
-    }
-
     // ---------- penilaian sesudah gowes: komuter + RPE ----------
 
     /**
@@ -323,20 +323,34 @@ public class SummaryActivity extends Activity {
 
         rpeRow.removeAllViews();
         final int[] nilai = {row.rpe};
+        // Semua ukuran lewat token, bukan angka di Java. Sebelumnya 13sp dan 8dp
+        // ditulis langsung di sini — satu-satunya ukuran huruf di aplikasi yang
+        // tidak lewat dimens.xml, jadi tidak pernah ikut kalau skalanya diubah.
+        final int textPx = getResources().getDimensionPixelSize(R.dimen.text_body_s);
+        final int padPx = getResources().getDimensionPixelSize(R.dimen.gap_normal);
+        // 48dp = target sentuh minimum yang aturannya sendiri ditulis di dimens.xml
+        // ("48dp adalah ambang aksesibilitas"). Sebelumnya tingginya WRAP_CONTENT
+        // dengan setMinHeight(0), jadi jatuh ke sekitar 33-36dp — sepuluh tombol
+        // diketik dengan jari, di atas sepeda.
+        final int touchPx = getResources().getDimensionPixelSize(R.dimen.touch_target_min);
         for (int i = 1; i <= 10; i++) {
             final int n = i;
             Button b = new Button(this);
             b.setText(String.valueOf(n));
             b.setTag("num");
-            b.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
+            b.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, textPx);
             b.setTypeface(Ui.condBold(this));
             b.setAllCaps(false);
             b.setMinWidth(0);
             b.setMinHeight(0);
             b.setStateListAnimator(null);
-            b.setPadding(0, dp(8), 0, dp(8));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            b.setPadding(0, padPx, 0, padPx);
+            // Bentuk dan keadaan lewat drawable selector, sama seperti tombol lain
+            // di aplikasi. Sebelumnya setBackgroundColor() di gayaTombolRpe():
+            // sudutnya jadi kotak (satu-satunya tombol bersudut tajam), dan tidak
+            // ada keadaan tekan sama sekali.
+            b.setBackgroundResource(R.drawable.bg_rpe);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, touchPx, 1f);
             b.setLayoutParams(lp);
             gayaTombolRpe(b, n == nilai[0]);
             b.setOnClickListener(new View.OnClickListener() {
@@ -401,12 +415,10 @@ public class SummaryActivity extends Activity {
      * latar gelap terbaca jelas sekaligus.
      */
     private void gayaTombolRpe(View v, boolean terpilih) {
-        if (terpilih) {
-            v.setBackgroundColor(getResources().getColor(R.color.accent));
-            ((Button) v).setTextColor(getResources().getColor(R.color.bg));
-        } else {
-            v.setBackgroundColor(getResources().getColor(R.color.card2));
-            ((Button) v).setTextColor(getResources().getColor(R.color.value));
-        }
+        // Warna latar lewat state_selected pada bg_rpe, bukan setBackgroundColor.
+        // Yang ditulis di sini hanya warna teks, dan itu pun dari token.
+        v.setSelected(terpilih);
+        ((Button) v).setTextColor(getResources().getColor(
+                terpilih ? R.color.bg : R.color.value));
     }
 }

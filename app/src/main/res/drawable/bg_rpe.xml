@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Latar tombol RPE (layar Ringkasan).
+
+  Sebelumnya tombol ini dipasang lewat setBackgroundColor() di Java. Dua akibat:
+  sudutnya jadi KOTAK — sepuluh tombol RPE menjadi satu-satunya tombol bersudut
+  tajam di seluruh aplikasi, karena tombol lain lewat bg_btn/bg_btn_primary yang
+  memakai radius_capsule; dan tidak ada keadaan sama sekali (tekan, terpilih),
+  jadi tombol tidak memberi umpan balik saat disentuh.
+
+  Sekarang satu selector dengan empat keadaan, bentuk dan warnanya lewat token:
+  radius_capsule (sama seperti tombol lain), card2/accent/card_pressed/
+  accent_pressed (sama seperti tombol lain). Yang membedakan keadaan "terpilih"
+  adalah state_selected, bukan warna yang ditulis manual di Java.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_pressed="true" android:state_selected="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/accent_pressed" />
+            <corners android:radius="@dimen/radius_capsule" />
+        </shape>
+    </item>
+
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/card_pressed" />
+            <corners android:radius="@dimen/radius_capsule" />
+        </shape>
+    </item>
+
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/accent" />
+            <corners android:radius="@dimen/radius_capsule" />
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/card2" />
+            <corners android:radius="@dimen/radius_capsule" />
+        </shape>
+    </item>
+
+</selector>

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 /**
@@ -65,11 +66,17 @@ final class Ui {
     /** Tombol aksi memakai condensed semibold: lebih tegas, huruf lebih rapat. */
     static void buttonFonts(View root, Context c) {
         if (root == null) return;
-        if (root instanceof TextView) {
-            int id = root.getId();
-            if (id == R.id.btnStartPause || id == R.id.btnLap || id == R.id.btnStop) {
-                ((TextView) root).setTypeface(condSemi(c));
-            }
+        if (root instanceof Button) {
+            ((Button) root).setTypeface(condSemi(c));
+            return;
+        }
+        // Tombol yang ditulis sebagai TextView (bilah atas Ringkasan) tidak ikut
+        // otomatis karena bukan Button. Dulu daftarnya dikunci ke tiga ID, jadi
+        // setiap tombol baru yang ditulis sebagai TextView diam-diam jatuh ke font
+        // badan — satu aplikasi jadi punya dua wajah tombol tanpa siapa-siapa
+        // memutuskan begitu. Sekarang cukup beri android:tag="btn" di layout.
+        if (root instanceof TextView && "btn".equals(root.getTag())) {
+            ((TextView) root).setTypeface(condSemi(c));
             return;
         }
         if (root instanceof ViewGroup) {

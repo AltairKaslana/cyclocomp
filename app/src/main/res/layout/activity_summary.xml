@@ -22,6 +22,7 @@
 
         <TextView
             android:id="@+id/btnTopClose"
+            android:tag="btn"
             style="@style/ActionBtnPrimary"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
