@@ -35,8 +35,10 @@
          dua layar punya tepi atas yang sama. Tombolnya sendiri 48dp = ambang
          target sentuh; bg_btn membulatkannya jadi lingkaran. -->
     <LinearLayout
+        android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/top_bar_h"
+        android:layout_alignParentTop="true"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/gap_snug"
@@ -65,7 +67,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/actionBar"
-        android:layout_below="@+id/btnShareClose"
+        android:layout_below="@+id/topBar"
         android:paddingTop="@dimen/gap_roomy"
         android:paddingBottom="@dimen/gap_roomy">
 
