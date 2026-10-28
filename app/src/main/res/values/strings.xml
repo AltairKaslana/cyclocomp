@@ -58,6 +58,7 @@
     <string name="perm_denied">Izin lokasi diperlukan untuk merekam.</string>
     <string name="start_failed">Gagal memulai perekaman GPS.</string>
     <string name="autopause_on">Dijeda otomatis (berhenti)</string>
+    <string name="autopause_off">Lanjut otomatis (bergerak)</string>
 
     <!-- peringatan -->
     <string name="alert_km">Sudah %s km</string>

@@ -60,6 +60,7 @@
     <string name="perm_denied">Location permission is needed to record.</string>
     <string name="start_failed">Could not start GPS recording.</string>
     <string name="autopause_on">Auto-paused (stopped)</string>
+    <string name="autopause_off">Auto-resumed (moving)</string>
 
     <!-- peringatan -->
     <string name="alert_km">%s km done</string>

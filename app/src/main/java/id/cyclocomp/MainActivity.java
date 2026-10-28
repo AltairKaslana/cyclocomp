@@ -494,7 +494,7 @@ public class MainActivity extends Activity implements RideService.Listener {
         if (vRec != null) vRec.setVisibility(st == RideService.State.RECORDING ? View.VISIBLE : View.GONE);
 
         // Saat perekaman berakhir, buka Ringkasan sekali (rute + angka akhir).
-        if (prevState != RideService.State.IDLE && st == RideService.State.IDLE) {
+        if (service != null && prevState != RideService.State.IDLE && st == RideService.State.IDLE) {
             summaryPending = true;
         }
         prevState = st;

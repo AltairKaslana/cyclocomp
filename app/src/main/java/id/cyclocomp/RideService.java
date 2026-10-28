@@ -376,6 +376,14 @@ public class RideService extends Service implements LocationListener {
         }
     }
 
+    private void checkAutoResume() {
+        if (!Settings.autoPause(this) || state != State.PAUSED) return;
+        if (stats.currentSpeedMs >= Settings.autoPauseSpeedMs(this)) {
+            resumeRide();
+            toast(R.string.autopause_off);
+        }
+    }
+
     // ---------- lap ----------
 
     /** Lap manual: dari tombol atau notifikasi. */
@@ -498,14 +506,18 @@ public class RideService extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location loc) {
-        if (state != State.RECORDING) return;
+        if (state != State.RECORDING && state != State.PAUSED) return;
         lastFixElapsed = SystemClock.elapsedRealtime();
         // Penanda kecepatan rendah di sini (bukan di ticker) supaya responsif:
         // fix GPS datang 1x/detik, jadi tidak perlu menunggu tick berikutnya.
-        if (stats.currentSpeedMs < Settings.autoPauseSpeedMs(this)) {
-            if (lowSpeedSince == 0) lowSpeedSince = SystemClock.elapsedRealtime();
-        } else {
-            lowSpeedSince = 0;
+        if (state == State.RECORDING) {
+            if (stats.currentSpeedMs < Settings.autoPauseSpeedMs(this)) {
+                if (lowSpeedSince == 0) lowSpeedSince = SystemClock.elapsedRealtime();
+            } else {
+                lowSpeedSince = 0;
+            }
+        } else if (state == State.PAUSED) {
+            checkAutoResume();
         }
         lastAccuracy = loc.hasAccuracy() ? loc.getAccuracy() : 0f;
         // Barometer lebih halus daripada altitude GPS: pakai bila tersedia & terkalibrasi
