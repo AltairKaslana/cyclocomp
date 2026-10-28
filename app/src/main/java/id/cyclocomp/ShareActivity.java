@@ -108,16 +108,19 @@ public class ShareActivity extends Activity {
         });
 
         bangunKartu();
+
+        Ui.fonts(getWindow().getDecorView(), this);
+        Ui.buttonFonts(getWindow().getDecorView(), this);
     }
 
     private void buatTitik() {
         dots.removeAllViews();
-        float d = 8f * getResources().getDisplayMetrics().density;
+        int d = getResources().getDimensionPixelSize(R.dimen.dot_page);
+        int gap = getResources().getDimensionPixelSize(R.dimen.dot_page_gap);
         for (int i = 0; i < PAGE_COUNT; i++) {
             View v = new View(this);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    Math.round(d), Math.round(d));
-            lp.setMargins(Math.round(6f * d / 8f), 0, Math.round(6f * d / 8f), 0);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(d, d);
+            lp.setMargins(gap, 0, gap, 0);
             v.setLayoutParams(lp);
             dots.addView(v);
             dotViews[i] = v;
@@ -128,8 +131,10 @@ public class ShareActivity extends Activity {
     private void perbaruiTitik() {
         int pos = pager.getCurrentPage();
         if (pos < 0 || pos >= PAGE_COUNT) return;
+        int on = getColor(R.color.accent);
+        int off = getColor(R.color.dot_off);
         for (int i = 0; i < PAGE_COUNT; i++) {
-            dotViews[i].setBackgroundColor(i == pos ? 0xFFFC4C02 : 0xFF3A4048);
+            dotViews[i].setBackgroundColor(i == pos ? on : off);
         }
         tvCardName.setText(labelIds[pos]);
     }
@@ -154,20 +159,6 @@ public class ShareActivity extends Activity {
         }).start();
     }
 
-    /**
-     * Muat bitmap untuk satu halaman saja.
-     *
-     * Kenapa tidak dibangun semua sekaligus: lima bitmap 1080x1350/1920
-     * habiskan ~34 MB. Di HP ber-RAM kecil, bitmap terakhir gagal dialokasi
-     * (OutOfMemoryError) sehingga slide tampil kosong dan tombol simpan
-     * tidak punya apa-apa untuk ditulis. Karena itu hanya halaman aktif
-     * yang dipegang; halaman lain dibuang dan dibangun ulang saat dibutuhkan.
-     *
-     * URUTANNYA PENTING: lepas gambar dari ImageView DULU (di thread UI),
-     * baru recycle bitmap-nya (di thread latar). Kalau dibalik, pager yang
-     * sedang scroll masih menggambar bitmap bekas dan aplikasi crash dengan
-     * "Canvas: trying to use a recycled bitmap".
-     */
     private void muatHalaman(final int page) {
         if (page < 0 || page >= PAGE_COUNT) return;
         halamanAktif = page;
@@ -178,17 +169,13 @@ public class ShareActivity extends Activity {
         }
         tvGenerating.setVisibility(View.VISIBLE);
 
-        // 1) Lepas semua gambar yang bukan halaman aktif - WAJIB sebelum recycle.
         for (int i = 0; i < PAGE_COUNT; i++) {
             if (i != page) imgs[i].setImageDrawable(null);
         }
 
         new Thread(new Runnable() {
             @Override public void run() {
-                // Geseran cepat bisa memicu beberapa permintaan sekaligus;
-                // yang sudah tidak berlaku dibatalkan di sini.
                 if (req != muatId) return;
-                // 2) Baru aman untuk membuang bitmap lama.
                 for (int i = 0; i < PAGE_COUNT; i++) {
                     if (i != page && cards[i] != null) {
                         if (!cards[i].isRecycled()) cards[i].recycle();
@@ -199,8 +186,6 @@ public class ShareActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override public void run() {
                         tvGenerating.setVisibility(View.GONE);
-                        // Pengguna sudah geser ke halaman lain selagi render
-                        // berjalan: jangan pasang gambar yang tak lagi diminta.
                         if (req != muatId || page != halamanAktif) {
                             if (b != null && !b.isRecycled()) b.recycle();
                             return;
@@ -219,7 +204,6 @@ public class ShareActivity extends Activity {
         }).start();
     }
 
-    /** Bangun bitmap satu varian; null kalau gagal. */
     private Bitmap bitmapUntuk(int page) {
         try {
             switch (page) {
@@ -250,7 +234,6 @@ public class ShareActivity extends Activity {
         }
     }
 
-    /** Bitmap halaman ini; dibangun dulu kalau belum ada (mis. tombol ditekan sebelum render selesai). */
     private Bitmap bitmapSiap(int page) {
         if (page < 0 || page >= PAGE_COUNT) return null;
         if (cards[page] == null || cards[page].isRecycled()) {
@@ -287,18 +270,13 @@ public class ShareActivity extends Activity {
         }).start();
     }
 
-    /** Pesan gagal + sebabnya kalau ada, supaya bisa ditindaklanjuti. */
     private String pesanGagal(int resId) {
         String why = ShareCard.lastErrorReason;
         return getString(resId) + ((why == null || why.length() == 0) ? "" : "\n" + why);
     }
 
     private void tulisGaleri(Bitmap bmp, int page) {
-        // Bitmap sudah jadi di memori, jadi cukup tulis ulang ke berkas PNG.
         Uri uri = ShareCard.writePngToGallery(this, bmp, namaKartu(page));
-        // Sebutkan sebabnya kalau gagal: "gagal" tanpa alasan tidak bisa
-        // ditindaklanjuti, dan tanpa ini EACCES scoped storage terlihat
-        // seperti bug misterius.
         Toast.makeText(this, uri != null ? getString(R.string.save_done)
                         : pesanGagal(R.string.save_failed_gallery),
                 Toast.LENGTH_LONG).show();
@@ -306,7 +284,7 @@ public class ShareActivity extends Activity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, int[] grantResults);
         if (requestCode != REQ_WRITE_STORAGE) return;
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && pendingSavePage >= 0) {
             final int pg = pendingSavePage;
@@ -394,7 +372,6 @@ public class ShareActivity extends Activity {
                             android.content.ClipData clip = android.content.ClipData.newUri(
                                     getContentResolver(), "Zylo", uri);
                             cm.setPrimaryClip(clip);
-                            // Android 13+ sudah menampilkan preview clipboard sendiri.
                             if (Build.VERSION.SDK_INT <= 32) {
                                 Toast.makeText(ShareActivity.this, R.string.copy_done,
                                         Toast.LENGTH_SHORT).show();
@@ -431,8 +408,6 @@ public class ShareActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Lepas dulu dari ImageView, baru recycle - urutan sama seperti
-        // muatHalaman(), supaya tidak ada sisa gambar yang masih dirujuk.
         for (int i = 0; i < PAGE_COUNT; i++) {
             if (imgs[i] != null) imgs[i].setImageDrawable(null);
             if (cards[i] != null && !cards[i].isRecycled()) cards[i].recycle();

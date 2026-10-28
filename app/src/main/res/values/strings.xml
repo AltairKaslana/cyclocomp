@@ -244,6 +244,16 @@
     <string name="card_variant_sticker">Stempel rute + angka inti - tempel di atas foto</string>
     <string name="share_pager_title">Bagikan kartu</string>
     <string name="share_generating">Menyiapkan kartu…</string>
+
+    <!-- Tombol bilah aksi layar Bagikan. Sengaja PENDEK: empat tombol berbagi satu
+         baris, dan di layar 320dp label panjang terpotong jadi "Salin gam…" /
+         "Bagikan G…". Sebelumnya labelnya ditulis literal di layout Indonesia saja,
+         jadi perangkat berlocale Inggris tetap melihat bahasa Indonesia. -->
+    <string name="share_btn_save">Simpan</string>
+    <string name="share_btn_share">Bagikan</string>
+    <string name="share_btn_copy">Salin</string>
+    <string name="share_btn_gpx">GPX</string>
+
     <string name="share_action_save">Simpan ke galeri</string>
     <string name="share_action_share">Bagikan</string>
     <string name="share_action_copy">Salin gambar</string>

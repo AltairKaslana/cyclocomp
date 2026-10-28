@@ -50,13 +50,18 @@
         <item name="android:includeFontPadding">false</item>
     </style>
 
-    <!-- tombol utama: kapsul oranye, teks gelap -->
+    <!-- tombol utama: kapsul oranye, teks gelap.
+         Huruf TEBAL, bukan lebih besar: skala huruf kini punya satu nilai 15sp untuk
+         tombol, jadi yang membuat tombol ini menonjol adalah warna (oranye) + bobot,
+         bukan selisih ukuran yang tidak bisa dibedakan mata. -->
     <style name="ActionBtnPrimary">
         <item name="android:textSize">@dimen/text_btn_primary</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/bg</item>
         <item name="android:background">@drawable/bg_btn_primary</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
         <item name="android:stateListAnimator">@null</item>
         <item name="android:minWidth">0dp</item>
         <item name="android:minHeight">0dp</item>
@@ -71,6 +76,9 @@
         <item name="android:background">@drawable/bg_btn</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:maxLines">1</item>
+        <!-- Label lebih panjang dari tombol (mis. "PENGATURAN" di layar sempit)
+             dipotong dengan "…", bukan terpotong bisu di tepi. -->
+        <item name="android:ellipsize">end</item>
         <item name="android:stateListAnimator">@null</item>
         <item name="android:minWidth">0dp</item>
         <item name="android:minHeight">0dp</item>

@@ -1,29 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Layar Bagikan.
+
+  Sebelumnya berkas ini adalah SATU-SATUNYA layout di luar sistem desain: 14 warna
+  hex, 12 nilai dp/sp ditulis langsung, nol @style, nol stateListAnimator. Akibatnya
+  palet punya dua sumber kebenaran dan tombol di layar ini berperilaku beda dari
+  tombol di layar lain (elevasi tekan bawaan Holo, font padding bawaan, teks bisa
+  terpotong bisu tanpa ellipsis). Kini semuanya lewat colors.xml / dimens.xml /
+  styles.xml.
+
+  Spacing yang diperbaiki:
+    - ruang atas sebelum kartu dulu 48 + 16 + 24 = 88dp (27% layar 320dp);
+      kini bilah atas 48dp + padding pager 12dp = 60dp.
+    - bilah aksi dulu padding 24dp ke segala arah; kini mengikuti irama layar
+      utama (tepi samping 14dp, atas/bawah 16dp).
+    - tinggi tombol 48dp -> btn_action_h (52dp), sama dengan layar utama.
+
+  Kontras yang diperbaiki: tombol "Bagikan" dulu teks PUTIH di oranye
+  (#FFFFFF / #FC4C02 ~= 3,0:1, gagal WCAG AA untuk teks normal). Kini memakai
+  @style/ActionBtnPrimary, yaitu teks GELAP di oranye (~7:1) — sama seperti
+  tombol MULAI di layar utama.
+
+  Warna tombol sekunder dulu #2A2F35 (token "divider", yang untuk GARIS
+  pemisah) padahal token untuk pil/tombol adalah card2 (#23272C). Kini lewat
+  @drawable/bg_btn.
+-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0E1013">
+    android:background="@color/bg">
 
-    <Button
-        android:id="@+id/btnShareClose"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_margin="16dp"
-        android:background="#1A1D21"
-        android:text="X"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp" />
+    <!-- ===== bilah atas: tombol tutup =====
+         Tinggi dan padding mengikuti bilah atas layar utama (top_bar_h), supaya
+         dua layar punya tepi atas yang sama. Tombolnya sendiri 48dp = ambang
+         target sentuh; bg_btn membulatkannya jadi lingkaran. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_bar_h"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/gap_snug"
+        android:paddingRight="@dimen/gap_snug">
 
+        <Button
+            android:id="@+id/btnShareClose"
+            android:layout_width="@dimen/touch_target_min"
+            android:layout_height="@dimen/touch_target_min"
+            android:background="@drawable/bg_btn"
+            android:text="X"
+            android:tag="num"
+            android:textColor="@color/value"
+            android:textSize="@dimen/text_chevron"
+            android:textStyle="bold"
+            android:contentDescription="@string/close"
+            android:includeFontPadding="false"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:stateListAnimator="@null" />
+    </LinearLayout>
+
+    <!-- ===== wadah kartu ===== -->
     <id.cyclocomp.CardPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/actionBar"
         android:layout_below="@+id/btnShareClose"
-        android:paddingTop="24dp"
-        android:paddingBottom="24dp">
+        android:paddingTop="@dimen/gap_roomy"
+        android:paddingBottom="@dimen/gap_roomy">
 
         <LinearLayout
             android:id="@+id/pagerContent"
@@ -32,90 +76,107 @@
             android:orientation="horizontal" />
     </id.cyclocomp.CardPager>
 
+    <!-- ===== bilah aksi =====
+         Padding mengikuti layar utama: tepi samping screen_edge, atas/bawah
+         gap_wide. Sebelumnya 24dp ke segala arah — lebih berat daripada layar
+         utama sehingga dua layar terasa punya ritme berbeda. -->
     <LinearLayout
         android:id="@+id/actionBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="#1A1D21"
+        android:background="@color/card"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingLeft="@dimen/screen_edge"
+        android:paddingRight="@dimen/screen_edge"
+        android:paddingTop="@dimen/gap_wide"
+        android:paddingBottom="@dimen/gap_wide">
 
+        <!-- nama varian + status + titik indikator -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="@dimen/gap_loose"
             android:gravity="center"
             android:orientation="vertical">
 
+            <!-- Nama varian dibuat paling terbaca di blok ini (putih, tebal):
+                 itu yang menjawab "kartu mana yang sedang aku lihat". Sebelumnya
+                 abu 14sp — lebih redup daripada status sementara di bawahnya. -->
             <TextView
                 android:id="@+id/tvCardName"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#8A9099"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:tag="num"
+                android:textColor="@color/value"
+                android:textSize="@dimen/text_body"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:includeFontPadding="false" />
 
             <TextView
                 android:id="@+id/tvGenerating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Membangun kartu..."
-                android:textColor="#FC4C02"
-                android:textSize="12sp" />
+                android:text="@string/share_generating"
+                android:textColor="@color/accent"
+                android:textSize="@dimen/text_caption"
+                android:includeFontPadding="false" />
 
             <LinearLayout
                 android:id="@+id/dots"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/gap_normal"
                 android:orientation="horizontal" />
         </LinearLayout>
 
+        <!-- ===== tombol aksi =====
+             Semua @style/ActionBtn* supaya dapat perilaku tekan, font padding,
+             maxLines dan ellipsis yang sama dengan layar utama.
+             Urutan: Simpan (sekunder), Bagikan (utama/oranye), Salin, GPX. -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btnCardSave"
+                style="@style/ActionBtn"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="8dp"
+                android:layout_height="@dimen/btn_action_h"
+                android:layout_marginEnd="@dimen/gap_normal"
                 android:layout_weight="1"
-                android:background="#2A2F35"
-                android:text="Simpan"
-                android:textColor="#FFFFFF" />
+                android:text="@string/share_btn_save" />
 
             <Button
                 android:id="@+id/btnCardShare"
+                style="@style/ActionBtnPrimary"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="8dp"
+                android:layout_height="@dimen/btn_action_h"
+                android:layout_marginEnd="@dimen/gap_normal"
                 android:layout_weight="1"
-                android:background="#FC4C02"
-                android:text="Bagikan"
-                android:textColor="#FFFFFF" />
+                android:text="@string/share_btn_share" />
 
             <Button
                 android:id="@+id/btnCardCopy"
+                style="@style/ActionBtn"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="8dp"
+                android:layout_height="@dimen/btn_action_h"
+                android:layout_marginEnd="@dimen/gap_normal"
                 android:layout_weight="1"
-                android:background="#2A2F35"
-                android:text="Salin"
-                android:textColor="#FFFFFF" />
+                android:text="@string/share_btn_copy" />
 
             <Button
                 android:id="@+id/btnCardGpx"
+                style="@style/ActionBtn"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="@dimen/btn_action_h"
                 android:layout_weight="1"
-                android:background="#2A2F35"
-                android:text="GPX"
-                android:textColor="#FFFFFF" />
+                android:text="@string/share_btn_gpx" />
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

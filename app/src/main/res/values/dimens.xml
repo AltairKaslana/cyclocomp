@@ -63,19 +63,34 @@
     <dimen name="radius_capsule">30dp</dimen>
 
     <!-- ===== ukuran huruf =====
-         Satu tangga, dipakai semua layar. Nama per peran supaya kalau skalanya
-         diubah namanya tetap benar. Sebelumnya nilai sp ditulis inline di styles
-         DAN di layout sekaligus — dua tempat untuk satu keputusan. -->
+         SATU tangga, dipakai semua layar. Nama per peran supaya kalau skalanya
+         diubah namanya tetap benar.
+
+         Sebelumnya 12 nilai dengan LIMA langkah berturut-turut di bawah 1,15x
+         (11→12→13→14→15→17): mata tidak bisa membedakannya, jadi itu bising,
+         bukan hierarki. Kini 8 nilai dan setiap langkah >= 1,15x:
+         11 → 13 (1,18x) → 15 (1,15x) → 20 (1,33x) → 24 (1,20x)
+             → 28 (1,17x) → 36 (1,29x) → 112.
+
+         Peran yang dulu punya nilai sendiri (caption 12, body 14, body_m 15,
+         btn_primary 17, empty 18) sekarang berbagi satu nilai; yang membuat
+         hierarki adalah WARNA, BOBOT, dan jarak — bukan selisih 1sp. -->
     <dimen name="text_label">11sp</dimen>      <!-- eyebrow seksi, label metrik -->
-    <dimen name="text_caption">12sp</dimen>    <!-- satuan, keterangan -->
+    <dimen name="text_caption">13sp</dimen>    <!-- satuan, keterangan -->
     <dimen name="text_body_s">13sp</dimen>     <!-- teks penjelas -->
-    <dimen name="text_body">14sp</dimen>       <!-- teks biasa -->
+    <dimen name="text_body">15sp</dimen>       <!-- teks biasa -->
     <dimen name="text_body_m">15sp</dimen>     <!-- judul baris pengaturan -->
-    <dimen name="text_btn_primary">17sp</dimen><!-- tombol utama -->
-    <dimen name="text_chevron">20sp</dimen>    <!-- tanda › di pengaturan -->
+    <dimen name="text_empty">15sp</dimen>      <!-- pesan daftar kosong -->
+    <dimen name="text_btn_primary">15sp</dimen><!-- tombol utama; menonjol dari warna + tebal -->
+    <dimen name="text_chevron">20sp</dimen>    <!-- tanda › di pengaturan, glif tombol tutup -->
     <dimen name="text_value_s">24sp</dimen>    <!-- nilai metrik sedang -->
-    <dimen name="text_value_l">36sp</dimen>    <!-- nilai besar -->
     <dimen name="text_value_row">28sp</dimen>  <!-- angka utama di baris daftar -->
+    <dimen name="text_value_l">36sp</dimen>    <!-- nilai besar -->
     <dimen name="text_speed">112sp</dimen>     <!-- angka kecepatan dominan -->
-    <dimen name="text_empty">18sp</dimen>      <!-- pesan daftar kosong -->
+
+    <!-- Titik indikator halaman (layar Bagikan). Sebelumnya ukuran dan celahnya
+         dihitung manual dari density di ShareActivity.buatTitik(), jadi satu-satunya
+         jarak di aplikasi yang tidak lewat berkas ini. -->
+    <dimen name="dot_page">8dp</dimen>
+    <dimen name="dot_page_gap">6dp</dimen>
 </resources>
