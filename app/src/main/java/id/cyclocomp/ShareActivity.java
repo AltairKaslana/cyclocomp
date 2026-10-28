@@ -284,7 +284,7 @@ public class ShareActivity extends Activity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, int[] grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode != REQ_WRITE_STORAGE) return;
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && pendingSavePage >= 0) {
             final int pg = pendingSavePage;
