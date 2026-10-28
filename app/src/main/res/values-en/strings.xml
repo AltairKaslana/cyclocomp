@@ -13,6 +13,9 @@
     <string name="unit_w">W</string>
     <string name="hint_hold">HOLD</string>
     <string name="history_title">History</string>
+    <!-- T-11: three-step guide in the Advanced subsection. Numbered, not a
+         paragraph: blocks of text do not get read, numbered lists do. -->
+    <string name="strava_guide">1. Create an app at strava.com/settings/api, then copy its Client ID and Client Secret.\n2. Enter both below.\n3. Tap Connect Strava, then allow access in the browser.</string>
     <string name="settings_advanced">Advanced</string>
     <string name="status_recording_fmt">RECORDING · GPS ±%1$d m</string>
     <string name="status_searching">SEARCHING FOR GPS SIGNAL</string>
@@ -79,6 +82,7 @@
     <!-- riwayat -->
     <string name="title_history">History</string>
     <string name="history_empty">No rides yet.</string>
+    <string name="back">Back</string>
     <string name="delete">Delete</string>
     <string name="close">Close</string>
 
@@ -201,23 +205,13 @@
     <string name="row_sub_ride">moving %1$s  •  %2$s km/h</string>
     <string name="row_sub_lap">%1$s  •  %2$s km/h</string>
     <string name="row_laps">%d laps</string>
-    <string name="hist_lap_header">Laps:</string>
-    <string name="hist_lap_more">… and %d more laps</string>
-    <string name="hist_lap_row">%1$d. %2$s km  %3$s  %4$s km/h</string>
     <string name="hist_delete_title">Delete ride?</string>
     <string name="hist_delete_msg">The ride and its GPX file will be deleted permanently.</string>
-    <string name="hist_dist">Distance: %1$s km</string>
-    <string name="hist_moving">Moving time: %1$s</string>
-    <string name="hist_total">Total time: %1$s</string>
-    <string name="hist_avg">Average: %1$s km/h</string>
-    <string name="hist_max">Max: %1$s km/h</string>
-    <string name="hist_elev">Elevation: %1$s m</string>
-    <string name="btn_route">Route</string>
 
     <!-- layar ringkasan -->
     <string name="summary_missing">Ride not found</string>
     <string name="summary_laps">%d laps</string>
-    <string name="summary_lap_row">Lap %1$d  •  %2$s km  •  %3$s  •  %4$s km/h</string>
+    <string name="laps_split">SPLIT LAPS</string>
     <string name="gpx_missing">GPX file missing</string>
     <string name="save_failed">Ride saved only partially — check your storage space</string>
     <string name="summary_broken">Part of the summary screen failed to load</string>
@@ -226,10 +220,11 @@
     <string name="no_share_app">No app available to share</string>
 
     <!-- ===== v3: calories, commute, RPE ===== -->
-    <string name="kcal_est">≈ %1$s kcal</string>
-    <string name="kcal_watts">≈ %1$d W average</string>
     <string name="kcal_none">Calories not calculated</string>
-    <string name="summary_kcal_row">CALORIES</string>
+    <!-- T-09: this cell used to be labelled "CALORIES" too, while showing
+         average power. Two neighbouring cells with the same label but
+         different numbers is a duplicated label. -->
+    <string name="label_avg_power">AVG POWER</string>
     <string name="summary_hr_none">No heart rate data</string>
 
     <!-- commute -->

@@ -11,6 +11,9 @@
 <string name="unit_w">W</string>
 <string name="hint_hold">TAHAN</string>
 <string name="history_title">Riwayat</string>
+    <!-- T-11: panduan tiga langkah di subbagian Lanjutan. Ditulis bernomor,
+         bukan satu paragraf: blok teks tidak dibaca, daftar bernomor dibaca. -->
+<string name="strava_guide">1. Buat aplikasi di strava.com/settings/api, lalu salin Client ID dan Client Secret.\n2. Isi keduanya di bawah ini.\n3. Ketuk Sambungkan Strava, lalu izinkan akses di browser.</string>
 <string name="settings_advanced">Lanjutan</string>
 <string name="status_recording_fmt">MEREKAM · GPS ±%1$d m</string>
 <string name="status_searching">MENCARI SINYAL GPS</string>
@@ -81,6 +84,7 @@
     <!-- riwayat -->
     <string name="title_history">Riwayat</string>
     <string name="history_empty">Belum ada rekaman.</string>
+    <string name="back">Kembali</string>
     <string name="delete">Hapus</string>
     <string name="close">Tutup</string>
 
@@ -203,23 +207,13 @@
     <string name="row_sub_ride">gerak %1$s  •  %2$s km/jam</string>
     <string name="row_sub_lap">%1$s  •  %2$s km/jam</string>
     <string name="row_laps">%d lap</string>
-    <string name="hist_lap_header">Lap:</string>
-    <string name="hist_lap_more">… dan %d lap lagi</string>
-    <string name="hist_lap_row">%1$d. %2$s km  %3$s  %4$s km/jam</string>
     <string name="hist_delete_title">Hapus rekaman?</string>
     <string name="hist_delete_msg">Rekaman dan berkas GPX-nya akan dihapus permanen.</string>
-    <string name="hist_dist">Jarak: %1$s km</string>
-    <string name="hist_moving">Waktu gerak: %1$s</string>
-    <string name="hist_total">Waktu total: %1$s</string>
-    <string name="hist_avg">Rata-rata: %1$s km/jam</string>
-    <string name="hist_max">Maks: %1$s km/jam</string>
-    <string name="hist_elev">Tanjakan: %1$s m</string>
-    <string name="btn_route">Rute</string>
 
     <!-- layar ringkasan -->
     <string name="summary_missing">Rekaman tidak ditemukan</string>
     <string name="summary_laps">%d lap</string>
-    <string name="summary_lap_row">Lap %1$d  •  %2$s km  •  %3$s  •  %4$s km/jam</string>
+    <string name="laps_split">SPLIT LAP</string>
     <string name="gpx_missing">Berkas GPX tidak ada</string>
     <string name="save_failed">Rekaman tersimpan sebagian — periksa ruang penyimpanan</string>
     <string name="summary_broken">Sebagian tampilan ringkasan gagal dimuat</string>
@@ -230,10 +224,12 @@
     <!-- ===== v3: kalori, komuter, RPE ===== -->
     <!-- Kalori adalah PERKIRAAN dari daya (watt) yang dihitung dari fisika, bukan
          angka dari sensor. Tanda "≈" dipakai supaya tidak terbaca sebagai ukuran. -->
-    <string name="kcal_est">≈ %1$s kcal</string>
-    <string name="kcal_watts">≈ %1$d W rata-rata</string>
     <string name="kcal_none">Kalori belum dihitung</string>
-    <string name="summary_kcal_row">KALORI</string>
+    <!-- T-09: sel kedua baris kalori dulu berlabel "KALORI" juga, padahal
+         isinya daya rata-rata. Dua sel bertetangga dengan label sama tapi
+         angka berbeda adalah label ganda - sekarang yang ini punya namanya
+         sendiri. -->
+    <string name="label_avg_power">DAYA RATA-RATA</string>
     <string name="summary_hr_none">Tidak ada data detak jantung</string>
 
     <!-- komuter -->

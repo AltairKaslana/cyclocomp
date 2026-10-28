@@ -95,4 +95,8 @@
          jarak di aplikasi yang tidak lewat berkas ini. -->
     <dimen name="dot_page">8dp</dimen>
     <dimen name="dot_page_gap">6dp</dimen>
+    <!-- T-15: sisi satu kotak pada pola latar pratinjau kartu transparan.
+         Dipilih selebar titik halaman supaya pola terlihat sebagai tekstur,
+         bukan sebagai grid yang ikut bersaing dengan isi kartu. -->
+    <dimen name="checker_cell">8dp</dimen>
 </resources>

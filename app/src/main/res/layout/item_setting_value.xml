@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Baris pengaturan yang membuka dialog pilihan -->
+<!--
+  Baris pengaturan yang membuka dialog pilihan.
+
+  T-11 (B9): NILAI pindah ke sisi kanan baris, SEBELUM tanda panah.
+
+  Sebelumnya nilai ditempel ke belakang keterangan: "Interval komuter · 2 km".
+  Akibatnya keterangan - yang sebenarnya menjelaskan FUNGSI baris - terbaca
+  sebagai label, dan nilai yang justru ingin dilihat pengguna terjepit di
+  tengah kalimat. Di baris bernilai pendek ("Bobot · 70 kg") tidak terasa, tapi
+  di baris bernilai panjang ("Sensor detak · Polar H10 berpasangan") keterangan
+  yang panjang malah menggeser nilai keluar layar.
+
+  Sekarang: judul di kiri atas, keterangan di kiri bawah (jelas satu peran:
+  menjelaskan fungsi), nilai di kanan (jelas satu peran: keadaan saat ini).
+  Tiga peran, tiga tempat - tidak ada lagi yang berbagi satu baris.
+
+  Kalau nilainya kosong, TextView-nya di-GONE dari kode, jadi tanda "·" atau
+  ruang hampa tidak pernah muncul.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -12,15 +30,25 @@
     <LinearLayout
         android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_weight="1" android:orientation="vertical">
+
         <TextView
             android:id="@+id/title"
             style="@style/SettingTitle"
             android:layout_width="match_parent" android:layout_height="wrap_content" />
+
         <TextView
             android:id="@+id/summary"
             style="@style/SettingSummary"
             android:layout_width="match_parent" android:layout_height="wrap_content" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/value"
+        style="@style/SettingValue"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/gap_normal"
+        android:maxLines="1"
+        android:ellipsize="end" />
 
     <TextView
         style="@style/Chevron"

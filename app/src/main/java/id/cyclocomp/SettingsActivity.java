@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.TypedValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +97,48 @@ public class SettingsActivity extends Activity {
         switchRow(R_MAP, R.string.settings_map, getString(R.string.sum_map));
 
         group(getString(R.string.group_strava));
+
+        // T-11: Client ID, Client Secret, dan Sambungkan pindah ke subbagian
+        // "Lanjutan".
+        //
+        // Sebelumnya ketiganya berdiri sebagai baris biasa di kartu Strava,
+        // sejajar dengan "Putuskan sambungan". Akibatnya orang yang belum
+        // pernah menghubungkan Strava melihat tiga baris teknis bertumpuk -
+        // Client ID, Client Secret, Sambungkan - tanpa tahu urutannya mana.
+        // Yang paling sering dipakai (putuskan sambungan) justru paling bawah.
+        //
+        // Sekarang: status dulu, lalu "LANJUTAN" dengan tiga langkah singkat
+        // di atas ketiga baris itu. Tiga langkah, bukan satu paragraf: panduan
+        // yang berupa blok teks tidak dibaca, panduan bernomor dibaca.
+        TextView sv = new TextView(this);
+        sv.setText(StravaStore.connected(this)
+                ? getString(R.string.strava_status_on, StravaStore.athlete(this))
+                : getString(R.string.strava_status_off));
+        sv.setTextColor(getResources().getColor(R.color.label));
+        sv.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                getResources().getDimensionPixelSize(R.dimen.text_caption));
+        sv.setPadding(dp(16), dp(10), dp(16), dp(4));
+        Ui.fonts(sv, this);
+        groups.addView(sv);
+
+        // header subbagian, di dalam kartu yang sama supaya tidak terlihat
+        // seperti kelompok terpisah yang setara dengan Strava/Perekaman
+        TextView adv = (TextView) LayoutInflater.from(this)
+                .inflate(R.layout.item_group_header, lastCard, false);
+        adv.setText(getString(R.string.settings_advanced));
+        adv.setPadding(dp(16), dp(6), dp(16), 0);
+        Ui.fonts(adv, this);
+        lastCard.addView(adv);
+
+        TextView guide = new TextView(this);
+        guide.setText(getString(R.string.strava_guide));
+        guide.setTextColor(getResources().getColor(R.color.label));
+        guide.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                getResources().getDimensionPixelSize(R.dimen.text_caption));
+        guide.setPadding(dp(16), dp(4), dp(16), dp(10));
+        Ui.fonts(guide, this);
+        lastCard.addView(guide);
+
         valueRow(R_STRAVA_ID, R.string.settings_strava_id, getString(R.string.sum_strava_id));
         valueRow(R_STRAVA_SECRET, R.string.settings_strava_secret, getString(R.string.sum_strava_secret));
         valueRow(R_STRAVA_LINK, StravaStore.connected(this)
@@ -103,23 +146,14 @@ public class SettingsActivity extends Activity {
                 StravaStore.connected(this)
                         ? getString(R.string.sum_strava_unlink) : getString(R.string.sum_strava_link));
 
-        TextView sv = new TextView(this);
-        sv.setText(StravaStore.connected(this)
-                ? getString(R.string.strava_status_on, StravaStore.athlete(this))
-                : getString(R.string.strava_status_off));
-        sv.setTextColor(getResources().getColor(R.color.label));
-        sv.setTextSize(12);
-        sv.setPadding(dp(16), dp(10), dp(16), dp(4));
-        Ui.fonts(sv, this);
-        groups.addView(sv);
-
         group(getString(R.string.group_other));
         valueRow(R_RESET, R.string.settings_reset, getString(R.string.sum_reset));
 
         TextView note = new TextView(this);
         note.setText(baroSensorText());
         note.setTextColor(getResources().getColor(R.color.label));
-        note.setTextSize(12);
+        note.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                getResources().getDimensionPixelSize(R.dimen.text_caption));
         note.setPadding(dp(16), dp(12), dp(16), dp(4));
         Ui.fonts(note, this);
         groups.addView(note);
@@ -152,7 +186,24 @@ public class SettingsActivity extends Activity {
     private void valueRow(final int id, int titleRes, String summary) {
         View v = LayoutInflater.from(this).inflate(R.layout.item_setting_value, lastCard, false);
         ((TextView) v.findViewById(R.id.title)).setText(titleRes);
-        ((TextView) v.findViewById(R.id.summary)).setText(summary + " · " + valueOf(id));
+        // T-11: keterangan cuma menjelaskan FUNGSI baris. Nilai pindah ke TextView
+        // sendiri di sisi kanan, sebelum tanda panah.
+        //
+        // Sebelumnya keduanya digabung jadi satu kalimat ("Interval komuter ·
+        // 2 km"). Akibatnya keterangan terbaca sebagai label dan nilai terjepit
+        // di tengah kalimat - dan di baris bernilai panjang, keterangan yang
+        // panjang menggeser nilai keluar layar.
+        ((TextView) v.findViewById(R.id.summary)).setText(summary);
+        String val = valueOf(id);
+        TextView valueView = (TextView) v.findViewById(R.id.value);
+        // Nilai kosong -> TextView-nya GONE, bukan dibiarkan hampa. Kalau
+        // dibiarkan, barisnya menyisakan ruang kosong di kanan dan tandanya
+        // ("·") yang dulu menempel di keterangan muncul tanpa isi.
+        if (val == null || val.isEmpty()) {
+            valueView.setVisibility(View.GONE);
+        } else {
+            valueView.setText(val);
+        }
         v.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View x) { onRow(id); }
         });

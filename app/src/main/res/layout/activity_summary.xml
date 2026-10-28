@@ -8,10 +8,19 @@
 
     <!-- ===== bilah atas TETAP =====
          Satu-satunya elemen di layar ini yang TIDAK ikut digulir. Alasannya: jalan
-         keluar tidak boleh membutuhkan gulir. Dulu hanya ada tombol TUTUP di bawah,
-         dan sejak isi Ringkasan membengkak (kalori + kartu komuter/RPE) tombol itu
-         berada ratusan dp di bawah lipatan layar. Di sepeda, dengan sarung tangan,
-         "harus gulir dulu" sama dengan "tidak ada tombol". -->
+         keluar tidak boleh membutuhkan gulir.
+
+         T-09: dulu di sini ada tombol TUTUP berisi aksen selebar tombol utama -
+         paling menonjol di layar, padahal ia aksi paling jarang dipakai. Sekarang
+         ia tombol ikon X 48dp abu, sama dengan tombol ikon di bilah atas layar
+         utama: terbaca sebagai jalan keluar tanpa bersaing dengan tombol utama
+         (Bagikan kartu) di bawah. Target sentuhnya tetap 48dp.
+
+         Tombol TUTUP kedua yang dulu ada di PALING BAWAH isi gulir sudah dibuang.
+         Dua tombol bertuliskan "Tutup" di satu layar adalah label ganda - dan yang
+         di bawah butuh menggulir melewati peta, metrik, lap, kalori, dan 10 tombol
+         RPE hanya untuk keluar. Yang di bilah atas tidak ikut digulir, jadi selalu
+         ada. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/top_bar_h"
@@ -20,14 +29,11 @@
         android:paddingLeft="@dimen/screen_edge"
         android:paddingRight="@dimen/screen_edge">
 
-        <TextView
+        <ImageButton
             android:id="@+id/btnTopClose"
-            android:tag="btn"
-            style="@style/ActionBtnPrimary"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="@string/close" />
+            style="@style/IconBtn"
+            android:contentDescription="@string/close"
+            android:src="@drawable/ic_close" />
     </LinearLayout>
 
     <ScrollView
@@ -290,7 +296,7 @@
                 android:gravity="center"
                 android:orientation="vertical">
                 <TextView style="@style/Label" android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:text="@string/summary_kcal_row" />
+                    android:layout_height="wrap_content" android:text="@string/label_avg_power" />
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -506,30 +512,37 @@
     <!-- Simpan PNG ke galeri: kartu yang sama seperti yang dibagikan, tapi
          mendarat di Pictures/Zylo supaya bisa diedit/ditempel di aplikasi foto. -->
 
-    <LinearLayout
+    <!--
+      T-09: baris bawah cuma satu tombol - Bagikan GPX, selebar penuh.
+
+      Dulu di sini ada tombol TUTUP kedua di sebelahnya. Dua tombol bertuliskan
+      "Tutup" di satu layar adalah label ganda, dan yang ini berada di paling
+      bawah isi gulir - jadi untuk keluar pengguna harus menggulir melewati peta,
+      metrik, lap, kalori, dan 10 tombol RPE. Yang di bilah atas tidak ikut
+      digulir, jadi selalu ada; yang ini tidak punya alasan untuk tetap ada.
+
+      Tombol Hapus (dipindahkan dari Riwayat, T-10) ada di bawah, kecil dan
+      berwarna danger - sengaja bukan tombol setara dengan GPX.
+    -->
+    <Button
+        android:id="@+id/btnShare"
+        style="@style/ActionBtn"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="@dimen/gap_loose"
-        android:paddingBottom="@dimen/gap_wide">
+        android:layout_height="@dimen/btn_action_h"
+        android:layout_marginTop="@dimen/gap_loose"
+        android:text="@string/btn_share_gpx" />
 
-        <Button
-            android:id="@+id/btnShare"
-            style="@style/ActionBtn"
-            android:layout_width="0dp"
-            android:layout_weight="1.7"
-            android:layout_height="@dimen/btn_action_h"
-            android:text="@string/btn_share_gpx" />
-
-        <Button
-            android:id="@+id/btnClose"
-            style="@style/ActionBtn"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="@dimen/btn_action_h"
-            android:layout_marginLeft="@dimen/gap_loose"
-            android:text="@string/close" />
-    </LinearLayout>
+    <Button
+        android:id="@+id/btnDelete"
+        style="@style/TinyBtn"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/btn_action_h"
+        android:layout_marginTop="@dimen/gap_tight"
+        android:layout_marginBottom="@dimen/gap_wide"
+        android:gravity="center"
+        android:text="@string/delete"
+        android:textColor="@color/danger"
+        android:textSize="@dimen/text_caption" />
     </LinearLayout>
     </ScrollView>
 </LinearLayout>

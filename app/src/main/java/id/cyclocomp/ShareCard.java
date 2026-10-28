@@ -132,7 +132,8 @@ final class ShareCard {
         String km = Fmt.km(row.distanceM);
         Paint pDist = text(cond, VALUE, 210f);
         cv.drawText(km, x0, y + 150f, pDist);
-        cv.drawText("km", x0 + pDist.measureText(km) + 18f, y + 150f, text(body, transparent ? VALUE : LABEL, 44f));
+        cv.drawText(c.getString(R.string.unit_km), x0 + pDist.measureText(km) + 18f, y + 150f,
+                text(body, transparent ? VALUE : LABEL, 44f));
         y += 186f;
 
         // ---- rute ----
@@ -144,12 +145,24 @@ final class ShareCard {
         y = mapTop + mapH + 34f;
 
         // ---- Metrik: 3 kolom ----
+        // T-12 (B1): nilai dan satuan DIPISAH.
+        //
+        // Sebelumnya keduanya dirangkai jadi satu string ("45,0 km/jam") lalu
+        // digambar dengan satu ukuran huruf besar. Di sel selebar sepertiga
+        // kartu, string itu lebih lebar dari selnya sendiri, jadi angka kolom
+        // tetangga tertimpa - paling jelas dengan "199,9 km/jam" dan "99:59:59".
+        //
+        // Sekarang satuan punya barisnya sendiri (kecil, abu), dan angka
+        // menyusut sendiri kalau masih terlalu lebar untuk selnya.
         float colW = (x1 - x0 - 2f) / 3f;
         float statTop = y;
-        drawStat(cv, cond, body, x0, colW, statTop, c.getString(R.string.label_moving), Fmt.duration(row.movingMs), transparent);
-        drawStat(cv, cond, body, x0 + colW + 1f, colW, statTop, c.getString(R.string.label_avg), Fmt.speed(row.avgSpeedMs()) + " " + c.getString(R.string.unit_speed), transparent);
-        drawStat(cv, cond, body, x0 + 2 * (colW + 1f), colW, statTop, c.getString(R.string.label_max), Fmt.speed((float) row.maxSpeedMs) + " " + c.getString(R.string.unit_speed), transparent);
-        y = statTop + 100f;
+        drawStat(cv, cond, body, x0, colW, statTop, c.getString(R.string.label_moving),
+                Fmt.duration(row.movingMs), null, transparent);
+        drawStat(cv, cond, body, x0 + colW + 1f, colW, statTop, c.getString(R.string.label_avg),
+                Fmt.speed(row.avgSpeedMs()), c.getString(R.string.unit_speed), transparent);
+        drawStat(cv, cond, body, x0 + 2 * (colW + 1f), colW, statTop, c.getString(R.string.label_max),
+                Fmt.speed((float) row.maxSpeedMs), c.getString(R.string.unit_speed), transparent);
+        y = statTop + 152f;
 
         if (!transparent) cv.drawRect(x0, y, x1, y + 1f, solid(DIVIDER));
         y += 30f;
@@ -159,9 +172,11 @@ final class ShareCard {
         pValLabel.setLetterSpacing(0.18f);
         float half = (x1 - x0) / 2f;
 
-        drawStatPair(cv, cond, body, x0, half, y, c.getString(R.string.label_elev), Fmt.meters(row.elevGainM) + " m", transparent);
-        drawStatPair(cv, cond, body, x0 + half, half, y, c.getString(R.string.label_total), Fmt.duration(row.durationMs), transparent);
-        y += 116f;
+        drawStatPair(cv, cond, body, x0, half, y, c.getString(R.string.label_elev),
+                Fmt.meters(row.elevGainM), c.getString(R.string.unit_m), transparent);
+        drawStatPair(cv, cond, body, x0 + half, half, y, c.getString(R.string.label_total),
+                Fmt.duration(row.durationMs), null, transparent);
+        y += 132f;
 
         // ---- Split Laps (Jika ada) ----
         if (row.laps != null && !row.laps.isEmpty()) {
@@ -178,22 +193,68 @@ final class ShareCard {
         cv.drawText(c.getString(R.string.card_note), x1, y + 52f, pRight);
     }
 
-    private static void drawStat(Canvas cv, Typeface cond, Typeface body, float x, float w, float top, String label, String value, boolean transparent) {
+    /**
+     * Ukuran huruf terbesar yang masih muat, tidak pernah di bawah min.
+     *
+     * Dibutuhkan karena angka kartu digambar ke kanwas berukuran tetap (1080px),
+     * bukan diukur ulang oleh sistem. Sebelumnya satu ukuran (72f) dipakai untuk
+     * semua nilai; kalau nilainya panjang, angka itu keluar selnya dan menimpa
+     * kolom sebelah. T-12 (B1).
+     */
+    private static float autofit(Typeface tf, String value, float start, float min, float maxW) {
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setTypeface(tf);
+        p.setTextSize(start);
+        float size = start;
+        while (size > min && p.measureText(value) > maxW) {
+            size -= 2f;
+            p.setTextSize(size);
+        }
+        return size;
+    }
+
+    /**
+     * Satu sel statistik pada kartu 4:5.
+     *
+     * Satuan duduk di baris KECIL sendiri di bawah angka (T-12). Sebelumnya
+     * satuan dirangkai ke belakang angka dengan satu ukuran huruf besar; di sel
+     * selebar sepertiga kartu hasilnya lebih lebar dari selnya sendiri.
+     */
+    private static void drawStat(Canvas cv, Typeface cond, Typeface body, float x, float w, float top,
+                                 String label, String value, String unit, boolean transparent) {
         Paint pL = text(body, transparent ? VALUE : LABEL, 30f);
         pL.setTextAlign(Paint.Align.CENTER);
         cv.drawText(label, x + w / 2f, top + 26f, pL);
-        Paint pV = text(cond, VALUE, 72f);
+
+        float vSize = autofit(cond, value, 72f, 40f, w - 16f);
+        Paint pV = text(cond, VALUE, vSize);
         pV.setTextAlign(Paint.Align.CENTER);
-        cv.drawText(value, x + w / 2f, top + 84f, pV);
+        cv.drawText(value, x + w / 2f, top + 92f, pV);
+
+        if (unit != null && !unit.isEmpty()) {
+            Paint pU = text(body, transparent ? VALUE : LABEL, 30f);
+            pU.setTextAlign(Paint.Align.CENTER);
+            cv.drawText(unit, x + w / 2f, top + 132f, pU);
+        }
     }
 
-    private static void drawStatPair(Canvas cv, Typeface cond, Typeface body, float x, float w, float top, String label, String value, boolean transparent) {
+    /** Pasangan statistik setengah kartu (tanjakan + waktu total). */
+    private static void drawStatPair(Canvas cv, Typeface cond, Typeface body, float x, float w, float top,
+                                     String label, String value, String unit, boolean transparent) {
         Paint pL = text(body, transparent ? VALUE : LABEL, 30f);
         pL.setTextAlign(Paint.Align.LEFT);
         cv.drawText(label, x + 12f, top + 22f, pL);
-        Paint pV = text(cond, VALUE, 72f);
+
+        float vSize = autofit(cond, value, 72f, 40f, w - 24f);
+        Paint pV = text(cond, VALUE, vSize);
         pV.setTextAlign(Paint.Align.LEFT);
-        cv.drawText(value, x + 12f, top + 84f, pV);
+        cv.drawText(value, x + 12f, top + 92f, pV);
+
+        if (unit != null && !unit.isEmpty()) {
+            Paint pU = text(body, transparent ? VALUE : LABEL, 30f);
+            pU.setTextAlign(Paint.Align.LEFT);
+            cv.drawText(unit, x + 12f, top + 132f, pU);
+        }
     }
 
     private static void drawLaps(Canvas cv, Typeface cond, Typeface body, float x0, float x1, float y, String lapsStr) {
@@ -203,7 +264,7 @@ final class ShareCard {
         Paint pL = text(body, VALUE, 28f);
         Paint pV = text(cond, VALUE, 28f);
 
-        cv.drawText("SPLIT LAPS", x0, y + 20f, pL);
+        cv.drawText(c.getString(R.string.laps_split), x0, y + 20f, pL);
         y += 30f;
 
         for (int i = 0; i < Math.min(laps.length, maxLaps); i++) {
@@ -278,7 +339,12 @@ final class ShareCard {
         final float labelSize = 38f, valueSize = 96f;
 
         storyStat(cv, cond, body, top, labelSize, valueSize, c.getString(R.string.label_distance), Fmt.km(row.distanceM), c.getString(R.string.unit_km), transparent);
-        storyStat(cv, cond, body, top + step, labelSize, valueSize, c.getString(R.string.label_moving), storyDuration(row.movingMs), null, transparent);
+        // T-04: satu fungsi format. Sebelumnya kartu Story memakai
+        // storyDuration() sendiri yang menghasilkan "10j 56m 0d", sementara layar
+        // lain menampilkan gowes yang sama sebagai "0:10:56". Dua wajah untuk satu
+        // angka adalah persis yang T-04 mau hapus.
+        storyStat(cv, cond, body, top + step, labelSize, valueSize, c.getString(R.string.label_moving),
+                Fmt.duration(row.movingMs), null, transparent);
         storyStat(cv, cond, body, top + 2 * step, labelSize, valueSize, c.getString(R.string.label_elev), Fmt.meters(row.elevGainM), c.getString(R.string.unit_m), transparent);
         storyStat(cv, cond, body, top + 3 * step, labelSize, valueSize, c.getString(R.string.label_avg), Fmt.speed(row.avgSpeedMs()), c.getString(R.string.unit_speed), transparent);
         storyStat(cv, cond, body, top + 4 * step, labelSize, valueSize, c.getString(R.string.label_max), Fmt.speed((float) row.maxSpeedMs), c.getString(R.string.unit_speed), transparent);
@@ -306,13 +372,6 @@ final class ShareCard {
         cv.drawText(value, x0, vBase, pV);
         pU.setTextAlign(Paint.Align.LEFT);
         cv.drawText(unit, x0 + pV.measureText(value) + gap, vBase, pU);
-    }
-
-    private static String storyDuration(long ms) {
-        long s = Math.max(0, ms / 1000);
-        long h = s / 3600, m = (s % 3600) / 60, sec = s % 60;
-        if (h > 0) return String.format(Locale.US, "%dj %dm %dd", h, m, sec);
-        return String.format(Locale.US, "%dm %dd", m, sec);
     }
 
     /** Varian Stempel (Always Transparent) */
@@ -368,7 +427,10 @@ final class ShareCard {
         pL.setLetterSpacing(0.18f);
         float labelW = pL.measureText(label);
 
-        Paint pV = text(cond, VALUE, 72f);
+        // T-12: angka menyusut sendiri kalau lebih lebar dari selnya. Stempel
+        // adalah kartu paling sempit di antara kartu bertiga-kolom, jadi justru
+        // di sini tumpang tindih paling mudah terjadi.
+        Paint pV = text(cond, VALUE, autofit(cond, value, 72f, 40f, w - 24f));
         Paint pU = unit == null ? null : text(body, VALUE, 30f);
         float valW = pV.measureText(value) + (unit == null ? 0f : 12f + pU.measureText(unit));
 
@@ -470,7 +532,8 @@ final class ShareCard {
 
         // ---- baris rincian: label kiri, nilai kanan, pemisah titik ----
         int kcal = row.caloriesKcal > 0 ? row.caloriesKcal
-                : Calories.estimate(row.distanceM, row.movingMs, row.elevGainM, 70f);
+                : Calories.estimate(row.distanceM, row.movingMs, row.elevGainM,
+                        Settings.weight(c));
         int hrAvg = 0, hrMax = 0, hrCount = 0;
         if (track != null) {
             for (GpxReader.P p : track) {
@@ -502,8 +565,9 @@ final class ShareCard {
                 Fmt.meters(row.elevGainM) + " " + c.getString(R.string.unit_m));
         y += 62f;
         if (kcal > 0) {
+            // T-09: tanda "≈" dibuang, sama seperti di kartu kapsul.
             receiptRow(cv, cond, body, x0, x1, y, c.getString(R.string.label_kcal),
-                    "\u2248 " + Fmt.kcal(kcal));
+                    Fmt.kcal(kcal));
             y += 62f;
         }
         if (hrCount > 0) {
@@ -634,12 +698,21 @@ final class ShareCard {
         cv.drawColor(BG);
 
         // ---- rute sebagai latar: seluruh kanwas, alpha rendah ----
+        // T-14 (B7): rute digambar PENUH di belakang, tidak lagi dipotong kotak
+        // 40,260..SH-520. Sebelumnya rute hanya mengisi sebuah kotak di tengah,
+        // jadi latar di atas dan bawah kartu terasa kosong - rute terlihat seperti
+        // gambar tempelan, bukan latar.
+        //
+        // Opasitasnya juga diturunkan: dulu 0x66 (garis rute tampil ~60%), yang
+        // masih lebih kuat dari angka di depannya. Sekarang 0xBF supaya rute
+        // tampil sekitar 25% - cukup untuk terlihat sebagai tekstur, tidak cukup
+        // untuk berebut perhatian dengan angka.
         if (track != null && track.size() >= 2) {
             Paint save = new Paint();
             int layer = cv.saveLayer(0f, 0f, SW, SH, save);
-            drawRoute(cv, c, track, 40f, 260f, SW - 80f, SH - 520f);
+            drawRoute(cv, c, track, 0f, 0f, SW, SH);
             Paint fade = new Paint();
-            fade.setColor(alpha(BG, 0x66));   // 40% latar di atas garis
+            fade.setColor(alpha(BG, 0xBF));   // rute tampil ~25%
             fade.setStyle(Paint.Style.FILL);
             cv.drawRect(0f, 0f, SW, SH, fade);
             cv.restoreToCount(layer);
@@ -657,7 +730,8 @@ final class ShareCard {
         cv.drawText(c.getString(R.string.card_footer).toUpperCase(Locale.getDefault()), cx, 258f, pBrand);
 
         int kcal = row.caloriesKcal > 0 ? row.caloriesKcal
-                : Calories.estimate(row.distanceM, row.movingMs, row.elevGainM, 70f);
+                : Calories.estimate(row.distanceM, row.movingMs, row.elevGainM,
+                        Settings.weight(c));
 
         float y = 360f;
         float pillH = 132f;
@@ -685,9 +759,12 @@ final class ShareCard {
                 Fmt.meters(row.elevGainM), c.getString(R.string.unit_m));
         y += pillH + gap;
         if (kcal > 0) {
+            // T-09: tanda "≈" dibuang sesuai keputusan pemilik. Kalori memang
+            // perkiraan, tapi menandai satu baris dari tujuh membuat baris itu
+            // terlihat kurang pasti daripada yang sebenarnya.
             capsule(cv, cond, body, x0, x1, y, pillH,
                     c.getString(R.string.label_kcal),
-                    "\u2248 " + Fmt.kcal(kcal), null);
+                    Fmt.kcal(kcal), null);
             y += pillH + gap;
         }
 
@@ -718,14 +795,30 @@ final class ShareCard {
         pL.setLetterSpacing(0.22f);
         cv.drawText(label.toUpperCase(Locale.getDefault()), x0 + 56f, y + h / 2f + 10f, pL);
 
+        // T-14 (B7): satuan duduk DI SAMPING angka, di dalam pil - bukan di
+        // baris terpisah di bawahnya seperti sebelumnya. Pilnya sempit, jadi
+        // menumpuk angka dan satuan di dua baris membuat pil terlihat penuh sesak
+        // dan angkanya sendiri jadi kecil. Sebelah-sebelahan, pil tetap satu baris
+        // dan angka bisa lebih besar.
         Paint pV = text(cond, VALUE, 66f);
-        pV.setTextAlign(Paint.Align.RIGHT);
+        Paint pU = unit == null ? null : text(body, LABEL, 28f);
+        float vW = pV.measureText(value);
+        float uW = (pU == null) ? 0f : pU.measureText(unit) + 16f;
+        // Kalau angka+satuan lebih lebar dari ruang yang ada di dalam pil
+        // (setelah dikurangi ruang untuk label di kiri), angka menyusut.
+        float ruangPil = (x1 - 56f) - (x0 + 56f + pL.measureText(
+                label.toUpperCase(Locale.getDefault())) + 40f);
+        if (vW + uW > ruangPil) {
+            pV.setTextSize(autofit(cond, value, 66f, 40f, ruangPil - uW));
+            vW = pV.measureText(value);
+        }
         float right = x1 - 56f;
-        cv.drawText(value, right, y + h / 2f + 24f, pV);
-        if (unit != null) {
-            Paint pU = text(body, LABEL, 26f);
+        float base = y + h / 2f + 24f;
+        pV.setTextAlign(Paint.Align.RIGHT);
+        cv.drawText(value, right - uW, base, pV);
+        if (pU != null) {
             pU.setTextAlign(Paint.Align.RIGHT);
-            cv.drawText(unit, right, y + h / 2f + 62f, pU);
+            cv.drawText(unit, right, base, pU);
         }
     }
 

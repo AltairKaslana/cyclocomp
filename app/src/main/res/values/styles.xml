@@ -249,6 +249,18 @@
         <item name="android:paddingRight">@dimen/gap_tight</item>
     </style>
 
+    <!-- Nilai di sisi kanan baris pengaturan (T-11).
+         Sengaja warnanya @color/value (putih), bukan @color/label: nilai adalah
+         yang paling sering dicari pengguna di layar ini, dan keterangan di
+         sebelahnya memang sudah abu. Kalau keduanya abu, pengguna harus membaca
+         seluruh baris untuk tahu mana yang mana. -->
+    <style name="SettingValue">
+        <item name="android:textColor">@color/value</item>
+        <item name="android:textSize">@dimen/text_caption</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
     <!-- tautan kecil di bilah atas -->
     <style name="TinyBtn">
         <item name="android:textSize">@dimen/text_caption</item>

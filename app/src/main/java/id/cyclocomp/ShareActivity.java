@@ -54,6 +54,41 @@ public class ShareActivity extends Activity {
             R.string.card_variant_capsules,      // 6: Kapsul
             R.string.card_variant_wallpaper,     // 7: Polyline besar (latar HP)
     };
+    /**
+     * Rasio lebar:tinggi tiap kartu; 0 = tanpa bingkai.
+     *
+     * T-15: bingkai hanya pada kartu 4:5, sesuai spesifikasi. Kartu Story dan
+     * Kapsul (9:16) sudah hampir mengisi tinggi pager, jadi bingkai di sana
+     * cuma menambah garis di tepi yang tidak memberi informasi baru.
+     */
+    private static final float[] RASIO = {
+            4f / 5f,    // 0: 4:5 Opak
+            4f / 5f,    // 1: 4:5 Transparan (overlay)
+            0f,         // 2: Story Opak
+            0f,         // 3: Story Transparan (overlay)
+            4f / 5f,    // 4: Stempel Transparan
+            4f / 5f,    // 5: Struk
+            0f,         // 6: Kapsul
+            0f,         // 7: Polyline besar (latar HP)
+    };
+
+    /**
+     * Kartu yang punya area transparan, jadi butuh pola kotak-kotak di belakang
+     * pratinjaunya. T-15.
+     *
+     * Sengaja TIDAK dipasang di kartu opak: kotak-kotaknya akan muncul di ruang
+     * sisa di sekeliling kartu dan menyiratkan transparansi yang tidak ada.
+     */
+    private static final boolean[] BERKOTAK = {
+            false,      // 0: 4:5 Opak
+            true,       // 1: 4:5 Transparan (overlay)
+            false,      // 2: Story Opak
+            true,       // 3: Story Transparan (overlay)
+            true,       // 4: Stempel Transparan
+            false,      // 5: Struk
+            false,      // 6: Kapsul
+            false,      // 7: Polyline besar (latar HP)
+    };
     private int pendingSavePage = -1;
 
     @Override
@@ -82,6 +117,24 @@ public class ShareActivity extends Activity {
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.MATCH_PARENT));
             iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            // T-15: latar pratinjau.
+            //
+            // Kartu transparan (overlay 4:5, overlay Story, stempel) sebelumnya
+            // ditampilkan di atas latar hitam pekat aplikasi, jadi tepinya tidak
+            // terlihat - pengguna mengira kartunya berlatar hitam, padahal yang
+            // tersimpan adalah PNG transparan. Kartu yang ditempel ke foto jadi
+            // terkejut besar kecilnya.
+            //
+            // Sekarang kartu transparan berdiri di atas pola kotak-kotak abu
+            // (konvensi "di sini tidak ada warna"), dan kartu 4:5 dapat bingkai
+            // rasio supaya batasnya terlihat sebelum disimpan.
+            if (RASIO[i] > 0f || BERKOTAK[i]) {
+                int sel = getResources().getDimensionPixelSize(R.dimen.checker_cell);
+                iv.setBackground(new CardBackdrop(RASIO[i], BERKOTAK[i], sel,
+                        getResources().getColor(R.color.card),
+                        getResources().getColor(R.color.card_disabled),
+                        getResources().getColor(R.color.divider)));
+            }
             pagerContent.addView(iv);
             imgs[i] = iv;
         }

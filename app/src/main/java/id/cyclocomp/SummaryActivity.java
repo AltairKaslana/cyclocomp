@@ -3,6 +3,8 @@ package id.cyclocomp;
 import android.util.Log;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -56,20 +58,24 @@ public class SummaryActivity extends Activity {
             Toast.makeText(this, R.string.summary_broken, Toast.LENGTH_LONG).show();
         }
 
-        // Dua jalan keluar, sengaja. Tombol TUTUP di bawah adalah jalur utama
-        // (setelah selesai membaca), tapi ia ada di PALING BAWAH isi gulir yang
-        // kini panjang — kalau itu satu-satunya jalan keluar, pengguna harus
-        // mengglir melewati peta, metrik, lap, kalori, dan 10 tombol RPE hanya
-        // untuk keluar. Tombol di bilah atas tidak ikut digulir, jadi selalu ada.
-        findViewById(R.id.btnClose).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { finish(); }
-        });
+        // Satu jalan keluar saja: tombol X di bilah atas, yang tidak ikut
+        // digulir. Tombol TUTUP kedua yang dulu ada di paling bawah isi gulir
+        // sudah dibuang (T-09) - dua tombol bertuliskan "Tutup" di satu layar
+        // adalah label ganda, dan yang di bawah butuh menggulir melewati peta,
+        // metrik, lap, kalori, dan 10 tombol RPE hanya untuk keluar.
         View topClose = findViewById(R.id.btnTopClose);
         if (topClose != null) {
             topClose.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) { finish(); }
             });
         }
+        // T-10: Hapus dipindahkan ke sini dari Riwayat. Menghapus adalah
+        // keputusan tentang SATU gowes, dan layar yang menampilkan gowes itu
+        // adalah tempat paling masuk akal untuk memutuskan - bukan dari daftar,
+        // di mana satu ketukan salah bisa menghapus rekaman yang lain.
+        findViewById(R.id.btnDelete).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { konfirmasiHapus(); }
+        });
         findViewById(R.id.btnShareCard).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { bukaLayarBagikan(); }
         });
@@ -149,9 +155,12 @@ public class SummaryActivity extends Activity {
             lapCount.setText(getString(R.string.summary_laps, laps.size()));
             for (Lap l : laps) {
                 TextView t = new TextView(this);
-                t.setText(getString(R.string.summary_lap_row, l.index,
-                        Fmt.km(l.distanceM), Fmt.duration(l.elapsedMs),
-                        Fmt.speed(l.avgSpeedMs())));
+                // T-04: satu fungsi format untuk semua layar dan kartu.
+                // Sebelumnya baris ini dirangkai dari string summary_lap_row di
+                // strings.xml - format yang SAMA dengan Fmt.lap(), ditulis di dua
+                // tempat. Kalau salah satu berubah, layar ini dan kartu bagikan
+                // jadi menampilkan angka yang sama dengan wajah berbeda.
+                t.setText(Fmt.lap(l.index, l.distanceM, l.elapsedMs, l.avgSpeedMs()));
                 t.setTextColor(getResources().getColor(R.color.value));
                 // Ukuran lewat token, sama seperti tombol RPE di atas. Sebelumnya
                 // 13 dan dp(6) ditulis langsung — dua-satunya nilai di layar ini
@@ -191,11 +200,42 @@ public class SummaryActivity extends Activity {
             tvWatts.setText("-");
             return;
         }
-        // Tanda "≈" supaya terbaca sebagai perkiraan, bukan hasil pengukuran.
-        tvKcal.setText(getString(R.string.kcal_est, Fmt.kcal(kcal)));
-        tvWatts.setText(getString(R.string.kcal_watts,
+        // T-09: tanda "≈" dibuang. Dulu string-nya "≈ %s kcal" dan "≈ %d W
+        // rata-rata", jadi selnya memuat angka + satuan + keterangan perkiraan
+        // sekaligus. Sekarang satuannya TextView terpisah (T-05) dan sesuai
+        // keputusan pemilik keduanya tampil tanpa keterangan perkiraan.
+        //
+        // Angkanya sendiri tidak berubah - hanya cara menyajikannya.
+        tvKcal.setText(Fmt.kcal(kcal));
+        tvWatts.setText(String.valueOf(
                 Calories.avgWatts(row.distanceM, row.movingMs, row.elevGainM,
                         Settings.weight(this))));
+    }
+
+    /**
+     * Hapus gowes ini, dengan konfirmasi kedua: berkas GPX tidak bisa
+     * dipulihkan.
+     *
+     * Dipindahkan dari HistoryActivity (T-10). Menghapus adalah keputusan
+     * tentang SATU gowes, dan layar yang menampilkannya adalah tempat paling
+     * masuk akal untuk memutuskan - bukan dari daftar, di mana satu ketukan
+     * salah bisa mengenai rekaman yang lain.
+     */
+    private void konfirmasiHapus() {
+        if (row == null) return;
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.hist_delete_title)
+                .setMessage(R.string.hist_delete_msg)
+                .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface d, int w) {
+                        if (row.gpxPath != null)
+                            GpxStore.delete(SummaryActivity.this, row.gpxPath);
+                        db.delete(row.id);
+                        finish();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 
     /**

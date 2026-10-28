@@ -6,23 +6,59 @@
   Dulu pesan ini memakai gaya Label — yang dirancang untuk label metrik (pelacakan
   huruf 0,14, rata tengah). Untuk pesan berdiri sendiri itu salah peran: hurufnya
   jadi terlalu renggang dan warnanya abu muda. Sekarang gaya EmptyText sendiri.
+
+  T-10 (B8): bilah atas dengan judul + tombol kembali.
+  Sebelumnya layar ini memakai setTitle() saja, tapi tema aplikasi adalah
+  NoActionBar - jadi judul itu tidak pernah terlihat dan tidak ada tombol kembali
+  sama sekali. Satu-satunya jalan keluar adalah tombol kembali sistem, yang tidak
+  terlihat di perangkat tanpa tombol navigasi layar.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/gap_normal">
+    android:orientation="vertical"
+    android:background="@color/bg">
 
-    <ListView
-        android:id="@+id/list"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="@dimen/top_bar_h"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/gap_roomy"
+        android:paddingRight="@dimen/screen_edge">
 
-    <TextView
-        android:id="@+id/empty"
-        style="@style/EmptyText"
+        <ImageButton
+            android:id="@+id/btnBack"
+            style="@style/IconBtn"
+            android:contentDescription="@string/back"
+            android:src="@drawable/ic_back" />
+
+        <TextView
+            style="@style/SectionLabelAccent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/gap_normal"
+            android:text="@string/title_history" />
+    </LinearLayout>
+
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:textSize="@dimen/text_empty"
-        android:text="@string/history_empty" />
-</FrameLayout>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="@dimen/gap_normal">
+
+        <ListView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/empty"
+            style="@style/EmptyText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="@dimen/text_empty"
+            android:text="@string/history_empty" />
+    </FrameLayout>
+</LinearLayout>
