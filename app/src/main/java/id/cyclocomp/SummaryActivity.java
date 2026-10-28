@@ -57,9 +57,20 @@ public class SummaryActivity extends Activity {
             Toast.makeText(this, R.string.summary_broken, Toast.LENGTH_LONG).show();
         }
 
+        // Dua jalan keluar, sengaja. Tombol TUTUP di bawah adalah jalur utama
+        // (setelah selesai membaca), tapi ia ada di PALING BAWAH isi gulir yang
+        // kini panjang — kalau itu satu-satunya jalan keluar, pengguna harus
+        // mengglir melewati peta, metrik, lap, kalori, dan 10 tombol RPE hanya
+        // untuk keluar. Tombol di bilah atas tidak ikut digulir, jadi selalu ada.
         findViewById(R.id.btnClose).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { finish(); }
         });
+        View topClose = findViewById(R.id.btnTopClose);
+        if (topClose != null) {
+            topClose.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { finish(); }
+            });
+        }
         findViewById(R.id.btnShareCard).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { bukaLayarBagikan(); }
         });

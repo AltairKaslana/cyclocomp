@@ -61,6 +61,14 @@ public class MainActivity extends Activity implements RideService.Listener {
     private int page;
     private RideService.State prevState = RideService.State.IDLE;
     private boolean summaryPending;
+    // Gowes yang Ringkasannya SUDAH pernah dibuka. Pemicu buka Ringkasan dulu hanya
+    // peralihan state (RECORDING/PAUSED -> IDLE), dan peralihan itu bisa terlihat
+    // lebih dari sekali: stopRide() memanggil stopSelf() sementara MainActivity masih
+    // ter-bind, jadi stopSelf-nya TERTUNDA; ketika Ringkasan ditutup dan service
+    // di-bind ulang, refresh() bisa melihat lagi transisi ke IDLE. Akibatnya
+    // Ringkasan terbuka lagi setiap kali pengguna menekan TUTUP — tidak ada jalan
+    // kembali ke menu utama. Menyimpan id gowes membuatnya sekali per gowes.
+    private long summaryShownForId = -1;
 
     private GestureDetector gestures;
     private View[] pageViews;
@@ -495,7 +503,8 @@ public class MainActivity extends Activity implements RideService.Listener {
             // Di kelas ini "Settings" berarti android.provider.Settings (dipakai untuk
             // intent action), jadi kelas pengaturan milik aplikasi ditulis lengkap.
             long lastId = id.cyclocomp.Settings.lastRideId(this);
-            if (lastId > 0) {
+            if (lastId > 0 && lastId != summaryShownForId) {
+                summaryShownForId = lastId;
                 startActivity(new Intent(this, SummaryActivity.class)
                         .putExtra(SummaryActivity.EXTRA_ID, lastId));
                 overridePendingTransition(R.anim.screen_enter, R.anim.screen_exit);

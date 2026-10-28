@@ -1,10 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Ringkasan setelah gowes: rute + angka akhir + bagikan GPX. -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg"
-    android:fillViewport="true">
+    android:orientation="vertical"
+    android:background="@color/bg">
+
+    <!-- ===== bilah atas TETAP =====
+         Satu-satunya elemen di layar ini yang TIDAK ikut digulir. Alasannya: jalan
+         keluar tidak boleh membutuhkan gulir. Dulu hanya ada tombol TUTUP di bawah,
+         dan sejak isi Ringkasan membengkak (kalori + kartu komuter/RPE) tombol itu
+         berada ratusan dp di bawah lipatan layar. Di sepeda, dengan sarung tangan,
+         "harus gulir dulu" sama dengan "tidak ada tombol". -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_bar_h"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/screen_edge"
+        android:paddingRight="@dimen/screen_edge">
+
+        <TextView
+            android:id="@+id/btnTopClose"
+            style="@style/ActionBtnPrimary"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/close" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
     <!--
       Isi dibungkus ScrollView + fillViewport. Alasannya TERUKUR, bukan selera:
@@ -23,7 +52,7 @@
         android:orientation="vertical"
         android:paddingLeft="@dimen/screen_edge"
         android:paddingRight="@dimen/screen_edge"
-        android:paddingTop="@dimen/gap_loose">
+        android:paddingTop="@dimen/gap_tight">
 
     <TextView
         style="@style/SectionLabelAccent"
@@ -405,4 +434,5 @@
             android:text="@string/close" />
     </LinearLayout>
     </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</LinearLayout>
