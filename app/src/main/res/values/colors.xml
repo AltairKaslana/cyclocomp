@@ -1,27 +1,23 @@
 <resources>
-    <!-- Palet gaya Strava (dari resep "Fitness/Gym App" pada skill ui-ux-pro-max):
-         oranye sebagai satu-satunya aksen, hijau khusus status merekam,
-         sisanya monokrom gelap. Warna dipakai untuk menarik perhatian, bukan hiasan. -->
-    <!-- Permukaan (skala elevasi). Gelap: makin tinggi makin TERANG.
-         Hanya pergeseran nilai, TANPA shadow — satu strategi kedalaman,
-         tidak dicampur. bg = kanvas, card = kartu, card2 = pil/tombol. -->
+    <!-- Palet Warna Baru (Cyan Premium) -->
+    <!-- Permukaan (skala elevasi). Gelap: makin tinggi makin TERANG. -->
     <color name="bg">#0E1013</color>
-    <color name="card">#1A1D21</color>
+    <color name="card">#1E2227</color>
     <color name="card2">#23272C</color>
 
-    <!-- Keadaan tombol. Sebelumnya ditulis hex mentah di bg_btn.xml sehingga
-         palet punya dua sumber kebenaran. -->
     <color name="card_pressed">#2F343A</color>
     <color name="card_disabled">#171A1E</color>
 
-    <color name="label">#8A9099</color>
+    <color name="label">#9AA3AE</color>
     <color name="value">#FFFFFF</color>
-    <color name="divider">#2A2F35</color>
+    <color name="divider">#3A4250</color>
 
-    <color name="accent">#FC4C02</color>
-    <color name="accent_pressed">#D63F00</color>
-    <color name="accent_soft">#FF7A45</color>
-    <color name="rec">#22C55E</color>
-    <color name="danger">#EF4444</color>
-    <color name="dot_off">#3A4047</color>
+    <color name="accent">#22D3EE</color>
+    <color name="accent_pressed">#0FB0CC</color>
+    <color name="accent_soft">#67E8F9</color>
+    <color name="on_accent">#0E1013</color>
+    <color name="rec">#34D399</color>
+    <color name="danger">#F87171</color>
+    <color name="dot_off">#5B6573</color>
+    <color name="stroke_ctrl">#5B6573</color>
 </resources>

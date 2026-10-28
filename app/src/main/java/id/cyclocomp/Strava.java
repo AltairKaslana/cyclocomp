@@ -127,9 +127,13 @@ final class Strava {
     /** Kirim halaman kecil ke peramban supaya pengguna tahu proses sudah selesai. */
     private static void reply(Socket sock, Context c) {
         try {
+            // Warna latar diambil dari token, bukan hex tertulis di sini: halaman
+            // ini harus ikut palet aplikasi (dulu #0E1013 ditulis manual).
+            int bg = c.getColor(R.color.bg);
+            String hexBg = String.format("#%06X", bg & 0xFFFFFF);
             String html = "<!doctype html><html><head><meta name='viewport' content='width=device-width'>"
                     + "<title>Cyclocomp</title></head>"
-                    + "<body style='background:#0E1013;color:#fff;font-family:sans-serif;"
+                    + "<body style='background:" + hexBg + ";color:#fff;font-family:sans-serif;"
                     + "text-align:center;padding-top:40vh'>"
                     + "<p style='font-size:18px'>" + esc(c.getString(R.string.strava_auth_done)) + "</p>"
                     + "</body></html>";

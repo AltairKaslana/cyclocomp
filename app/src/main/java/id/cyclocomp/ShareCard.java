@@ -36,14 +36,41 @@ final class ShareCard {
     private static final int W = 1080;
     private static final int H = 1350;
 
-    private static final int BG = Color.parseColor("#0E1013");
-    private static final int CARD = Color.parseColor("#1A1D21");
-    private static final int LABEL = Color.parseColor("#8A9099");
-    private static final int VALUE = Color.parseColor("#FFFFFF");
-    private static final int ACCENT = Color.parseColor("#FC4C02");
-    private static final int DIVIDER = Color.parseColor("#2A2F35");
-    private static final int GREEN = Color.parseColor("#22C55E");
-    private static final int HALO = 0xCC000000; // bayangan tipis di belakang huruf
+    /**
+     * Warna kartu diambil dari resource, bukan hex mentah, supaya palet punya
+     * SATU sumber kebenaran (colors.xml). ShareCard menggambar ke Bitmap di luar
+     * hierarki view sehingga tidak bisa mewarisi tema dari parent; cache per
+     * proses sudah cukup karena palet tidak berubah saat runtime.
+     *
+     * Sebelumnya delapan warna ditulis literal di sini - hasilnya aksen oranye
+     * harus diubah di colors.xml DAN di berkas ini, dan mudah salah satu.
+     */
+    private static int BG, CARD, LABEL, VALUE, ACCENT, DIVIDER, GREEN;
+    private static boolean paletSiap = false;
+
+    private static void siapkanPalet(Context c) {
+        if (paletSiap) return;
+        BG      = c.getColor(R.color.bg);
+        CARD    = c.getColor(R.color.card);
+        LABEL   = c.getColor(R.color.label);
+        VALUE   = c.getColor(R.color.value);
+        ACCENT  = c.getColor(R.color.accent);
+        DIVIDER = c.getColor(R.color.divider);
+        GREEN   = c.getColor(R.color.rec);
+        paletSiap = true;
+    }
+
+    /** Bayangan tipis di belakang huruf. Bukan warna tema: tetap hitis 80%. */
+    private static final int HALO = 0xCC000000;
+
+    /**
+     * Warna tema dengan alpha tertentu. Dipakai untuk lapis pudar di atas rute -
+     * sebelumnya hex-nya ditulis manual (0x660E1013, 0xCC0E1013) sehingga
+     * mengubah warna latar harus mengubah tiga tempat sekaligus.
+     */
+    private static int alpha(int color, int a) {
+        return (a << 24) | (color & 0x00FFFFFF);
+    }
 
     private static final float MARGIN = 56f;
 
@@ -79,6 +106,7 @@ final class ShareCard {
     }
 
     private static void draw(Context c, Canvas cv, RideDb.Row row, List<GpxReader.P> track, boolean transparent) {
+        siapkanPalet(c);
         Typeface cond = Ui.condBold(c);
         Typeface body = Ui.body(c);
 
@@ -215,6 +243,7 @@ final class ShareCard {
     }
 
     private static void drawStory(Context c, Canvas cv, RideDb.Row row, boolean transparent) {
+        siapkanPalet(c);
         Typeface cond = Ui.condBold(c);
         Typeface body = Ui.body(c);
 
@@ -297,6 +326,7 @@ final class ShareCard {
     }
 
     private static void drawSticker(Context c, Canvas cv, RideDb.Row row, List<GpxReader.P> pts) {
+        siapkanPalet(c);
         Typeface cond = Ui.condBold(c);
         Typeface body = Ui.body(c);
 
@@ -374,6 +404,7 @@ final class ShareCard {
     }
 
     private static void drawReceipt(Context c, Canvas cv, RideDb.Row row, List<GpxReader.P> track) {
+        siapkanPalet(c);
         Typeface cond = Ui.condBold(c);
         Typeface body = Ui.body(c);
 
@@ -583,6 +614,7 @@ final class ShareCard {
     }
 
     private static void drawCapsules(Context c, Canvas cv, RideDb.Row row, List<GpxReader.P> track) {
+        siapkanPalet(c);
         Typeface cond = Ui.condBold(c);
         Typeface body = Ui.body(c);
 
@@ -594,7 +626,7 @@ final class ShareCard {
             int layer = cv.saveLayer(0f, 0f, SW, SH, save);
             drawRoute(cv, c, track, 40f, 260f, SW - 80f, SH - 520f);
             Paint fade = new Paint();
-            fade.setColor(0x660E1013);   // 40% latar di atas garis
+            fade.setColor(alpha(BG, 0x66));   // 40% latar di atas garis
             fade.setStyle(Paint.Style.FILL);
             cv.drawRect(0f, 0f, SW, SH, fade);
             cv.restoreToCount(layer);
@@ -720,6 +752,7 @@ final class ShareCard {
     }
 
     private static void drawWallpaper(Context c, Canvas cv, RideDb.Row row, List<GpxReader.P> track) {
+        siapkanPalet(c);
         Typeface cond = Ui.condBold(c);
         Typeface body = Ui.body(c);
 
@@ -811,7 +844,7 @@ final class ShareCard {
         pHalo.setStyle(Paint.Style.STROKE);
         pHalo.setStrokeJoin(Paint.Join.ROUND);
         pHalo.setStrokeCap(Paint.Cap.ROUND);
-        pHalo.setColor(0xCC0E1013);
+        pHalo.setColor(alpha(BG, 0xCC));
         pHalo.setStrokeWidth(22f);
         cv.drawPath(path, pHalo);
 
@@ -833,7 +866,7 @@ final class ShareCard {
         pFinish.setColor(ACCENT);
         pFinish.setStyle(Paint.Style.FILL);
         Paint pRing = new Paint(Paint.ANTI_ALIAS_FLAG);
-        pRing.setColor(0xCC0E1013);
+        pRing.setColor(alpha(BG, 0xCC));
         pRing.setStyle(Paint.Style.STROKE);
         pRing.setStrokeWidth(5f);
 

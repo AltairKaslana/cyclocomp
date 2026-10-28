@@ -25,7 +25,7 @@
 
     <!-- ===== tinggi komponen ===== -->
     <dimen name="top_bar_h">48dp</dimen>
-    <dimen name="btn_action_h">52dp</dimen>
+    <dimen name="btn_action_h">64dp</dimen>
 
     <!-- Target sentuh minimum. Sebelumnya tombol RIWAYAT/PENGATURAN di bilah atas
          hanya 40dp — di atas sepeda yang bergerak dengan sarung tangan itu terlalu
@@ -33,7 +33,7 @@
     <dimen name="touch_target_min">48dp</dimen>
 
     <dimen name="pill_h">30dp</dimen>
-    <dimen name="metrics_card_h">88dp</dimen>
+    <dimen name="metrics_card_h">96dp</dimen>
 
     <!-- pembatas vertikal antar kolom metrik -->
     <dimen name="divider_short">34dp</dimen>
@@ -75,7 +75,7 @@
          Peran yang dulu punya nilai sendiri (caption 12, body 14, body_m 15,
          btn_primary 17, empty 18) sekarang berbagi satu nilai; yang membuat
          hierarki adalah WARNA, BOBOT, dan jarak — bukan selisih 1sp. -->
-    <dimen name="text_label">11sp</dimen>      <!-- eyebrow seksi, label metrik -->
+    <dimen name="text_label">12sp</dimen>      <!-- eyebrow seksi, label metrik -->
     <dimen name="text_caption">13sp</dimen>    <!-- satuan, keterangan -->
     <dimen name="text_body_s">13sp</dimen>     <!-- teks penjelas -->
     <dimen name="text_body">15sp</dimen>       <!-- teks biasa -->
@@ -83,10 +83,10 @@
     <dimen name="text_empty">15sp</dimen>      <!-- pesan daftar kosong -->
     <dimen name="text_btn_primary">15sp</dimen><!-- tombol utama; menonjol dari warna + tebal -->
     <dimen name="text_chevron">20sp</dimen>    <!-- tanda › di pengaturan, glif tombol tutup -->
-    <dimen name="text_value_s">24sp</dimen>    <!-- nilai metrik sedang -->
+    <dimen name="text_value_s">32sp</dimen>    <!-- nilai metrik sedang -->
     <dimen name="text_value_row">28sp</dimen>  <!-- angka utama di baris daftar -->
     <dimen name="text_value_l">36sp</dimen>    <!-- nilai besar -->
-    <dimen name="text_speed">112sp</dimen>     <!-- angka kecepatan dominan -->
+    <dimen name="text_speed">176sp</dimen>     <!-- angka kecepatan dominan -->
 
     <!-- Titik indikator halaman (layar Bagikan). Sebelumnya ukuran dan celahnya
          dihitung manual dari density di ShareActivity.buatTitik(), jadi satu-satunya

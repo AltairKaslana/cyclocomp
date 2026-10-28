@@ -47,6 +47,11 @@ public class RouteView extends View {
     protected void init() {
         setLayerType(LAYER_TYPE_SOFTWARE, null);   // aman di perangkat lama untuk garis halus
 
+        // Warna lewat resource, bukan hex mentah, supaya palet punya SATU sumber
+        // kebenaran (colors.xml). Sebelumnya oranye rute ditulis literal di sini,
+        // jadi ganti aksen harus mengubah dua tempat sekaligus.
+        Context ctx = getContext();
+
         pGrid.setStyle(Paint.Style.STROKE);
         pGrid.setStrokeWidth(1f);
         pGrid.setColor(0x14FFFFFF);
@@ -55,18 +60,18 @@ public class RouteView extends View {
         pRoute.setStrokeWidth(5f);
         pRoute.setStrokeCap(Paint.Cap.ROUND);
         pRoute.setStrokeJoin(Paint.Join.ROUND);
-        pRoute.setColor(Color.parseColor("#FC4C02"));
+        pRoute.setColor(ctx.getColor(R.color.accent));
 
         pRing.setStyle(Paint.Style.FILL);
-        pRing.setColor(Color.parseColor("#1A1D21"));
+        pRing.setColor(ctx.getColor(R.color.card));
 
         pStart.setStyle(Paint.Style.FILL);
-        pStart.setColor(Color.parseColor("#22C55E"));
+        pStart.setColor(ctx.getColor(R.color.rec));
 
         pEnd.setStyle(Paint.Style.FILL);
         pEnd.setColor(Color.WHITE);
 
-        pEmpty.setColor(Color.parseColor("#8A9099"));
+        pEmpty.setColor(ctx.getColor(R.color.label));
         pEmpty.setTextSize(30f);
         pEmpty.setTextAlign(Paint.Align.CENTER);
     }
@@ -81,7 +86,10 @@ public class RouteView extends View {
 
     /** Latar di belakang rute. Subkelas boleh menggantinya dengan ubin peta. */
     protected void drawBackground(Canvas cv, int w, int h) {
-        cv.drawColor(Color.parseColor("#141719"));
+        // Permukaan kartu, bukan hex khusus (#141719 dulu): ganti warna latar
+        // cukup satu tempat. Sengaja lebih terang dari bg supaya bidang rute
+        // terbaca sebagai panel terpisah.
+        cv.drawColor(getContext().getColor(R.color.card));
         // kisi halus: memberi kesan "peta" tanpa menambah data palsu
         int step = Math.max(40, w / 8);
         for (int x = 0; x < w; x += step) cv.drawLine(x, 0, x, h, pGrid);
