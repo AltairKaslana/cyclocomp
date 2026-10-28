@@ -33,6 +33,12 @@ Dua agent mengerjakan project ini di mesin berbeda. Wajib diikuti supaya tidak s
 3. Update `handoff/TASKS.md`: tandai selesai / tambah task baru + owner.
 4. Kalau perlu uji di HP: catat di STATUS.md sebagai "MENUNGGU TES DEVICE (WIN)" dengan langkah uji spesifik.
 
+## Channel Pesan
+
+Pertukaran informasi async antar-agent lewat `handoff/messages/` (outbox/inbox).
+Aturan lengkap: `handoff/messages/README.md`. Cek `messages/inbox/` **setiap
+awal sesi** sebelum mulai kerja.
+
 ## Aturan Kode (dari HANDOFF.md, jangan dilanggar)
 
 - Java 8, tanpa lambda/stream, tanpa dependency (no AndroidX). Pakai `SDK_INT` guard.
