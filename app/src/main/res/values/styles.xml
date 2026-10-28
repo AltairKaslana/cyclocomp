@@ -1,12 +1,63 @@
 <resources>
     <!--
       Tema gelap, gaya Strava: hitam pekat, kartu abu-gelap membulat, satu aksen
-      oranye. Huruf memakai Barlow Condensed (angka) + Barlow (label) yang dibundel
+      cyan. Huruf memakai Barlow Condensed (angka) + Barlow (label) yang dibundel
       di assets/fonts supaya tampil sama di semua versi Android, bukan bergantung
       font sistem.
+
+      Dasar Material, BUKAN Holo. Sebabnya: Holo membuat Switch "HIDUP" biru dan
+      dialog abu-biru - dua warna yang tidak ada di palet ini, sehingga widget
+      bawaan sistem terlihat seperti berasal dari aplikasi lain. Material
+      membiarkan kita mengatur warna widget lewat atribut colorControl*, jadi
+      sakelar, dialog, dan kotak centang ikut aksen cyan.
+
+      Semua tombol aplikasi sudah memakai drawable sendiri (@drawable/bg_btn*),
+      jadi perpindahan tema tidak mengubah tampilan tombol.
     -->
-    <style name="AppTheme" parent="android:Theme.Holo.NoActionBar">
+    <style name="AppTheme" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowBackground">@color/bg</item>
+        <item name="android:colorBackground">@color/bg</item>
+        <item name="android:colorForeground">@color/value</item>
+
+        <!-- warna utama & sekunder untuk teks bawaan -->
+        <item name="android:textColorPrimary">@color/value</item>
+        <item name="android:textColorSecondary">@color/label</item>
+        <item name="android:textColorHint">@color/label</item>
+
+        <!-- aksen cyan, bukan biru bawaan Material -->
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:colorPrimary">@color/card</item>
+        <item name="android:colorPrimaryDark">@color/bg</item>
+
+        <!-- Switch / CheckBox / garis fokus: ikut palet -->
+        <item name="android:colorControlActivated">@color/accent</item>
+        <item name="android:colorControlNormal">@color/dot_off</item>
+        <item name="android:colorControlHighlight">@color/accent_soft</item>
+        <item name="android:colorButtonNormal">@color/card2</item>
+
+        <!-- garis pemisah bawaan -->
+        <item name="android:divider">@color/divider</item>
+        <item name="android:dividerHeight">@dimen/hairline</item>
+    </style>
+
+    <!--
+      Dialog gelap. Tanpa ini, AlertDialog memakai dialog abu-biru bawaan Holo -
+      satu-satunya warna di aplikasi yang tidak berasal dari palet. Latar dan
+      teksnya diikat ke token supaya dialog ikut palet seperti layar lain.
+
+      Catatan: atribut ini hanya bisa dipakai dari XML (android:theme pada
+      <activity> atau tema induk). Dialog yang dibangun lewat
+      new AlertDialog.Builder(activity) otomatis mewarisi tema activity, jadi
+      gaya ini cukup satu kali di sini.
+    -->
+    <style name="AppTheme.Dialog" parent="android:Theme.Material.Dialog.Alert">
+        <item name="android:windowBackground">@color/card</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:colorBackground">@color/bg</item>
+        <item name="android:textColorPrimary">@color/value</item>
+        <item name="android:textColorSecondary">@color/label</item>
+        <item name="android:colorControlActivated">@color/accent</item>
+        <item name="android:colorControlNormal">@color/dot_off</item>
     </style>
 
     <!-- label kecil di atas angka: huruf besar, renggang, abu -->

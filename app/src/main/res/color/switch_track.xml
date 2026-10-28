@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Warna rel Switch: rel aktif mengikuti aksen (transparan 45% supaya rel tidak
+  berebut perhatian dengan thumb), rel mati abu gelap.
+
+  Kenapa selector terpisah, bukan satu warna: rel Switch punya dua keadaan yang
+  harus terbaca beda - kalau warnanya sama, pengguna tidak tahu sakelarnya sudah
+  masuk atau belum tanpa melihat thumb-nya lebih dulu.
+
+  Terpaku ke token colors.xml supaya ganti palet cukup satu tempat.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true" android:color="@color/accent" android:alpha="0.45" />
+    <item android:color="@color/stroke_ctrl" />
+</selector>

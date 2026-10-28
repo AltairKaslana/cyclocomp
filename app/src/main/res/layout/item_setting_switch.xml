@@ -22,8 +22,16 @@
             android:layout_width="match_parent" android:layout_height="wrap_content" />
     </LinearLayout>
 
+    <!--
+      showText=false: Holo menulis "HIDUP/MATI" di rel Switch - dua kata yang
+      bukan bagian dari palet dan hanya memenuhi rel. Thumb dan rel diberi warna
+      lewat token supaya ikut aksen cyan, bukan biru bawaan sistem.
+    -->
     <Switch
         android:id="@+id/sw"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/gap_normal" />
+        android:paddingLeft="@dimen/gap_normal"
+        android:showText="false"
+        android:thumbTint="@color/accent"
+        android:trackTint="@color/switch_track" />
 </LinearLayout>

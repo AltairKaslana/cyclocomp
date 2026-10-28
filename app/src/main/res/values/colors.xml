@@ -17,6 +17,7 @@
     <color name="accent_soft">#67E8F9</color>
     <color name="on_accent">#0E1013</color>
     <color name="rec">#34D399</color>
+    <color name="warn">#F5B83D</color>
     <color name="danger">#F87171</color>
     <color name="dot_off">#5B6573</color>
     <color name="stroke_ctrl">#5B6573</color>
