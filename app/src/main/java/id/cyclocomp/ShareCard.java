@@ -181,7 +181,7 @@ final class ShareCard {
         // ---- Split Laps (Jika ada) ----
         if (row.laps != null && !row.laps.isEmpty()) {
             y += 20f;
-            drawLaps(cv, cond, body, x0, x1, y, row.laps);
+            drawLaps(cv, cond, body, c.getString(R.string.laps_split), x0, x1, y, row.laps);
             y += 150f;
         }
 
@@ -257,14 +257,22 @@ final class ShareCard {
         }
     }
 
-    private static void drawLaps(Canvas cv, Typeface cond, Typeface body, float x0, float x1, float y, String lapsStr) {
+    /**
+     * Split lap pada kartu 4:5.
+     *
+     * Judul dilewatkan sebagai parameter, bukan diambil dari Context di sini:
+     * metode ini tidak punya Context, dan menambahkannya hanya untuk satu string
+     * akan membuat tanda tangan metodenya berbeda dari kepentingannya.
+     */
+    private static void drawLaps(Canvas cv, Typeface cond, Typeface body, String judul,
+                                 float x0, float x1, float y, String lapsStr) {
         String[] laps = lapsStr.split("\\|");
         int maxLaps = 3;
         float rowH = 40f;
         Paint pL = text(body, VALUE, 28f);
         Paint pV = text(cond, VALUE, 28f);
 
-        cv.drawText(c.getString(R.string.laps_split), x0, y + 20f, pL);
+        cv.drawText(judul, x0, y + 20f, pL);
         y += 30f;
 
         for (int i = 0; i < Math.min(laps.length, maxLaps); i++) {
