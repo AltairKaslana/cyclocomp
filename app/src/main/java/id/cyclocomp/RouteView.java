@@ -143,9 +143,20 @@ public class RouteView extends View {
         int w = getWidth(), h = getHeight();
         if (w == 0 || h == 0) return;
 
+        // Proyeksi DISIAPKAN DULU, baru latar digambar.
+        //
+        // Urutan ini bukan soal gaya. Subkelas (TileMapView) memutuskan mau
+        // menggambar ubin peta atau tidak dari keadaan yang baru diisi
+        // prepareProjection() - ia menolak menggambar selama belum "fitted".
+        // Kalau drawBackground() jalan lebih dulu, draw pertama membuang ubin
+        // tanpa memintanya, dan tidak ada apa pun yang memicu draw kedua.
+        // Gejalanya persis yang dilaporkan: peta tidak muncul sampai pengguna
+        // menyentuh layar, karena sentuhanlah yang memanggil invalidate().
+        boolean adaRute = prepareProjection(w, h);
+
         drawBackground(cv, w, h);
 
-        if (!prepareProjection(w, h)) {
+        if (!adaRute) {
             cv.drawText(getContext().getString(R.string.route_none),
                     w / 2f, h / 2f + pEmpty.getTextSize() / 3f, pEmpty);
             return;
