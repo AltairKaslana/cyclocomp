@@ -1,6 +1,7 @@
 package id.cyclocomp;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -72,6 +73,21 @@ public class HistoryActivity extends Activity {
         weekText = (TextView) findViewById(R.id.weekText);
         reload();
     }
+
+    /**
+     * Paksa penanda mode gelap/terang SEBELUM resource apa pun dibaca.
+     *
+     * Harus di attachBaseContext, bukan di onCreate: onCreate sudah dipanggil
+     * sesudah sistem menyiapkan resource aktivitas ini. Kalau ditulis di
+     * onCreate, palet yang sudah terbaca tetap dipakai dan sakelar tema tidak
+     * bereaksi. Lihat {@link Tema} untuk alasannya memakai penanda konfigurasi
+     * dan bukan dua tema terpisah.
+     */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Tema.bungkus(base));
+    }
+
 
     /**
      * Transisi cermin saat keluar lewat tombol kembali. Lihat Nav.close.

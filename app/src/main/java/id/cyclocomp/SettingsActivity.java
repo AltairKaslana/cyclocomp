@@ -2,6 +2,7 @@ package id.cyclocomp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -36,6 +37,7 @@ public class SettingsActivity extends Activity {
     private static final int R_STRAVA_ID = 21, R_STRAVA_SECRET = 22, R_STRAVA_LINK = 23;
     private static final int R_MAP = 13;
     private static final int R_WEIGHT = 14;
+    private static final int R_THEME = 15;
 
     private static final int REQ_BLE = 71;
 
@@ -50,6 +52,21 @@ public class SettingsActivity extends Activity {
         groups = (LinearLayout) findViewById(R.id.groups);
         paint();
     }
+
+    /**
+     * Paksa penanda mode gelap/terang SEBELUM resource apa pun dibaca.
+     *
+     * Harus di attachBaseContext, bukan di onCreate: onCreate sudah dipanggil
+     * sesudah sistem menyiapkan resource aktivitas ini. Kalau ditulis di
+     * onCreate, palet yang sudah terbaca tetap dipakai dan sakelar tema tidak
+     * bereaksi. Lihat {@link Tema} untuk alasannya memakai penanda konfigurasi
+     * dan bukan dua tema terpisah.
+     */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Tema.bungkus(base));
+    }
+
 
     /**
      * Transisi cermin saat keluar lewat tombol kembali. Lihat Nav.close.
@@ -92,6 +109,12 @@ public class SettingsActivity extends Activity {
         // satu-satunya kegunaannya adalah memasukkan angka ke perhitungan kalori,
         // jadi ia lebih dekat ke detak jantung daripada ke lap atau peringatan.
         valueRow(R_WEIGHT, R.string.settings_weight, getString(R.string.sum_weight));
+
+        // Tema diletakkan di kelompok TAMPILAN sendiri, bukan dikelompokkan
+        // dengan peta: pilihan ini mengubah seluruh layar sekaligus, sementara
+        // setelan peta hanya menyentuh satu bagian di layar Ringkasan.
+        group(getString(R.string.group_display));
+        switchRow(R_THEME, R.string.settings_theme, getString(R.string.sum_theme));
 
         group(getString(R.string.group_map));
         switchRow(R_MAP, R.string.settings_map, getString(R.string.sum_map));
@@ -322,6 +345,7 @@ public class SettingsActivity extends Activity {
     private boolean isOn(int id) {
         switch (id) {
             case R_AUTOPAUSE: return Settings.autoPause(this);
+            case R_THEME:     return Settings.theme(this);
             case R_MAP:       return Settings.map(this);
             case R_BEEP:
             default:          return Settings.beep(this);
@@ -332,6 +356,19 @@ public class SettingsActivity extends Activity {
         switch (id) {
             case R_AUTOPAUSE: Settings.setAutoPause(this, v); break;
             case R_MAP:       Settings.setMap(this, v); break;
+            case R_THEME:
+                Settings.setTheme(this, v);
+                // Palet dipilih saat aktivitas DIBANGKAN (attachBaseContext),
+                // jadi aktivitas yang sedang berjalan tetap memakai palet lama.
+                // recreate() membangun ulang aktivitas ini dengan palet baru -
+                // tanpa itu sakelarnya akan terasa "tersimpan tapi tidak
+                // bereaksi".
+                //
+                // Sengaja hanya aktivitas ini: layar lain dibangun ulang sendiri
+                // saat dibuka nanti, dan me-recreate semuanya dari sini butuh
+                // daftar aktivitas yang harus dirawat.
+                recreate();
+                break;
             case R_BEEP:      Settings.setBeep(this, v); break;
             default: break;
         }
@@ -357,6 +394,7 @@ public class SettingsActivity extends Activity {
                 int mn = Settings.alertMin(this);
                 return mn <= 0 ? getString(R.string.settings_off) : getString(R.string.settings_minutes, mn);
             case R_BEEP:      return onOff(Settings.beep(this));
+            case R_THEME:     return onOff(Settings.theme(this));
             case R_WEIGHT:    return getString(R.string.opt_kg, Math.round(Settings.weight(this)));
             case R_MAP:       return onOff(Settings.map(this));
             case R_HR: {

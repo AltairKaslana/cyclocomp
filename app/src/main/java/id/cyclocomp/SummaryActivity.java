@@ -4,6 +4,7 @@ import android.util.Log;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -88,6 +89,21 @@ public class SummaryActivity extends Activity {
             @Override public void onClick(View v) { share(); }
         });
     }
+
+    /**
+     * Paksa penanda mode gelap/terang SEBELUM resource apa pun dibaca.
+     *
+     * Harus di attachBaseContext, bukan di onCreate: onCreate sudah dipanggil
+     * sesudah sistem menyiapkan resource aktivitas ini. Kalau ditulis di
+     * onCreate, palet yang sudah terbaca tetap dipakai dan sakelar tema tidak
+     * bereaksi. Lihat {@link Tema} untuk alasannya memakai penanda konfigurasi
+     * dan bukan dua tema terpisah.
+     */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Tema.bungkus(base));
+    }
+
 
     /**
      * Transisi cermin saat keluar (tombol kembali, atau tombol TUTUP di layar ini).
@@ -181,7 +197,21 @@ public class SummaryActivity extends Activity {
     }
 
     /**
-     * Kalori & daya rata-rata.
+     * Apakah aplikasi menerima data daya dari sensor sungguhan (power meter
+     * Bluetooth, atau sensor bawaan).
+     *
+     * Zylo TIDAK punya: tidak ada kode yang membaca daya dari sensor, dan kepala
+     * Calories.java menyatakan watt-nya "DIPERKIRAAN dari fisika". Jadi nilai
+     * ini false, dan konsekuensinya kolom DAYA RATA-RATA di layar ini tidak
+     * pernah tampil.
+     *
+     * Kalau power meter ditambahkan nanti (misal lewat BLE), ubah baris ini jadi
+     * true - seluruh tampilan sudah siap, tidak ada yang perlu diubah lain.
+     */
+    private static final boolean ADA_POWER_METER = false;
+
+    /**
+     * Kalori (dan daya rata-rata, kalau ada power meter).
      *
      * Kalau rekaman dibuat sebelum v3 (kolom belum ada), nilainya dihitung ulang di
      * sini daripada ditampilkan kosong — pengguna tidak perlu tahu bahwa skema basis
@@ -194,6 +224,32 @@ public class SummaryActivity extends Activity {
                     Settings.weight(this));
         }
         TextView tvKcal = (TextView) findViewById(R.id.tvKcal);
+
+        // Kolom daya + garis pemisahnya disembunyikan BERSAMAAN kalau tidak ada
+        // power meter. Sengaja dua-duanya GONE, bukan hanya kolomnya: garis
+        // pemisah yang menggantung sendiri di ujung kanan akan terlihat seperti
+        // sisa yang lupa dibersihkan.
+        //
+        // Berat kolom kalori tidak diubah (tetap 1), jadi kalau daya disembunyikan
+        // angka kalori cukup memusat di seluruh lebar - bukan terdorong ke kiri
+        // meninggalkan separuh kartu kosong.
+        View wattsCol = findViewById(R.id.wattsCol);
+        View wattsDivider = findViewById(R.id.wattsDivider);
+        if (wattsCol != null) {
+            wattsCol.setVisibility(ADA_POWER_METER ? View.VISIBLE : View.GONE);
+        }
+        if (wattsDivider != null) {
+            wattsDivider.setVisibility(ADA_POWER_METER ? View.VISIBLE : View.GONE);
+        }
+
+        if (!ADA_POWER_METER) {
+            // Angkanya tetap dihitung supaya baris ini tidak perlu dicabut dari
+            // kode: kalau power meter ditambahkan, tidak ada yang perlu disambung
+            // ulang. Yang berubah hanya apakah selnya terlihat.
+            tvKcal.setText(Fmt.kcal(kcal));
+            return;
+        }
+
         TextView tvWatts = (TextView) findViewById(R.id.tvWatts);
         if (kcal <= 0) {
             tvKcal.setText(R.string.kcal_none);

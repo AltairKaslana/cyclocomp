@@ -30,6 +30,7 @@ final class Settings {
     private static final String K_HR_NAME     = "hr_name";
     private static final String K_MAP         = "map";           // peta ubin di Ringkasan
     private static final String K_WEIGHT      = "weight";        // kg, dipakai hitung kalori
+    private static final String K_THEME       = "theme_light";   // tema siang?
 
     // mode lap
     public static final int LAP_MANUAL = 0, LAP_DISTANCE = 1, LAP_TIME = 2;
@@ -125,5 +126,19 @@ final class Settings {
         if (Float.isNaN(kg) || kg < 30f) kg = 30f;
         if (kg > 150f) kg = 150f;
         sp(c).edit().putFloat(K_WEIGHT, kg).apply();
+    }
+
+    // ---------- tema ----------
+
+    /**
+     * Tema siang aktif? Bawaannya false = gelap, sama seperti sebelum sakelar
+     * ini ada, supaya pengguna lama tidak mendapati tampilan berubah sendiri.
+     *
+     * Sakelarnya ada di layar Pengaturan. Lihat {@link Tema} untuk cara
+     * paletnya benar-benar ditukar.
+     */
+    public static boolean theme(Context c) { return sp(c).getBoolean(K_THEME, false); }
+    public static void setTheme(Context c, boolean v) {
+        sp(c).edit().putBoolean(K_THEME, v).apply();
     }
 }

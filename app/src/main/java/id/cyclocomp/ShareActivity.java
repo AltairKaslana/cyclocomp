@@ -1,6 +1,7 @@
 package id.cyclocomp;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -172,6 +173,21 @@ public class ShareActivity extends Activity {
         Ui.fonts(getWindow().getDecorView(), this);
         Ui.buttonFonts(getWindow().getDecorView(), this);
     }
+
+    /**
+     * Paksa penanda mode gelap/terang SEBELUM resource apa pun dibaca.
+     *
+     * Harus di attachBaseContext, bukan di onCreate: onCreate sudah dipanggil
+     * sesudah sistem menyiapkan resource aktivitas ini. Kalau ditulis di
+     * onCreate, palet yang sudah terbaca tetap dipakai dan sakelar tema tidak
+     * bereaksi. Lihat {@link Tema} untuk alasannya memakai penanda konfigurasi
+     * dan bukan dua tema terpisah.
+     */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Tema.bungkus(base));
+    }
+
 
     private void buatTitik() {
         dots.removeAllViews();

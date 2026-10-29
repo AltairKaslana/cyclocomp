@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      ===================================================================
+      PALET GELAP - dipakai saat "Tema terang" MATI (keadaan bawaan).
+      ===================================================================
+
+      Nilai di berkas ini PERSIS salinan dari values/colors.xml sebelum tema
+      siang ditambahkan, yaitu palet yang sudah disetujui pemilik. Sengaja
+      dipindahkan utuh ke folder values-night, bukan ditulis ulang, supaya
+      tidak ada satu nilai pun yang berubah tanpa disadari.
+
+      Aksen tetap cyan muda #22D3EE - di atas latar gelap ia justru paling
+      terbaca (8,85:1 di atas card). Palet siang memakai aksen yang berbeda
+      karena cyan muda di atas putih hanya 1,9:1; alasannya ditulis di
+      values/colors.xml.
+    -->
+
+    <!-- Palet Warna Baru (Cyan Premium) -->
+    <!-- Permukaan (skala elevasi). Gelap: makin tinggi makin TERANG. -->
+    <color name="bg">#0E1013</color>
+    <color name="card">#1E2227</color>
+    <color name="card2">#23272C</color>
+
+    <color name="card_pressed">#2F343A</color>
+    <color name="card_disabled">#171A1E</color>
+
+    <color name="label">#9AA3AE</color>
+    <color name="value">#FFFFFF</color>
+    <color name="divider">#3A4250</color>
+
+    <color name="accent">#22D3EE</color>
+    <color name="accent_pressed">#0FB0CC</color>
+    <color name="accent_soft">#67E8F9</color>
+    <color name="on_accent">#0E1013</color>
+    <color name="rec">#34D399</color>
+    <color name="warn">#F5B83D</color>
+    <color name="danger">#F87171</color>
+    <color name="dot_off">#5B6573</color>
+    <color name="stroke_ctrl">#5B6573</color>
+
+    <!-- Latar ikon launcher. Sama dengan palet siang supaya warna ikon tidak
+         ikut mode gelap perangkat. Lihat catatan panjang di values/colors.xml. -->
+    <color name="launcher_bg">#0E1013</color>
+
+    <!-- Warna tanda di ikon launcher. Alasan sama seperti launcher_bg. -->
+    <color name="launcher_fg">#22D3EE</color>
+
+</resources>

@@ -44,19 +44,27 @@ final class ShareCard {
      *
      * Sebelumnya delapan warna ditulis literal di sini - hasilnya aksen oranye
      * harus diubah di colors.xml DAN di berkas ini, dan mudah salah satu.
+     *
+     * PALET SELALU GELAP, lewat Tema.gelap(c): kartu ini adalah PRODUK yang
+     * dikirim ke orang lain, bukan layar aplikasi. Kalau ia ikut tema siang,
+     * penerima kartu melihat kartu terang sementara aplikasi pengirimnya gelap,
+     * dan palet terang belum pernah diperiksa kontrasnya untuk kanwas 1080px.
+     * Karena paletnya dipaksa tetap satu nilai, cache di bawah ini juga jadi
+     * selalu benar walau pengguna mengganti tema di tengah pemakaian.
      */
     private static int BG, CARD, LABEL, VALUE, ACCENT, DIVIDER, GREEN;
     private static boolean paletSiap = false;
 
     private static void siapkanPalet(Context c) {
         if (paletSiap) return;
-        BG      = c.getColor(R.color.bg);
-        CARD    = c.getColor(R.color.card);
-        LABEL   = c.getColor(R.color.label);
-        VALUE   = c.getColor(R.color.value);
-        ACCENT  = c.getColor(R.color.accent);
-        DIVIDER = c.getColor(R.color.divider);
-        GREEN   = c.getColor(R.color.rec);
+        Context gelap = Tema.gelap(c);
+        BG      = gelap.getColor(R.color.bg);
+        CARD    = gelap.getColor(R.color.card);
+        LABEL   = gelap.getColor(R.color.label);
+        VALUE   = gelap.getColor(R.color.value);
+        ACCENT  = gelap.getColor(R.color.accent);
+        DIVIDER = gelap.getColor(R.color.divider);
+        GREEN   = gelap.getColor(R.color.rec);
         paletSiap = true;
     }
 

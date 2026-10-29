@@ -245,10 +245,26 @@
     </LinearLayout>
 
 
-        <!-- ===== kalori & daya (selalu tampil) =====
-             Dua angka ini sengaja berdampingan: kalori TANPA daya terlihat seperti
-             angka ajaib. Dengan watt rata-rata terlihat, pengguna bisa menilai
-             sendiri apakah perkiraannya masuk akal untuk gowes yang baru dilakukan. -->
+        <!-- ===== kalori (dan daya, kalau ada power meter) =====
+             Kalori selalu tampil. Kolom DAYA RATA-RATA hanya tampil kalau
+             aplikasi benar-benar menerima data daya dari sensor - lihat
+             SummaryActivity.ADA_POWER_METER.
+
+             Alasan aturan itu: Zylo tidak punya power meter (lihat kepala
+             Calories.java - "Zylo tidak punya power meter, jadi dayanya
+             DIPERKIRAAN dari fisika"), jadi watt yang tampil di sini selalu
+             angka turunan dari perkiraan kalori, bukan ukuran. Menampilkannya
+             berdampingan dengan kalori membuat dua angka yang SEBENARNYA satu
+             perhitungan terlihat seperti dua pengukuran independen yang saling
+             menguatkan - padahal kalau kalorinya meleset, watt-nya ikut meleset
+             dengan cara yang sama persis. Itu justru kebalikan dari alasan
+             aslinya keduanya berdampingan.
+
+             Satu hal yang perlu diketahui pemilik: karena Zylo tidak punya power
+             meter, konsekuensinya kolom ini TIDAK PERNAH tampil. Itu kebalikan
+             dari keputusan R1 ("watt dan kalori tampil tanpa keterangan
+             perkiraan"). Untuk memunculkannya kembali: ubah satu konstanta
+             ADA_POWER_METER di SummaryActivity.java. -->
         <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
             android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
             android:layout_marginTop="@dimen/gap_loose" android:layout_marginBottom="@dimen/gap_loose"
@@ -286,10 +302,11 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <View android:layout_width="@dimen/hairline" android:layout_height="@dimen/divider_lap_small"
+            <View android:id="@+id/wattsDivider" android:layout_width="@dimen/hairline" android:layout_height="@dimen/divider_lap_small"
                 android:layout_gravity="center_vertical" android:background="@color/divider" />
 
             <LinearLayout
+                android:id="@+id/wattsCol"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

@@ -1,24 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Palet Warna Baru (Cyan Premium) -->
-    <!-- Permukaan (skala elevasi). Gelap: makin tinggi makin TERANG. -->
-    <color name="bg">#0E1013</color>
-    <color name="card">#1E2227</color>
-    <color name="card2">#23272C</color>
 
-    <color name="card_pressed">#2F343A</color>
-    <color name="card_disabled">#171A1E</color>
+    <!--
+      ===================================================================
+      PALET SIANG (BAWAAN) - dipakai saat "Tema terang" dipilih di Pengaturan.
+      ===================================================================
 
-    <color name="label">#9AA3AE</color>
-    <color name="value">#FFFFFF</color>
-    <color name="divider">#3A4250</color>
+      Palet gelap ada di values-night/colors.xml, nilainya PERSIS seperti yang
+      disetujui pemilik. Keduanya dipisah lewat penanda konfigurasi -night,
+      bukan lewat dua tema terpisah, karena seluruh layout menunjuk token
+      @color/... langsung. Kalau memakai dua tema saja, @color/accent di layout
+      tidak akan berubah - hanya tema induk yang berubah.
 
-    <color name="accent">#22D3EE</color>
-    <color name="accent_pressed">#0FB0CC</color>
-    <color name="accent_soft">#67E8F9</color>
-    <color name="on_accent">#0E1013</color>
-    <color name="rec">#34D399</color>
-    <color name="warn">#F5B83D</color>
-    <color name="danger">#F87171</color>
-    <color name="dot_off">#5B6573</color>
-    <color name="stroke_ctrl">#5B6573</color>
+      KENAPA ACCENT BERBEDA DARI PALET GELAP
+      Cyan #22D3EE di atas latar terang hanya kontras 1,9:1 - tidak bisa dibaca.
+      Jadi aksen versi siang harus lebih gelap (#0E7490, cyan tua) supaya tetap
+      lolos 4.5:1 untuk teks. Ini konsekuensi langsung palet siang: warna yang
+      pas di atas hitam hampir selalu gagal di atas putih.
+
+      Nilai di berkas ini diverifikasi terhadap WCAG 2.1 oleh
+      scratch/verify_tema.py - teks 4.5:1, komponen antarmuka 3:1. Jangan
+      mengubah angka di sini tanpa menjalankan skrip itu lagi.
+    -->
+
+    <!-- Permukaan (skala elevasi). Siang: makin tinggi makin GELAP sedikit,
+         supaya kartu masih terbaca sebagai kartu di atas latar terang. -->
+    <color name="bg">#F2F4F7</color>
+    <color name="card">#FFFFFF</color>
+    <color name="card2">#E9EEF4</color>
+
+    <color name="card_pressed">#D8E0EA</color>
+    <color name="card_disabled">#E4E8EE</color>
+
+    <!-- Teks. value hampir hitam; label abu tua. Keduanya lolos 4.5:1 di atas
+         bg, card, card2, card_pressed, dan card_disabled. -->
+    <color name="label">#5B6673</color>
+    <color name="value">#0F1419</color>
+
+    <!-- Garis pemisah: DEKORATIF, sengaja samar. Lihat catatan di verify_tema.py.
+         SC 1.4.11 tidak mewajibkan rasio untuk elemen dekoratif, dan palet gelap
+         pun dibuat sama samarnya supaya kedua tema terasa sebanding. -->
+    <color name="divider">#D6DCE4</color>
+
+    <!-- Aksen. Kelihatan seperti cyan gelap, bukan cyan muda - lihat catatan
+         kepala berkas. on_accent jadi putih karena latar tombol kini gelap. -->
+    <color name="accent">#0E7490</color>
+    <color name="accent_pressed">#0B5E75</color>
+    <color name="accent_soft">#CFF6FE</color>
+    <color name="on_accent">#FFFFFF</color>
+
+    <!-- Status. Warna gelap supaya tetap terbaca sebagai TEKS di atas putih;
+         versi muda #34D399/#F5B83D/#F87171 hanya 3,1-3,4:1 dan gagal 4.5:1. -->
+    <color name="rec">#047857</color>
+    <color name="warn">#B45309</color>
+    <color name="danger">#B91C1C</color>
+
+    <!-- Kontrol. Keduanya adalah penanda BENTUK kontrol (bingkai tombol
+         sekunder, rel Switch saat MATI, kotak centang kosong), jadi harus
+         3:1 - bukan sekadar hiasan. -->
+    <color name="dot_off">#7C8899</color>
+    <color name="stroke_ctrl">#78859A</color>
+
+    <!-- Latar ikon launcher. SENGAJA token sendiri, bukan @color/bg.
+         Ikon launcher digambar oleh sistem mengikuti mode gelap PERANGKAT,
+         bukan pilihan tema di dalam aplikasi. Kalau berkas ini memakai
+         @color/bg, warna ikon akan berubah-ubah antar perangkat tanpa
+         hubungannya dengan apa yang dipilih pengguna di Pengaturan - dan
+         pada perangkat yang tidak memakai mode gelap, ikonnya jadi ikon
+         "tema siang" padahal aplikasinya masih gelap.
+         Nilainya = bg palet gelap, jadi tampilan ikon TIDAK berubah sama
+         sekali dari sebelum tema siang ada. -->
+    <color name="launcher_bg">#0E1013</color>
+
+    <!-- Warna tanda di ikon launcher. Alasan yang sama dengan launcher_bg:
+         @color/accent di palet siang adalah cyan tua #0E7490, dan itu akan
+         membuat ikon berbeda di perangkat berbeda. Nilainya = aksen palet
+         gelap (#22D3EE), jadi ikon tetap cyan seperti semula. -->
+    <color name="launcher_fg">#22D3EE</color>
+
 </resources>

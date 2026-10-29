@@ -244,6 +244,21 @@ public class MainActivity extends Activity implements RideService.Listener {
     }
 
     /**
+     * Paksa penanda mode gelap/terang SEBELUM resource apa pun dibaca.
+     *
+     * Harus di attachBaseContext, bukan di onCreate: onCreate sudah dipanggil
+     * sesudah sistem menyiapkan resource aktivitas ini. Kalau ditulis di
+     * onCreate, palet yang sudah terbaca tetap dipakai dan sakelar tema tidak
+     * bereaksi. Lihat {@link Tema} untuk alasannya memakai penanda konfigurasi
+     * dan bukan dua tema terpisah.
+     */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Tema.bungkus(base));
+    }
+
+
+    /**
      * Kalau percobaan sebelumnya berakhir dengan crash, tampilkan penyebabnya di layar.
      * Perangkat pengujian tanpa adb dan folder Android/data sulit diakses di Android 11+;
      * dialog ini membuat laporan crash bisa di-screenshot dan dikirim.

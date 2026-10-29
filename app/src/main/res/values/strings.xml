@@ -135,6 +135,9 @@
     <string name="group_lap">LAP</string>
     <string name="group_alert">PERINGATAN</string>
     <string name="group_sensor">SENSOR</string>
+    <string name="group_display">TAMPILAN</string>
+    <string name="settings_theme">Tema terang</string>
+    <string name="sum_theme">Latar terang dengan teks gelap. Berganti seketika.</string>
     <string name="group_map">PETA</string>
     <string name="group_other">LAINNYA</string>
 

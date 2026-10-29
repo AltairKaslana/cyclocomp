@@ -133,6 +133,9 @@
     <string name="group_lap">LAP</string>
     <string name="group_alert">ALERTS</string>
     <string name="group_sensor">SENSOR</string>
+    <string name="group_display">DISPLAY</string>
+    <string name="settings_theme">Light theme</string>
+    <string name="sum_theme">Light background with dark text. Switches instantly.</string>
     <string name="group_map">MAP</string>
     <string name="group_other">OTHER</string>
 
