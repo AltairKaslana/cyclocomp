@@ -3,33 +3,40 @@ package id.cyclocomp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Pembuktian B3 / R-03: "waktu lap bisa melebihi waktu total".
+ * B3 / R-03: "jumlah durasi lap tidak boleh melebihi waktu total, dan lap
+ * tunggal = waktu total +/- 2 detk".
  *
- * KENAPA TES INI ADA DAN KENAPA TIDAK MENYENTUH RideService
+ * KENAPA TES INI ADA DAN KENAPA TIDAK MEMANGGIL RideService LANGSUNG
  * RideService tidak bisa dipanggil dari tes unit biasa: ia butuh Context,
  * NotificationManager, LocationManager, dan memanggil SystemClock.elapsedRealtime()
  * yang di lingkungan tes selalu mengembalikan 0. Jadi yang diuji di sini adalah
  * ARITMETIKA pewaktunya, disalin persis dari RideService, di atas garis waktu
  * buatan yang bisa dikendalikan. Baris sumber dirujuk di setiap tempat.
  *
- * Aturan handoff (R1 dan R2): jangan ubah RideService, perhitungan
- * jarak/waktu/lap/kalori, atau format GPX. Kalau tes di bawah gagal, sumber
- * masalah dilaporkan ke pemilik, bukan diperbaiki sendiri.
+ * RIWAYAT BUG (SUDAH DIPERBAIKI)
+ * sum(lap) = total + masa jeda, TEPAT. Penyebabnya satu baris: resumeRide()
+ * menambah pausedTotal tapi tidak menggeser lapStartElapsed, sehingga
+ * getCurrentLap() (now - lapStartElapsed) dan closeLap() ikut menghitung masa
+ * jeda. Ride 60 detik dengan satu jeda 30 detik menampilkan lap 90 detik.
  *
- * Temuan: sum(lap) = total + jeda. Penyebabnya ada DUA dan saling menumpuk:
- *   1. resumeRide() (baris 247) menambah pausedTotal, tapi TIDAK menggeser
- *      lapStartElapsed. Jadi lap yang sedang berjalan ikut menghitung masa jeda.
- *   2. getCurrentLap() (baris 164) memakai now - lapStartElapsed tanpa
- *      mengurangi porsi jeda di dalam lap tersebut.
- * closeLap() (baris 412) juga memakai lapStartElapsed = now tanpa koreksi, jadi
- * lap yang ditutup sesudah resume mewarisi selisih yang sama.
+ * Perbaikannya: masa jeda sekarang juga menggeser lapStartElapsed ke depan, jadi
+ * lap dan total memakai garis waktu yang sama - keduanya berhenti selama jeda.
+ * checkAutoLap() untuk mode LAP WAKTU ikut terbawa perbaikan yang sama karena ia
+ * juga mengukur dari lapStartElapsed.
+ *
+ * Catatan proses yang layak diingat: tes ini PERTAMA kali ditulis saat bug-nya
+ * masih ada, dan saat itu sengaja MENEGASKAN perilaku yang salah alih-alih gagal
+ * - sebab RideService belum boleh diubah sebelum pemilik memutuskan, dan tes yang
+ * merah terus akan membuat CI merah selamanya, yang akhirnya diabaikan orang dan
+ * justru menyembunyikan masalah. Yang dikunci waktu itu adalah ANGKA selisihnya.
+ * Setelah RideService diperbaiki, tiruan di kelas Timer disamakan dengan kode
+ * barunya dan ketiga tes itu berubah menjadi asersi spesifikasi seperti di bawah.
  */
 public class LapWaktuTest {
 
@@ -62,9 +69,17 @@ public class LapWaktuTest {
             jeda = true;
         }
 
-        /** RideService.resumeRide(), baris 247-249. */
+        /**
+         * RideService.resumeRide(), SESUDAH perbaikan B3.
+         *
+         * Sebelum perbaikan baris ini hanya menambah pausedTotal. Sekarang masa
+         * jeda juga menggeser lapStartElapsed, supaya lap dan total memakai
+         * garis waktu yang sama - keduanya berhenti selama jeda.
+         */
         void lanjut(long t) {
-            pausedTotal += t - pauseStart;
+            long lamaJeda = t - pauseStart;
+            pausedTotal += lamaJeda;
+            lapStartElapsed += lamaJeda;
             jeda = false;
         }
 
@@ -99,21 +114,20 @@ public class LapWaktuTest {
         }
     }
 
-    // ---------- yang SEHARUSNYA berlaku ----------
+    // ---------- spesifikasi R-03 ----------
 
     /**
      * Ride tanpa jeda: satu lap, dari mulai sampai berhenti. Lap tunggal harus
-     * sama dengan waktu total (spesifikasi R-03: "lap tunggal = waktu total
-     * +/- 2 detk"). Ini lulus, jadi kerusakan BUKAN ada di jalur tanpa jeda.
+     * sama dengan waktu total.
      */
     @Test
     public void satuLapTanpaJedaSamaDenganTotal() {
         Timer r = new Timer();
         r.mulai(1_000);
-        r.berhenti(61_000);                 // 60 detik
-        r.tutupLap(61_000);                 // lap terakhir ikut dicatat (stopRide)
+        long total = r.berhenti(61_000);     // 60 detik
+        r.tutupLap(61_000);                  // lap terakhir ikut dicatat (stopRide)
 
-        assertEquals(r.berhenti(61_000), r.jumlahLap());
+        assertEquals(total, r.jumlahLap());
     }
 
     /** Ride tanpa jeda dengan beberapa lap: jumlah lap harus sama dengan total. */
@@ -124,81 +138,105 @@ public class LapWaktuTest {
         r.tutupLap(20_000);
         r.tutupLap(45_000);
         long total = r.berhenti(60_000);
-        r.tutupLap(60_000);                 // lap terakhir, sama seperti stopRide
+        r.tutupLap(60_000);                  // lap terakhir, sama seperti stopRide
 
         assertEquals(total, r.jumlahLap());
     }
 
-    // ---------- pembuktian B3 ----------
-
     /**
-     * Satu lap, DIJEDA 30 detik di tengah. Spesifikasi R-03: lap tunggal harus
-     * sama dengan total +/- 2 detk. Hasil sebenarnya: lap = total + 30 detik,
-     * karena getCurrentLap() (baris 164) ikut menghitung masa jeda.
-     *
-     * Kenapa tes ini MENEGASKAN perilaku yang salah alih-alih gagal: RideService
-     * tidak boleh diubah sebelum pemilik memutuskan, dan tes yang gagal terus
-     * akan membuat CI merah selamanya - yang pada akhirnya diabaikan orang dan
-     * justru menyembunyikan B3. Jadi yang dikunci di sini adalah ANGKA pastinya,
-     * supaya perbaikannya nanti terlihat jelas sebagai perubahan, bukan sebagai
-     * tebakan. Versi spesifikasi ada di setiapRideJumlahLapTidakMelebihiTotal().
+     * Satu lap, DIJEDA 30 detik di tengah. Inilah kasus yang dulu gagal: total
+     * 60 detik tapi lap 90 detik. Sekarang lap = 60 detik, sama dengan total.
      */
     @Test
-    public void satuLapDenganJedaMenyimpangSebesarMasaJeda() {
+    public void satuLapDenganJedaSamaDenganTotal() {
         Timer r = new Timer();
         r.mulai(0);
-        r.jeda(30_000);                     // istirahat 30 detik
-        r.lanjut(60_000);                   // lanjut lagi
-        long total = r.berhenti(90_000);    // total = 60 detk (90 - 0 - 30 jeda)
+        r.jeda(30_000);                      // istirahat 30 detik
+        r.lanjut(60_000);                    // lanjut lagi
+        long total = r.berhenti(90_000);     // total = 90 - 0 - 30 = 60 detik
         r.tutupLap(90_000);
 
-        // total 60.000 ms, lap 90.000 ms -> selisih 30.000 ms = masa jeda
         assertEquals("waktu total", 60_000, total);
-        assertEquals("lap tunggal = total + masa jeda (B3)", 90_000, r.jumlahLap());
-        assertEquals("selisih = masa jeda", 30_000, r.jumlahLap() - total);
+        assertEquals("lap tunggal harus sama dengan total, bukan total + jeda",
+                60_000, r.jumlahLap());
     }
 
     /**
-     * Beberapa lap dengan satu masa jeda: jumlah lap MELEBIHI total, tepat
-     * sebesar durasi jeda. Ini bukti kuantitatif B3 - bukan dugaan.
+     * Beberapa lap dengan satu masa jeda: jumlah lap harus SAMA dengan total.
+     * Dulu 100 detik vs total 70 detik (selisih 30 detik = masa jeda).
      */
     @Test
-    public void jumlahLapDenganJedaMelebihiTotalSebesarMasaJeda() {
+    public void beberapaLapDenganJedaJumlahnyaSamaDenganTotal() {
         Timer r = new Timer();
         r.mulai(0);
-        r.tutupLap(20_000);                 // lap 1: 20 detk
+        r.tutupLap(20_000);                  // lap 1: 20 detik jalan
         r.jeda(25_000);
-        r.lanjut(55_000);                   // jeda 30 detk
-        r.tutupLap(70_000);                 // lap 2: 50 detk (20 jeda + 30 jalan)
-        long total = r.berhenti(100_000);   // total = 100 - 30 = 70 detk
-        r.tutupLap(100_000);                // lap 3: 30 detk
+        r.lanjut(55_000);                    // jeda 30 detik
+        r.tutupLap(70_000);                  // lap 2: 30 detik jalan (bukan 50)
+        long total = r.berhenti(100_000);    // total = 100 - 30 = 70 detik
+        r.tutupLap(100_000);                 // lap 3: 30 detik jalan
 
         assertEquals("waktu total", 70_000, total);
-        assertEquals("jumlah lap", 100_000, r.jumlahLap());
-        assertEquals("jumlah lap melebihi total sebesar masa jeda",
-                30_000, r.jumlahLap() - total);
+        assertEquals("jumlah lap harus sama dengan total", 70_000, r.jumlahLap());
     }
 
     /**
-     * Karakterisasi: selisihnya PERSIS sebesar masa jeda. Tes ini lulus dan
-     * menjadi bukti kuantitatif B3 - bukan dugaan, tapi angka yang bisa
-     * diperiksa pemilik.
+     * Batas yang tidak boleh dilanggar, untuk beberapa durasi jeda sekaligus -
+     * ini wujud dari permintaan R-03 "untuk SETIAP ride".
      */
     @Test
-    public void selisihJumlahLapPersisMasaJeda() {
-        Timer r = new Timer();
-        r.mulai(0);
-        r.jeda(10_000);
-        r.lanjut(40_000);                   // masa jeda 30 detk
-        long total = r.berhenti(80_000);
-        r.tutupLap(80_000);
+    public void setiapRideJumlahLapTidakMelebihiTotal() {
+        for (long lamaJeda : new long[]{0, 1_000, 30_000, 300_000}) {
+            Timer r = new Timer();
+            r.mulai(0);
+            // garis waktu: jalan 60 detik -> jeda -> jalan 60 detik
+            r.jeda(60_000);
+            r.lanjut(60_000 + lamaJeda);
+            long akhir = 60_000 + lamaJeda + 60_000;
+            long total = r.berhenti(akhir);
+            r.tutupLap(akhir);
 
-        assertEquals("selisih bukan masa jeda", 30_000, r.jumlahLap() - total);
+            assertEquals("jeda " + lamaJeda + " ms: waktu total",
+                    120_000, total);
+            assertTrue("jeda " + lamaJeda + " ms: jumlah lap " + r.jumlahLap()
+                            + " > total " + total,
+                    r.jumlahLap() <= total);
+            assertEquals("jeda " + lamaJeda + " ms: jumlah lap harus sama dengan total",
+                    120_000, r.jumlahLap());
+        }
     }
 
     /**
-     * R-03 juga meminta "untuk SETIAP ride". Pemeriksaan itu butuh data ride
-     * sungguhan (RideDb, SQLite), yang tidak bisa dijalankan di tes unit biasa.
+     * Lap yang ditutup SESUDAH resume tidak boleh mewarisi masa jeda. Ini jalur
+     * yang berbeda dari lap yang sedang berjalan saat jeda dimulai, dan dulu juga
+     * salah karena closeLap() memakai lapStartElapsed = now tanpa koreksi.
+     *
+     * Garis waktu: jalan 10 detik -> JEDA 30 detik -> jalan 10 detik -> jalan
+     * 10 detik. Total jalan = 30 detik, dan itu harus sama dengan jumlah lap.
+     * Dengan kode lama, lap 2 menjadi 40 detik (10 detik jalan + 30 detik jeda)
+     * sehingga jumlahnya 60 detik melawan total 30 detik.
+     */
+    @Test
+    public void lapDitutupSetelahResumeTidakMewarisiJeda() {
+        Timer r = new Timer();
+        r.mulai(0);
+        r.tutupLap(10_000);                  // lap 1: 10 detik jalan, ditutup sebelum jeda
+        r.jeda(10_000);
+        r.lanjut(40_000);                    // jeda 30 detik
+        r.tutupLap(50_000);                  // lap 2: 10 detik jalan sesudah lanjut
+        long total = r.berhenti(60_000);     // 60 - 30 jeda = 30 detik
+        r.tutupLap(60_000);                  // lap 3: 10 detik jalan
+
+        assertEquals("lap pertama", 10_000, r.laps.get(0).elapsedMs);
+        assertEquals("lap kedua tidak boleh mewarisi masa jeda",
+                10_000, r.laps.get(1).elapsedMs);
+        assertEquals("jumlah lap harus sama dengan total", 30_000, r.jumlahLap());
+        assertEquals("waktu total", 30_000, total);
+    }
+
+    /**
+     * R-03 juga meminta "untuk SETIAP ride" pada data sungguhan. Pemeriksaan itu
+     * butuh RideDb (SQLite), yang tidak bisa dijalankan di tes unit biasa.
      * Yang bisa diperiksa di sini: bentuk data lap yang ditulis RideDb, yaitu
      * encodeLaps()/decodeLaps(), supaya jumlah lap tetap utuh saat dibaca lagi -
      * kalau encode rusak, pemeriksaan "jumlah lap <= total" di atas jadi tak
@@ -234,33 +272,5 @@ public class LapWaktuTest {
             b += balik.get(i).elapsedMs;
         }
         assertEquals(a, b);
-    }
-
-    /**
-     * Versi spesifikasi dari pemeriksaan "untuk setiap ride", ditahan sampai
-     * RideService diperbaiki. Sengaja @Ignore, BUKAN karena masalahnya diragukan
-     * tapi karena menjalankannya sekarang akan gagal - dan CI yang merah terus
-     * menerus akhirnya diabaikan orang, sehingga justru menyembunyikan B3.
-     *
-     * Untuk mengaktifkan: hapus anotasi @Ignore di bawah ini DAN dua tes gagal
-     * di atas akan lolos sendiri kalau perbaikannya benar.
-     */
-    @Ignore("B3/R-03: menunggu pemilik memutuskan perbaikan RideService. "
-            + "Hapus baris ini setelah resumeRide() menggeser lapStartElapsed "
-            + "sebesar masa jeda (baris 247).")
-    @Test
-    public void setiapRideJumlahLapTidakMelebihiTotal() {
-        for (long jeda : new long[]{0, 1_000, 30_000, 300_000}) {
-            Timer r = new Timer();
-            r.mulai(0);
-            // garis waktu: jalan 60 detk -> jeda -> jalan 60 detk
-            r.jeda(60_000);
-            r.lanjut(60_000 + jeda);
-            long total = r.berhenti(60_000 + jeda + 60_000);
-            r.tutupLap(60_000 + jeda + 60_000);
-            assertTrue("jeda " + jeda + " ms: jumlah lap " + r.jumlahLap()
-                            + " > total " + total,
-                    r.jumlahLap() <= total);
-        }
     }
 }

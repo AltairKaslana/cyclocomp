@@ -244,7 +244,22 @@ public class RideService extends Service implements LocationListener {
             Log.e(TAG, "resume failed", e);
             return;
         }
-        pausedTotal += SystemClock.elapsedRealtime() - pauseStart;
+        // B3: masa jeda juga harus dikeluarkan dari penghitung LAP, bukan hanya
+        // dari waktu total.
+        //
+        // Sebelumnya hanya pausedTotal yang ditambah. Akibatnya getCurrentLap()
+        // (now - lapStartElapsed) dan closeLap() ikut menghitung masa jeda,
+        // sehingga jumlah lap = waktu total + masa jeda - misalnya ride 60 detik
+        // dengan satu jeda 30 detik menampilkan lap 90 detik di layar Ringkasan.
+        // Lap tunggal pun menyimpang dari total, bukan +/- 2 detik.
+        //
+        // Menggeser lapStartElapsed ke depan sebesar masa jeda membuat lap dan
+        // total memakai garis waktu yang sama: keduanya berhenti selama jeda.
+        // checkAutoLap() untuk mode LAP WAKTU ikut terbawa perbaikan yang sama,
+        // karena ia juga mengukur dari lapStartElapsed.
+        long jeda = SystemClock.elapsedRealtime() - pauseStart;
+        pausedTotal += jeda;
+        lapStartElapsed += jeda;
         lowSpeedSince = 0;
         state = State.RECORDING;
         updateNotification();
