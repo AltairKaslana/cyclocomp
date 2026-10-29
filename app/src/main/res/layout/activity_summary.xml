@@ -485,10 +485,11 @@
 
         <CheckBox
             android:id="@+id/swCommute"
-            style="@style/EmptyText"
+            style="@style/CheckRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/label_commute" />
+            android:text="@string/label_commute"
+            android:buttonTint="@color/checkbox_tint" />
     </LinearLayout>
 
     <!-- Kartu gambar adalah jalur utama (paling sering dipakai untuk dibagikan),

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Warna kotak centang (CheckBox): tercentang aksen, tidak tercentang abu.
+
+  Kenapa selector eksplisit, bukan membiarkan tema: tema AppTheme sudah mengatur
+  colorControlActivated ke aksen, jadi hasilnya memang cyan saat tercentang. Tapi
+  itu berarti warna kotak centang bergantung pada tema induk - kalau nanti ada
+  satu layar dengan tema lain, kotak centangnya ikut berubah tanpa ada yang
+  menyadari. Dikatakan di sini supaya tidak bergantung pada apa pun.
+
+  Warna tidak-tercentang diambil dari dot_off, bukan dot_off bawaan sistem: abu
+  sistem bisa terlalu terang di latar kartu gelap sehingga kotak kosong terlihat
+  seperti sudah tercentang.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true" android:color="@color/accent" />
+    <item android:color="@color/dot_off" />
+</selector>

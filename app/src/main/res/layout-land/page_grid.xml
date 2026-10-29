@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Halaman 2 "DETAIL" - SATU kartu berisi kisi 2x5, lima baris sama tinggi.
+
+  Sebelumnya (bug B5) baris ke-5 - KALORI dan DETAK - berdiri di LUAR kartu,
+  dengan garis pemisahnya sendiri, jadi terbaca seperti tambalan. Kedua angka
+  itu memang bukan metrik navigasi (kalori berguna sesudah gowes, detak hanya
+  ada kalau sensor BLE terhubung), tapi halaman rujukan justru tempatnya:
+  satu kartu utuh, bukan kartu + sisa.
+
+  Kartu memakai layout_weight=1 pada height (bukan wrap_content) supaya ia
+  mengisi ruang yang tersisa dan lima baris terbagi rata - tinggi baris tidak
+  pernah perlu ditebak manual.
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <!--
+      Halaman 2 "DETAIL" - varian LANDSCAPE (R-06).
+
+      Satu kartu berisi kisi 2x5, SAMA seperti portrait: id, urutan sel, dan
+      tag "num" identik, karena MainActivity memanggil findViewById() tanpa
+      memeriksa null - satu id hilang = aplikasi mati saat layar diputar.
+
+      Yang berubah hanya cara tinggi diperoleh:
+
+        portrait  kartu mengisi sisa layar (weight=1), lima baris terbagi rata
+        landscape kisi dibungkus ScrollView, setiap baris setinggi isinya
+                  (minimum grid_row_h_land)
+
+      Kenapa TIDAK diputar jadi 5 kolom x 2 baris, padahal landscape unggul di
+      lebar: pada skala huruf 1,3x, satu sel selebar seperlima layar landscape
+      harus memuat "0,00" (36sp x 1,3) plus satuannya - dan di Xperia E1 maupun
+      HP layar lebar biasa, keduanya tidak muat bersebelahan tanpa menumpuk.
+      Menggulir kisi rujukan itu harga yang jauh lebih murah daripada angka yang
+      saling tumpang tindih: halaman ini dibaca saat berhenti, bukan sambil
+      mengayuh.
+
+      fillViewport dipakai supaya kartu tetap mengisi layar saat isinya lebih
+      pendek dari layar - kalau tidak, latar kartu berhenti di tengah dan
+      terbaca seperti kartu yang terpotong.
+    -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/screen_edge"
+        android:paddingRight="@dimen/screen_edge">
+
+    <TextView
+        style="@style/SectionLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/gap_snug"
+        android:paddingBottom="@dimen/gap_normal"
+        android:text="@string/page_detail" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_card"
+        android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/grid_row_h_land"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_speed" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvSpeed2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,0"/>
+                <TextView style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_speed" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_avg" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvAvg2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,0"/>
+                <TextView style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_speed" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+        android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
+        android:background="@color/divider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/grid_row_h_land"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_max" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvMax2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,0"/>
+                <TextView style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_speed" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_distance" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvDist2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,00"/>
+                <TextView style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_km" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+        android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
+        android:background="@color/divider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/grid_row_h_land"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_moving" />
+            <TextView android:id="@+id/tvMoving" style="@style/ValueBig"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00:00" />
+        </LinearLayout>
+
+        <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_total" />
+            <TextView android:id="@+id/tvTotal" style="@style/ValueBig"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00:00" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+        android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
+        android:background="@color/divider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/grid_row_h_land"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_elev" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvElev2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0"/>
+                <TextView style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_m" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_alt" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvAlt2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="--"/>
+                <TextView style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_m" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="@dimen/hairline"
+        android:layout_marginLeft="@dimen/screen_edge" android:layout_marginRight="@dimen/screen_edge"
+        android:background="@color/divider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/grid_row_h_land"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_kcal" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvKcal2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0"/>
+                <TextView style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_kcal" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/screen_edge" android:layout_marginBottom="@dimen/screen_edge"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView style="@style/Label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="@string/label_hr" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView android:id="@+id/tvHr2" style="@style/ValueBig"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="-"/>
+                <TextView style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_bpm" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>
+</ScrollView>

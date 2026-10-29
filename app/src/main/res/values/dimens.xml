@@ -99,4 +99,21 @@
          Dipilih selebar titik halaman supaya pola terlihat sebagai tekstur,
          bukan sebagai grid yang ikut bersaing dengan isi kartu. -->
     <dimen name="checker_cell">8dp</dimen>
+
+    <!-- R-06: tinggi minimum satu baris kisi Detail saat landscape.
+         Kenapa ada: di portrait tinggi baris datang dari layout_weight (kartu
+         mengisi sisa layar, lima baris terbagi rata). Di landscape, kisi dibungkus
+         ScrollView supaya tidak ada yang terpotong - dan anak ScrollView diukur
+         tanpa batas, jadi weight tidak punya arti di sana. Tanpa minHeight, lima
+         baris bisa menyusut sampai angka dan labelnya saling menempel.
+         56dp cukup untuk Label (12sp) + ValueBig (36sp) + jeda di antaranya. -->
+    <dimen name="grid_row_h_land">56dp</dimen>
+
+    <!-- R-06: lebar maksimum baris tombol aksi saat landscape.
+         Kenapa ada: bobot 1 : 1,5 : 1 dirancang untuk lebar 320dp. Di landscape
+         yang lebarnya hampir dua kali itu, bobot yang sama membuat tombol MULAI
+         menjadi bidang kosong selebar 270dp - hurufnya terdorong ke tengah dan
+         tombolnya terbaca seperti spasi, bukan sebagai tombol. Membatasi lebar
+         baris mempertahankan proporsi yang dimaksud bobot tersebut. -->
+    <dimen name="action_row_w">420dp</dimen>
 </resources>

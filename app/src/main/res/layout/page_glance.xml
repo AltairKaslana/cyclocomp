@@ -59,7 +59,7 @@
             android:layout_height="wrap_content"
             android:paddingLeft="@dimen/gap_loose"
             android:text="\u2665"
-            android:textColor="@color/accent"
+            android:textColor="@color/danger"
             android:visibility="gone" />
 
         <TextView

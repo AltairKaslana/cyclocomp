@@ -223,7 +223,7 @@ public class SummaryActivity extends Activity {
      */
     private void konfirmasiHapus() {
         if (row == null) return;
-        new AlertDialog.Builder(this)
+        AlertDialog d = new AlertDialog.Builder(this)
                 .setTitle(R.string.hist_delete_title)
                 .setMessage(R.string.hist_delete_msg)
                 .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
@@ -236,6 +236,19 @@ public class SummaryActivity extends Activity {
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
+        // Tombol konfirmasi HAPUS dibuat merah, bukan aksen cyan.
+        //
+        // Kenapa: warna tombol dialog mengikuti colorAccent tema, dan aksen cyan
+        // adalah warna "lanjutkan" - dipakai oleh MULAI, Sambungkan, dan Simpan.
+        // Kalau "Hapus" juga cyan, jalur keluar terlihat sama pentingnya dengan
+        // jalur aman, padahal menghapus gowes tidak bisa dibatalkan.
+        //
+        // Kenapa lewat getButton() sesudah show(), bukan tema dialog terpisah:
+        // tema dialog hanya bisa mengubah warna lewat atribut yang tersedia untuk
+        // seluruh dialog (termasuk tombol Batal, yang justru harus netral).
+        // Diambil sesudah show() karena tombolnya baru ada setelah dialog dibangun.
+        Button ya = d.getButton(AlertDialog.BUTTON_POSITIVE);
+        if (ya != null) ya.setTextColor(getResources().getColor(R.color.danger));
     }
 
     /**

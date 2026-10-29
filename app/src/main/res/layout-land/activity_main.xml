@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Layar utama - varian LANDSCAPE (R-06).
+
+  Strukturnya sama dengan portrait: bilah atas, wadah halaman (berat 1), lalu
+  baris tombol aksi. SEMUA id dan tag "num" identik dengan portrait, karena
+  MainActivity memanggil findViewById() tanpa memeriksa null.
+
+  Yang berubah, dan kenapa:
+
+  1. Indikator halaman (dots) PINDAH ke bilah atas.
+     Portrait punya baris sendiri di antara wadah halaman dan tombol - sekitar
+     30dp yang di landscape berarti hampir sepersepuluh tinggi layar. Landscape
+     justru punya lebar berlebih, dan bilah atasnya memang masih menyisakan
+     tempat. Memindahkan indikator ke sana membuat ia berdampingan dengan yang
+     ditunjukkannya (seperti bilah tab), bukan terpisah oleh tombol aksi.
+
+  2. Baris tombol aksi dibatasi lebarnya (action_row_w).
+     Bobot 1 : 1,5 : 1 dirancang untuk lebar 320dp. Di landscape yang lebarnya
+     hampir dua kali itu, bobot yang sama membuat tombol MULAI menjadi bidang
+     kosong selebar 270dp - hurufnya terdorong ke tengah dan tombolnya terbaca
+     seperti spasi, bukan sebagai tombol. Membatasi lebar baris mempertahankan
+     proporsi yang dimaksud bobot tersebut.
+
+  Tinggi tombol TIDAK diubah: tetap btn_action_h (64dp). Ini target sentuh
+  minimum yang diminta saat mengayuh, dan mengecilkannya di landscape berarti
+  mengorbankan hal yang sama yang membuatnya aman dipakai di atas sepeda.
+
+  Bilah atas juga tetap top_bar_h (48dp) - sama dengan alasannya. Yang dipadatkan
+  adalah JUMLAH baris, bukan tinggi target sentuh.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg">
+
+    <!-- ===== bilah atas (memuat indikator halaman) ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_bar_h"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/gap_wide"
+        android:paddingRight="@dimen/gap_snug">
+
+        <View
+            android:id="@+id/vRec"
+            android:layout_width="@dimen/rec_dot"
+            android:layout_height="@dimen/rec_dot"
+            android:layout_marginRight="@dimen/rec_dot"
+            android:background="@drawable/rec_dot"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            style="@style/StatusBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <TextView
+            android:id="@+id/tvLapBadge"
+            style="@style/StatusBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/gap_cozy"
+            android:textColor="@color/accent"
+            android:visibility="gone" />
+
+        <!--
+          Indikator halaman, dipindah ke sini dari barisnya sendiri di portrait.
+          Wadahnya LinearLayout yang diisi dari kode (MainActivity), jadi posisinya
+          di layout tidak berpengaruh pada cara kerjanya.
+        -->
+        <LinearLayout
+            android:id="@+id/dots"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="@dimen/gap_cozy"
+            android:orientation="horizontal" />
+
+        <!--
+          Saat IDLE: dua ikon - Riwayat dan Pengaturan.
+          Saat MEREKAM / DIJEDA: keduanya disembunyikan dan digantikan satu
+          ikon gembok non-aktif (btnLock). Logikanya di MainActivity.refresh().
+        -->
+        <ImageButton
+            android:id="@+id/btnHistory"
+            style="@style/IconBtn"
+            android:contentDescription="@string/btn_history"
+            android:src="@drawable/ic_history" />
+
+        <ImageButton
+            android:id="@+id/btnSettings"
+            style="@style/IconBtn"
+            android:layout_marginLeft="@dimen/gap_tight"
+            android:contentDescription="@string/btn_settings"
+            android:src="@drawable/ic_settings" />
+
+        <ImageButton
+            android:id="@+id/btnLock"
+            style="@style/IconBtn"
+            android:contentDescription="@string/lock_locked"
+            android:enabled="false"
+            android:src="@drawable/ic_lock"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- ===== wadah halaman ===== -->
+    <FrameLayout
+        android:id="@+id/pages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <include
+            android:id="@+id/page0"
+            layout="@layout/page_glance"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <include
+            android:id="@+id/page1"
+            layout="@layout/page_grid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <include
+            android:id="@+id/page2"
+            layout="@layout/page_lap"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <!-- ===== tombol aksi =====
+         Berat 1 : 1,5 : 1 — tombol MULAI terbesar, sesuai hukum Fitts: yang paling
+         sering ditekan dapat wilayah paling luas. Lebar baris dibatasi supaya
+         proporsi itu tidak buyar di layar yang jauh lebih lebar (lihat kepala
+         berkas). -->
+    <LinearLayout
+        android:layout_width="@dimen/action_row_w"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/screen_edge"
+        android:paddingRight="@dimen/screen_edge"
+        android:paddingBottom="@dimen/gap_wide">
+
+        <Button
+            android:id="@+id/btnLap"
+            style="@style/ActionBtn"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/btn_action_h"
+            android:text="@string/btn_lap" />
+
+        <Button
+            android:id="@+id/btnStartPause"
+            style="@style/ActionBtnPrimary"
+            android:layout_width="0dp"
+            android:layout_weight="1.5"
+            android:layout_height="@dimen/btn_action_h"
+            android:layout_marginLeft="@dimen/gap_loose"
+            android:text="@string/btn_start" />
+
+        <!--
+          BERHENTI: jalur bahaya (garis danger), bukan isi aksen.
+
+          T-08 - dibungkus FrameLayout supaya bar progres tahan-untuk-berhenti
+          bisa diletakkan di dasar tombol. Button adalah TextView: ia tidak bisa
+          punya anak, jadi progres harus bertumpuk di LUAR tombolnya. Karena itu
+          latar (garis danger) pindah ke FrameLayout, dan Button di atasnya hanya
+          mengurus teks dengan latar transparan (ActionBtnDangerText).
+
+          clipToOutline memotong bar progres mengikuti sudut kapsul tombol.
+        -->
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/btn_action_h"
+            android:layout_marginLeft="@dimen/gap_loose"
+            android:background="@drawable/bg_btn_danger"
+            android:clipToOutline="true">
+
+            <View
+                android:id="@+id/vStopProgress"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/hold_bar_h"
+                android:layout_gravity="bottom"
+                android:background="@color/danger" />
+
+            <Button
+                android:id="@+id/btnStop"
+                style="@style/ActionBtnDangerText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/btn_stop" />
+        </FrameLayout>
+    </LinearLayout>
+</LinearLayout>

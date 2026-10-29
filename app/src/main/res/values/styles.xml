@@ -356,6 +356,28 @@
         <item name="android:includeFontPadding">false</item>
     </style>
 
+    <!--
+      Baris kotak centang (penanda "komuter" di layar Ringkasan).
+
+      Kenapa gaya sendiri, bukan EmptyText: EmptyText adalah gaya untuk PESAN
+      berdiri sendiri (daftar kosong, keterangan). Dipakai di CheckBox, ukuran
+      huruf dan jaraknya jadi diatur untuk teks penjelas - bukan untuk baris
+      pilihan yang harus sepadan dengan judul di atasnya. Peran berbeda, gaya
+      berbeda.
+
+      Ukurannya sengaja sama dengan SettingTitle (text_body_m): baris "komuter"
+      berada di kartu penilaian sesudah gowes, sejajar dengan judul RPE di
+      atasnya. Kalau lebih kecil, ia terbaca sebagai keterangan tambahan, bukan
+      sebagai pilihan yang bisa diubah.
+    -->
+    <style name="CheckRow">
+        <item name="android:textSize">@dimen/text_body_m</item>
+        <item name="android:textColor">@color/value</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:buttonTint">@color/checkbox_tint</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
     <!-- teks penjelas (daftar kosong) -->
     <style name="EmptyText">
         <item name="android:textSize">@dimen/text_body_s</item>

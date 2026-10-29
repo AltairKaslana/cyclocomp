@@ -17,7 +17,7 @@
     - tinggi tombol 48dp -> btn_action_h (52dp), sama dengan layar utama.
 
   Kontras yang diperbaiki: tombol "Bagikan" dulu teks PUTIH di oranye
-  (#FFFFFF / #FC4C02 ~= 3,0:1, gagal WCAG AA untuk teks normal). Kini memakai
+  (#FFFFFF / oranye Strava ~= 3,0:1, gagal WCAG AA untuk teks normal). Kini memakai
   @style/ActionBtnPrimary, yaitu teks GELAP di aksen — sama seperti
   tombol MULAI di layar utama.
 

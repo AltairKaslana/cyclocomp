@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Warna thumb (tombol geser) Switch: aktif mengikuti aksen, mati abu.
+
+  Kenapa selector terpisah, bukan satu warna: kalau thumb selalu cyan, keadaan
+  MATI hanya bisa dibedakan dari posisinya dan dari warna rel. Rel sudah gelap
+  saat mati (lihat switch_track.xml), jadi satu-satunya penanda yang tersisa
+  adalah thumb - dan kalau itu tetap cyan, sakelar mati terlihat seperti sakelar
+  yang warnanya salah.
+
+  Abu dipilih dari token `label`, bukan `dot_off`: thumb adalah bagian terkecil
+  dari kontrol, jadi ia butuh kontras yang cukup untuk tetap terlihat di atas rel
+  gelap tanpa ikut bersaing dengan angka di sekitarnya.
+
+  Terpaku ke token colors.xml supaya ganti palet cukup satu tempat.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true" android:color="@color/accent" />
+    <item android:color="@color/label" />
+</selector>
