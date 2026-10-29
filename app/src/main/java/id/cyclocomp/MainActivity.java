@@ -539,16 +539,23 @@ public class MainActivity extends Activity implements RideService.Listener {
                 long age2 = service.getFixAgeMs();
                 if (age2 < 0 || age2 > 5000) {
                     vRec.setBackgroundResource(R.drawable.dot_warn);
+                    // T-17: warna titik punya makna, tapi makna itu tidak bisa
+                    // dibaca pembaca layar. Deskripsinya harus ikut berubah -
+                    // kalau tidak, pengguna tunanetra hanya mendengar "Status
+                    // GPS" untuk ketiga warna yang membawa informasi berbeda.
+                    vRec.setContentDescription(getString(R.string.status_gps_searching));
                 } else {
                     // rec_dot: oval hijau @color/rec. Bukan dot_on - itu kotak
                     // membulat berwarna aksen, dipakai indikator lain.
                     vRec.setBackgroundResource(R.drawable.rec_dot);
+                    vRec.setContentDescription(getString(R.string.status_gps_ok));
                 }
                 vRec.setVisibility(View.VISIBLE);
             } else if (st == RideService.State.PAUSED) {
                 // Dijeda: sinyal tidak relevan, tapi titik merah mengingatkan
                 // bahwa angka yang tampil tidak sedang bertambah.
                 vRec.setBackgroundResource(R.drawable.dot_danger);
+                vRec.setContentDescription(getString(R.string.status_gps_paused));
                 vRec.setVisibility(View.VISIBLE);
             } else {
                 vRec.setVisibility(View.GONE);

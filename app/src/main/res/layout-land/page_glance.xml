@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Halaman 1 "SEKILAS" — varian LANDSCAPE (T-16).
+
+  Kenapa ada berkas terpisah: di layar landscape, tinggi yang tersedia setelah
+  bilah atas dan tombol aksi tinggal sekitar setengah dari portrait. Menumpuk
+  pil → kecepatan → kartu metrik secara vertikal berarti kecepatan - angka yang
+  paling sering dilihat pengendara - mendapat ruang paling sedikit. Itu
+  kebalikan dari kepentingannya.
+
+  Sebaliknya landscape justru punya kelebihan yang tidak dipakai portrait:
+  LEBAR. Jadi ketiga blok dijajarkan menyamping, tiga kolom:
+
+      [ pil tanjakan ]  [  kecepatan  ]  [ kartu metrik ]
+      [ + detak      ]  [  (hero)     ]  [ 3 sel       ]
+
+  Urutan kolom sengaja mengikuti urutan baca mata pengendara: konteks (tanjakan,
+  detak) di kiri, angka utama di tengah, rincian di kanan.
+
+  SEMUA id dan tag "num" harus sama dengan page_glance.xml versi portrait —
+  MainActivity memanggil findViewById() tanpa memeriksa null. Kalau satu id
+  hilang di sini, aplikasi akan NPE tepat saat layar diputar.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:baselineAligned="false"
+    android:paddingLeft="@dimen/screen_edge"
+    android:paddingRight="@dimen/screen_edge"
+    android:paddingTop="@dimen/gap_cozy"
+    android:paddingBottom="@dimen/gap_snug">
+
+    <!-- ===== kolom 1: pil tanjakan + detak jantung ===== -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/pill_h"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/bg_pill"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="@dimen/gap_roomy"
+            android:paddingRight="@dimen/gap_roomy">
+
+            <id.cyclocomp.GradeRoad
+                android:id="@+id/gradeRoad"
+                android:layout_width="@dimen/grade_road_w"
+                android:layout_height="@dimen/grade_road_h"
+                android:layout_marginRight="@dimen/gap_snug"
+                android:contentDescription="@string/grade_road_desc" />
+
+            <TextView
+                android:id="@+id/tvGrade"
+                style="@style/GradeValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/gap_snug"
+                android:tag="num"
+                android:text="0,0" />
+
+            <TextView
+                style="@style/GradeUnit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/gap_tight"
+                android:text="@string/unit_grade" />
+
+            <!-- detak jantung: muncul hanya kalau sensor mengirim data -->
+            <TextView
+                android:id="@+id/tvHrHeart"
+                style="@style/PillGlyph"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/gap_loose"
+                android:text="\u2665"
+                android:textColor="@color/accent"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvHr"
+                style="@style/GradeValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/gap_tight"
+                android:tag="num"
+                android:text="0"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ===== kolom 2: kecepatan, angka dominan =====
+         Di portrait blok ini punya berat 1 dari seluruh tinggi layar. Di
+         landscape lebarlah yang melimpah, jadi angka diberi ruang lebih besar
+         (berat 1,6) - dan AutoFitText akan menyusutnya kalau masih terlalu
+         lebar, jadi tidak ada risiko terpotong. -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1.6"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <id.cyclocomp.AutoFitText
+            android:id="@+id/tvSpeed"
+            style="@style/SpeedHero"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:tag="num"
+            android:text="0,0" />
+
+        <TextView
+            style="@style/SpeedUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/gap_tight"
+            android:text="@string/unit_speed" />
+    </LinearLayout>
+
+    <!-- ===== kolom 3: kartu metrik, sel bertumpuk =====
+         Satu kartu, sama seperti portrait - hanya arah selnya yang berubah.
+         Di portrait pemisah antar sel VERTIKAL (sel bersebelahan); di landscape
+         pemisahnya HORIZONTAL (sel bertumpuk). Tiga sel di kolom selebar
+         sepertiga layar landscape akan terlalu sempit kalau tetap menyamping. -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1.2"
+        android:layout_marginLeft="@dimen/gap_normal"
+        android:background="@drawable/bg_card"
+        android:orientation="vertical"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+            <TextView
+                style="@style/Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_distance" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/gap_snug"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView
+                    android:id="@+id/tvDist"
+                    style="@style/ValueSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:tag="num"
+                    android:text="0,00" />
+                <TextView
+                    style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_km" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/hairline"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+            <TextView
+                style="@style/Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_time" />
+            <TextView
+                android:id="@+id/tvTime"
+                style="@style/ValueSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/gap_snug"
+                android:tag="num"
+                android:text="0:00:00" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/hairline"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+            <TextView
+                style="@style/Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_avg" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/gap_snug"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <TextView
+                    android:id="@+id/tvAvg"
+                    style="@style/ValueSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:tag="num"
+                    android:text="0,0" />
+                <TextView
+                    style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:text="@string/unit_speed" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

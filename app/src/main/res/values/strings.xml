@@ -353,4 +353,11 @@
     <string name="strava_uploading">Mengunggah ke Strava…</string>
     <string name="strava_uploaded">Terkirim ke Strava</string>
     <string name="strava_unlinked">Strava diputus</string>
+<string name="status_gps_ok">GPS akurat</string>
+<string name="status_gps_searching">Mencari sinyal GPS</string>
+<string name="status_gps_paused">Dijeda, GPS tidak merekam</string>
+<string name="card_page_fmt">Kartu %1$d dari %2$d: %3$s</string>
+<string name="share_pager_desc">Pratinjau kartu bagikan, %1$d kartu. Geser ke kiri atau kanan untuk mengganti.</string>
+<string name="history_week_fmt">Tujuh hari terakhir: %1$s km dalam %2$d gowes, total bergerak %3$s</string>
+
 </resources>

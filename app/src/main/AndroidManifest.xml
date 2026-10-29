@@ -40,8 +40,18 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait">
+            android:launchMode="singleTop">
+            <!-- T-16: kunci portrait DIBUKA hanya untuk layar ini.
+                 Layar utama dipakai di atas sepeda, dan sepeda sering diparkir
+                 di ragum yang cuma muat landscape - atau pengendara menitipkan
+                 HP miring. Kalau layar ini terkunci portrait, angka kecepatan
+                 akan terbaca miring atau terpotong.
+
+                 Layar lain SENGAJA tetap terkunci portrait: Riwayat,
+                 Ringkasan, Bagikan, dan Pengaturan dibaca sambil berhenti,
+                 bukan sambil mengayuh. Di landscape daftar Riwayat jadi
+                 sangat pendek per baris, dan pratinjau kartu bagikan yang
+                 tinggi (Story 9:16) tidak muat sama sekali. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

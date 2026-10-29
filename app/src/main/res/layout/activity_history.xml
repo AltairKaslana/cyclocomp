@@ -41,6 +41,45 @@
             android:text="@string/title_history" />
     </LinearLayout>
 
+    <!-- ===== T-19: total tujuh hari terakhir =====
+         Ditaruh di ATAS daftar, bukan di bawah: yang paling sering dicari orang
+         yang membuka Riwayat adalah "sejauh mana aku minggu ini", dan daftar
+         gowes bisa puluhan baris. Menjawabnya di bawah daftar berarti menjawab
+         setelah pengguna menggulir melewati semua rekaman lama.
+
+         Kartunya sendiri disembunyikan dari kode kalau belum ada gowes dalam
+         tujuh hari terakhir - bukan ditampilkan dengan "0,00 km". Kartu berisi
+         nol mengklaim sesuatu yang belum diketahui pengguna, sementara daftar
+         di bawahnya sudah jelas kosong.
+
+         Tingginya wrap_content, jadi kartu ini tidak mengambil ruang daftar
+         saat disembunyikan maupun saat tampil sebagai satu baris ringkas. -->
+    <LinearLayout
+        android:id="@+id/weekCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/gap_normal"
+        android:layout_marginRight="@dimen/gap_normal"
+        android:layout_marginTop="@dimen/gap_normal"
+        android:background="@drawable/bg_card"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/gap_wide"
+        android:paddingRight="@dimen/gap_wide"
+        android:paddingTop="@dimen/gap_roomy"
+        android:paddingBottom="@dimen/gap_roomy"
+        android:baselineAligned="false">
+
+        <TextView
+            android:id="@+id/weekText"
+            style="@style/SettingSummary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:maxLines="2"
+            android:ellipsize="end" />
+    </LinearLayout>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"

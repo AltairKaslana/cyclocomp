@@ -105,6 +105,10 @@ public class ShareActivity extends Activity {
         setContentView(R.layout.activity_share);
 
         pager = (CardPager) findViewById(R.id.pager);
+        // T-17: pager kartu adalah wilayah geser tanpa teks. Tanpa deskripsi,
+        // pembaca layar tidak memberi tahu pengguna bahwa ada delapan kartu yang
+        // bisa dijangkau dengan menggeser - ia hanya melihat satu gambar.
+        pager.setContentDescription(getString(R.string.share_pager_desc, PAGE_COUNT));
         pagerContent = (LinearLayout) findViewById(R.id.pagerContent);
         tvCardName = (TextView) findViewById(R.id.tvCardName);
         tvGenerating = (TextView) findViewById(R.id.tvGenerating);
@@ -178,6 +182,16 @@ public class ShareActivity extends Activity {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(d, d);
             lp.setMargins(gap, 0, gap, 0);
             v.setLayoutParams(lp);
+            // T-17: titik halaman tidak punya teks sama sekali, jadi pembaca
+            // layar membacanya sebagai "tombol" tanpa nama - atau melewatkannya
+            // karena dianggap hiasan. Padahal di layar Bagikan titik itu SATU-
+            // SATUNYA penanda kartu mana yang sedang dibuka.
+            //
+            // Deskripsinya menyebut posisi DAN nama varian, supaya pengguna
+            // tunanetra tahu ada berapa kartu dan sedang di yang mana tanpa
+            // harus menggeser ke semua halaman dulu.
+            v.setContentDescription(getString(R.string.card_page_fmt, i + 1, PAGE_COUNT,
+                    getString(labelIds[i])));
             dots.addView(v);
             dotViews[i] = v;
         }
