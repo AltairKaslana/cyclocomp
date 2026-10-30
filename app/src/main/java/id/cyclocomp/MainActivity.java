@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.net.Uri;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -44,6 +45,9 @@ public class MainActivity extends Activity implements RideService.Listener {
     private static final int REQ_PERM = 1;
     private static final int PAGE_COUNT = 3;
     private static final int ANIM_MS = 180;
+    // Peta live dibaca ulang tiap 3 detik (bukan tiap fix GPS): tiap pembacaan
+    // mem-parse ulang seluruh berkas GPX, jadi tidak perlu sesering angka.
+    private static final long MAP_REFRESH_MS = 3000;
 
     private TextView tvStatus, tvLapBadge;
     private View vRec;
@@ -53,6 +57,8 @@ public class MainActivity extends Activity implements RideService.Listener {
     private TextView tvSpeed, tvDist, tvTime, tvAvg, tvMax, tvElev, tvAlt, tvGrade;
     private GradeRoad gradeRoad;
     private TextView tvHr, tvHrHeart;
+    private TileMapView liveMap;          // peta live rute (halaman SEKILAS)
+    private long lastLiveMapMs;           // throttle pembacaan rute live
     private TextView tvSpeed2, tvDist2, tvTime2, tvAvg2, tvMax2, tvElev2, tvAlt2, tvKcal2, tvHr2;
     private TextView tvMoving, tvTotal, tvLapDist, tvLapTime, tvLapAvg, tvLapMoving, tvLapTitle;
     private ListView lapList;
@@ -129,6 +135,8 @@ public class MainActivity extends Activity implements RideService.Listener {
         gradeRoad = (GradeRoad) findViewById(R.id.gradeRoad);
         tvHr = (TextView) findViewById(R.id.tvHr);
         tvHrHeart = (TextView) findViewById(R.id.tvHrHeart);
+        liveMap = (TileMapView) findViewById(R.id.liveMap);
+        liveMap.setMapEnabled(id.cyclocomp.Settings.map(this));
 
         // halaman DETAIL
         tvSpeed2 = (TextView) findViewById(R.id.tvSpeed2);
@@ -475,6 +483,33 @@ public class MainActivity extends Activity implements RideService.Listener {
         refresh();
     }
 
+    /**
+     * Peta live di halaman SEKILAS: gambar rute yang sudah dilalui dengan membaca
+     * berkas GPX yang sedang ditulis. Di-throttle karena tiap pembacaan mem-parse
+     * ulang seluruh berkas. Saat tidak gowes peta disembunyikan (bukan tampil
+     * kosong) supaya dasbor tidak berisik.
+     */
+    private void updateLiveMap(RideService.State st) {
+        if (liveMap == null) return;
+        boolean riding = service != null
+                && (st == RideService.State.RECORDING || st == RideService.State.PAUSED);
+        if (!riding) {
+            if (liveMap.getVisibility() != View.GONE) {
+                liveMap.setVisibility(View.GONE);
+                lastLiveMapMs = 0;   // ride berikutnya tampil segera
+            }
+            return;
+        }
+        long now = SystemClock.uptimeMillis();
+        if (now - lastLiveMapMs < MAP_REFRESH_MS) return;
+        lastLiveMapMs = now;
+        List<GpxReader.P> track = LiveTrack.read(this, service.activeGpxLoc());
+        if (track != null && track.size() >= 2) {
+            liveMap.setVisibility(View.VISIBLE);
+            liveMap.setTrack(track);
+        }
+    }
+
     private void refresh() {
         RideService.State st = service == null ? RideService.State.IDLE : service.getState();
         RideStats s = service == null ? new RideStats() : service.getStats();
@@ -506,6 +541,9 @@ public class MainActivity extends Activity implements RideService.Listener {
             tvHr.setVisibility(View.GONE);
             tvHrHeart.setVisibility(View.GONE);
         }
+
+        // peta live: rute yang sudah dilalui (halaman SEKILAS)
+        updateLiveMap(st);
 
         // ---------- DETAIL ----------
         tvSpeed2.setText(Fmt.speed(s.currentSpeedMs));

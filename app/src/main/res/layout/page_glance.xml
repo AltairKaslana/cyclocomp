@@ -176,4 +176,15 @@
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
+
+    <!-- Peta live: rute yang sudah dilalui, di bawah kartu metrik (angka km).
+         TileMapView = ubin OSM di belakang garis rute; kalau tile gagal (offline),
+         latar kisi dari RouteView tetap tampil. Disembunyikan sampai gowes dimulai. -->
+    <id.cyclocomp.TileMapView
+        android:id="@+id/liveMap"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/glance_map_h"
+        android:layout_marginBottom="@dimen/gap_loose"
+        android:contentDescription="@string/route_live_desc"
+        android:visibility="gone" />
 </LinearLayout>

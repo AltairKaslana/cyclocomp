@@ -35,6 +35,10 @@
     <dimen name="pill_h">30dp</dimen>
     <dimen name="metrics_card_h">96dp</dimen>
 
+    <!-- Tinggi peta live di halaman SEKILAS, di bawah kartu metrik (angka km).
+         Strip ringkas: rute yang sudah dilalui sebagai thumbnail. -->
+    <dimen name="glance_map_h">120dp</dimen>
+
     <!-- pembatas vertikal antar kolom metrik -->
     <dimen name="divider_short">34dp</dimen>
     <dimen name="divider_lap">42dp</dimen>

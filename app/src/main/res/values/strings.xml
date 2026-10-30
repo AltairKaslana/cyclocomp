@@ -91,6 +91,7 @@
     <!-- peta -->
     <string name="route_none">Rute tidak tersedia</string>
     <string name="route_offline">Peta belum siap — rute tetap tergambar</string>
+    <string name="route_live_desc">Peta rute yang sudah dilalui</string>
     <string name="btn_share_gpx">BAGIKAN GPX</string>
     <string name="summary_title">GOWES SELESAI</string>
 

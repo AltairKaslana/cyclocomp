@@ -151,6 +151,13 @@ public class RideService extends Service implements LocationListener {
 
     public void setListener(Listener l) { listener = l; }
     public State getState() { return state; }
+
+    /**
+     * Locator berkas GPX ride yang sedang direkam (null saat IDLE). Read-only:
+     * dipakai peta live (MainActivity, MapActivity) untuk membaca rute yang sudah
+     * dilalui. Tidak menyentuh logika perekaman maupun isi berkas.
+     */
+    public String activeGpxLoc() { return gpxLoc; }
     public RideStats getStats() { return stats; }
     public float getLastAccuracy() { return lastAccuracy; }
     public boolean hasBaro() { return baro != null && baro.available(); }
