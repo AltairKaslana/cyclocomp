@@ -79,6 +79,12 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <!-- Peta layar penuh: posisi + rute + geser/zoom. Orientasi tak dikunci
+             (mengikuti perangkat) supaya bisa dipakai sambil gowes. -->
+        <activity
+            android:name=".MapActivity"
+            android:exported="false" />
+
         <!-- Dipakai hanya untuk membagikan GPX lewat content:// (Android 7+ melarang file://) -->
         <provider
             android:name=".RideProvider"

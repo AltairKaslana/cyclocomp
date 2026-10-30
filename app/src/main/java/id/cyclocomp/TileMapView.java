@@ -68,6 +68,11 @@ public class TileMapView extends RouteView {
     private int zoom = 14;
     private boolean fitted;
     private boolean enabled = true;
+    // Mode ikut (layar navigasi): memusat titik terbaru dengan zoom tetap.
+    // userMoved = pengguna sudah menggeser/memperbesar sendiri -> berhenti ikut.
+    private boolean follow;
+    private boolean userMoved;
+    private static final int FOLLOW_ZOOM = 15;
 
     private GestureDetector gesture;
     private ScaleGestureDetector pinch;
@@ -98,12 +103,14 @@ public class TileMapView extends RouteView {
                 centerLon -= dx / world * 360.0;
                 centerLat = yToLat(yToWorld(centerLat) - dy, world);
                 centerLat = Math.max(-85, Math.min(85, centerLat));
+                userMoved = true;
                 invalidate();
                 return true;
             }
 
             @Override public boolean onDoubleTap(MotionEvent e) {
                 zoom = Math.min(MAX_ZOOM, zoom + 1);
+                userMoved = true;
                 invalidate();
                 return true;
             }
@@ -111,6 +118,7 @@ public class TileMapView extends RouteView {
 
         pinch = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override public boolean onScale(ScaleGestureDetector d) {
+                userMoved = true;
                 pinchAccum *= d.getScaleFactor();
                 if (pinchAccum > 1.6f && zoom < MAX_ZOOM) { zoom++; pinchAccum = 1f; invalidate(); }
                 else if (pinchAccum < 0.62f && zoom > MIN_ZOOM) { zoom--; pinchAccum = 1f; invalidate(); }
@@ -125,10 +133,31 @@ public class TileMapView extends RouteView {
         invalidate();
     }
 
+    /**
+     * Mode ikut (dipakai layar navigasi): peta selalu memusat titik terbaru dengan
+     * zoom tetap. Menggeser/memperbesar sendiri membuat mode ini berhenti sampai
+     * {@link #recenter()} ditekan.
+     */
+    public void setFollow(boolean on) {
+        follow = on;
+        if (on) { userMoved = false; fitted = false; }
+        invalidate();
+    }
+
+    /** Pusatkan ulang: ke posisi terbaru (kalau ikut) atau ke seluruh rute. */
+    public void recenter() {
+        userMoved = false;
+        fitted = false;
+        invalidate();
+    }
+
     @Override public void setTrack(List<GpxReader.P> track) {
         super.setTrack(track);
-        fitted = false;
         gagal.clear();
+        // Pas-kan ulang tampilan hanya kalau pengguna belum menggeser/memperbesar
+        // sendiri. Kalau sudah, hormati pandangan pengguna - jangan biarkan tiap
+        // update mendorong peta kembali ke fit.
+        if (!userMoved) fitted = false;
         invalidate();
     }
 
@@ -155,6 +184,15 @@ public class TileMapView extends RouteView {
 
     /** Pilih zoom dan pusat supaya seluruh rute masuk tampilan. */
     private void fit(int w, int h) {
+        // mode ikut: pusat di titik terbaru, zoom tetap - seperti layar navigasi
+        if (follow && !pts.isEmpty()) {
+            GpxReader.P last = pts.get(pts.size() - 1);
+            centerLat = last.lat;
+            centerLon = last.lon;
+            zoom = FOLLOW_ZOOM;
+            fitted = true;
+            return;
+        }
         double minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
         for (GpxReader.P p : pts) {
             if (p.lat < minLat) minLat = p.lat;

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Peta layar penuh (fitur navigasi): posisi terkini + rute yang sudah dilalui,
+  dengan geser & pinch-zoom. Mode ikut memusat posisi terbaru; begitu pengguna
+  menggeser sendiri, ikut berhenti sampai tombol "ke posisi ku" ditekan.
+
+  Atribusi © OpenStreetMap digambar sendiri oleh TileMapView di kanan-bawah, jadi
+  tombol "ke posisi ku" sengaja diangkat (margin bawah) agar tidak menutupinya.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg">
+
+    <id.cyclocomp.TileMapView
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/route_live_desc" />
+
+    <!-- bilah atas: judul + tutup -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_bar_h"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/gap_wide"
+        android:paddingRight="@dimen/gap_snug">
+
+        <TextView
+            style="@style/StatusBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/group_map" />
+
+        <ImageButton
+            android:id="@+id/btnClose"
+            style="@style/IconBtn"
+            android:contentDescription="@string/close"
+            android:src="@drawable/ic_close" />
+    </LinearLayout>
+
+    <!-- ke posisi ku: pusatkan ulang ke titik terbaru -->
+    <ImageButton
+        android:id="@+id/btnRecenter"
+        style="@style/IconBtn"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/gap_wide"
+        android:contentDescription="@string/map_recenter"
+        android:src="@drawable/ic_locate" />
+</FrameLayout>

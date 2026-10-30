@@ -51,7 +51,7 @@ public class MainActivity extends Activity implements RideService.Listener {
 
     private TextView tvStatus, tvLapBadge;
     private View vRec;
-    private ImageButton btnHistory, btnSettings, btnLock;
+    private ImageButton btnHistory, btnSettings, btnLock, btnMap;
     private View vStopProgress;
     private LinearLayout lapCard;
     private TextView tvSpeed, tvDist, tvTime, tvAvg, tvMax, tvElev, tvAlt, tvGrade;
@@ -166,6 +166,7 @@ public class MainActivity extends Activity implements RideService.Listener {
         btnHistory = (ImageButton) findViewById(R.id.btnHistory);
         btnSettings = (ImageButton) findViewById(R.id.btnSettings);
         btnLock = (ImageButton) findViewById(R.id.btnLock);
+        btnMap = (ImageButton) findViewById(R.id.btnMap);
         vStopProgress = findViewById(R.id.vStopProgress);
 
         // Umpan balik tekan: tombol menyusut sedikit saat disentuh. Lihat Nav.pressFeedback.
@@ -227,6 +228,11 @@ public class MainActivity extends Activity implements RideService.Listener {
         btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 Nav.open(MainActivity.this, SettingsActivity.class);
+            }
+        });
+        btnMap.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Nav.open(MainActivity.this, MapActivity.class);
             }
         });
 

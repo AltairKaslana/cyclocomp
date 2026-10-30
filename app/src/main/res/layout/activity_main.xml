@@ -78,6 +78,13 @@
             android:src="@drawable/ic_settings" />
 
         <ImageButton
+            android:id="@+id/btnMap"
+            style="@style/IconBtn"
+            android:layout_marginLeft="@dimen/gap_tight"
+            android:contentDescription="@string/group_map"
+            android:src="@drawable/ic_map" />
+
+        <ImageButton
             android:id="@+id/btnLock"
             style="@style/IconBtn"
             android:contentDescription="@string/lock_locked"
