@@ -119,15 +119,18 @@
             android:layout_height="match_parent" />
     </FrameLayout>
 
-    <!-- ===== indikator halaman ===== -->
+    <!-- ===== indikator halaman =====
+         Tinggi 48dp: tiap titik harus bisa diketuk tanpa menggeser. Garisnya
+         sendiri tetap 3dp dan digambar di tengah bidang sentuh (lihat
+         MainActivity.buildDots/paintDots - latar dipakai InsetDrawable), jadi
+         ruang yang dimakan layar bertambah tanpa mengubah rupa indikatornya. -->
     <LinearLayout
         android:id="@+id/dots"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:paddingTop="@dimen/gap_snug"
-        android:paddingBottom="@dimen/gap_loose" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal" />
 
     <!-- ===== tombol aksi =====
          Berat 1 : 1,5 : 1 — tombol MULAI terbesar, sesuai hukum Fitts: yang paling

@@ -73,13 +73,16 @@
         <!--
           Indikator halaman, dipindah ke sini dari barisnya sendiri di portrait.
           Wadahnya LinearLayout yang diisi dari kode (MainActivity), jadi posisinya
-          di layout tidak berpengaruh pada cara kerjanya.
+          di layout tidak berpengaruh pada cara kerjanya. Tinggi 48dp agar tiap
+          titik bisa diketuk tanpa menggeser; garisnya digambar di tengah bidang
+          sentuh (latar InsetDrawable), jadi baris atas tidak ikut membesar.
         -->
         <LinearLayout
             android:id="@+id/dots"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
             android:layout_marginRight="@dimen/gap_cozy"
             android:orientation="horizontal" />
 

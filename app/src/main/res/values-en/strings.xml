@@ -34,6 +34,7 @@
     <string name="label_max">MAX</string>
     <string name="label_elev">ELEVATION</string>
     <string name="label_alt">ALTITUDE</string>
+    <string name="page_of">Page %1$d of %2$d</string>
     <string name="label_kcal">CALORIES</string>
     <string name="label_hr">HEART RATE</string>
     <string name="label_hr_avg">AVG HEART RATE</string>
@@ -87,6 +88,8 @@
     <string name="close">Close</string>
 
     <!-- peta -->
+<string name="route_live_desc">Map of the route ridden</string>
+<string name="map_recenter">Back to me</string>
     <string name="route_none">Route unavailable</string>
     <string name="route_offline">Map not ready yet — the route is still drawn</string>
     <string name="btn_share_gpx">SHARE GPX</string>
@@ -228,6 +231,8 @@
          average power. Two neighbouring cells with the same label but
          different numbers is a duplicated label. -->
     <string name="label_avg_power">AVG POWER</string>
+    <string name="label_kcal_est">CALORIES\n(ESTIMATE)</string>
+    <string name="label_power_est">AVG POWER\n(ESTIMATE)</string>
     <string name="summary_hr_none">No heart rate data</string>
 
     <!-- commute -->

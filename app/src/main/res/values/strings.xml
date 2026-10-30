@@ -36,6 +36,7 @@
     <string name="label_max">MAKS</string>
     <string name="label_elev">TANJAKAN</string>
     <string name="label_alt">KETINGGIAN</string>
+    <string name="page_of">Halaman %1$d dari %2$d</string>
     <string name="label_kcal">KALORI</string>
     <string name="label_hr">DETAK</string>
     <string name="label_hr_avg">DETAK RATA-RATA</string>
@@ -235,6 +236,16 @@
          angka berbeda adalah label ganda - sekarang yang ini punya namanya
          sendiri. -->
     <string name="label_avg_power">DAYA RATA-RATA</string>
+    <!-- v1.0 R-07: kalori & daya adalah PERKIRAAN (dihitung dari fisika, bukan
+         sensor). Label di aplikasi kini mengatakannya; kartu bagikan sengaja
+         tetap memakai label pendek (label_kcal / label_avg_power) karena di sana
+         satu baris dari tujuh - menandainya justru membuat baris itu terlihat
+         kurang pasti daripada yang sebenarnya.
+         Dua baris, bukan satu: "KALORI (PERKIRAAN)" satu baris TIDAK muat di sel
+         kisi setengah lebar layar 360dp (~154dp) pada 12sp dengan letterSpacing
+         0,14 (~169sp) - teksnya akan terpotong, bukan mengecil. -->
+    <string name="label_kcal_est">KALORI\n(PERKIRAAN)</string>
+    <string name="label_power_est">DAYA RATA-RATA\n(PERKIRAAN)</string>
     <string name="summary_hr_none">Tidak ada data detak jantung</string>
 
     <!-- komuter -->

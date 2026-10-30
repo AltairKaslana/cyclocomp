@@ -312,23 +312,43 @@ public class MainActivity extends Activity implements RideService.Listener {
         dots.removeAllViews();
         for (int i = 0; i < PAGE_COUNT; i++) {
             View d = new View(this);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(18), dp(3));
-            lp.leftMargin = dp(3);
-            lp.rightMargin = dp(3);
+            // Bidang sentuh 48dp x 48dp (aturan target sentuh di rancangan UI/UX),
+            // tapi garis yang TERLIHAT tetap 3dp tinggi: latarnya dipasang sebagai
+            // InsetDrawable di paintDots(), jadi ruang yang dimakan layar bertambah
+            // tanpa mengubah rupa indikatornya.
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(48), dp(48));
             d.setLayoutParams(lp);
+            d.setClickable(true);
+            d.setFocusable(false);
+            final int idx = i;
+            d.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { showPage(idx); }
+            });
+            d.setContentDescription(getString(R.string.page_of, idx + 1, PAGE_COUNT));
             dots.addView(d);
         }
     }
 
-    /** Halaman aktif jadi garis oranye lebih panjang - pola khas aplikasi olahraga. */
+    /**
+     * Halaman aktif jadi garis lebih panjang - pola khas aplikasi olahraga.
+     *
+     * Garis digambar di tengah bidang sentuh 48dp lewat InsetDrawable, supaya
+     * titik bisa diketuk lebar tanpa baris indikator ikut bertinggi.
+     */
     private void paintDots() {
         for (int i = 0; i < dots.getChildCount(); i++) {
             View d = dots.getChildAt(i);
             boolean on = i == page;
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) d.getLayoutParams();
-            lp.width = dp(on ? 26 : 12);
-            d.setLayoutParams(lp);
-            d.setBackgroundResource(on ? R.drawable.dot_on : R.drawable.dot_off);
+            int lineW = dp(on ? 26 : 12);
+            int lineH = dp(3);
+            int side = (dp(48) - lineW) / 2;
+            int top = (dp(48) - lineH) / 2;
+            // Tanpa androidx (proyek ini tanpa dependency selain junit): ambil
+            // drawable langsung dari Resources - API 21+, minSdk proyek 23.
+            android.graphics.drawable.InsetDrawable in = new android.graphics.drawable.InsetDrawable(
+                    getResources().getDrawable(on ? R.drawable.dot_on : R.drawable.dot_off),
+                    side, top, side, top);
+            d.setBackground(in);
         }
     }
 
