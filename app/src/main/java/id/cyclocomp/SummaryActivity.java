@@ -37,7 +37,7 @@ public class SummaryActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-                Tema.pasangPada(this);   // palet benar SEBELUM layout dibaca
+        Tema.pasangPada(this);   // palet benar SEBELUM layout dibaca
         setContentView(R.layout.activity_summary);
         Ui.fonts(getWindow().getDecorView(), this);
         Ui.buttonFonts(getWindow().getDecorView(), this);

@@ -127,7 +127,7 @@ public class MainActivity extends Activity implements RideService.Listener {
             startActivity(new Intent(this, OnboardingActivity.class));
         }
 
-                Tema.pasangPada(this);   // palet benar SEBELUM layout dibaca
+        Tema.pasangPada(this);   // palet benar SEBELUM layout dibaca
         setContentView(R.layout.activity_main);
 
         // Dibuat di onCreate, BUKAN di konstruktor: konstruktor Activity jalan sebelum

@@ -103,7 +103,7 @@ public class ShareActivity extends Activity {
             return;
         }
 
-                Tema.pasangPada(this);   // palet benar SEBELUM layout dibaca
+        Tema.pasangPada(this);   // palet benar SEBELUM layout dibaca
         setContentView(R.layout.activity_share);
 
         pager = (CardPager) findViewById(R.id.pager);

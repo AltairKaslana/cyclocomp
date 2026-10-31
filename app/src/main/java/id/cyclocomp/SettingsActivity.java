@@ -49,7 +49,7 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-                Tema.pasangPada(this);   // palet benar SEBELUM layout dibaca
+        Tema.pasangPada(this);   // palet benar SEBELUM layout dibaca
         setContentView(R.layout.activity_settings);
         Ui.fonts(getWindow().getDecorView(), this);
         groups = (LinearLayout) findViewById(R.id.groups);

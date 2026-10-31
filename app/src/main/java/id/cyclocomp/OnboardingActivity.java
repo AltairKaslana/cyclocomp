@@ -58,7 +58,7 @@ public class OnboardingActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
-                Tema.pasangPada(this);   // palet benar SEBELUM layout dibaca
+        Tema.pasangPada(this);   // palet benar SEBELUM layout dibaca
         setContentView(R.layout.activity_onboarding);
 
         pages = new View[]{
