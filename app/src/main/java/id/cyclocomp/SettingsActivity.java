@@ -135,7 +135,12 @@ public class SettingsActivity extends Activity {
         // dengan peta: pilihan ini mengubah seluruh layar sekaligus, sementara
         // setelan peta hanya menyentuh satu bagian di layar Ringkasan.
         group(getString(R.string.group_display));
-        switchRow(R_THEME, R.string.settings_theme, keteranganTema());
+        // Sakelar diganti baris pilihan: sakelar hanya punya dua keadaan dan
+        // arahnya mudah terbaca terbalik (nyala = siang, mati = gelap), apalagi
+        // di tempat ini sakelarnya juga ikut reaksi recreate(). Baris pilihan
+        // menampilkan kata "Gelap"/"Siang" yang sama dengan pilihan tersimpan,
+        // jadi yang tersimpan dan yang terlihat tidak mungkin berbeda.
+        valueRow(R_THEME, R.string.settings_theme, keteranganTema());
         // Atur layar diletakkan di kelompok TAMPILAN, tepat di bawah sakelar
         // tema: keduanya mengubah rupa dashboard, bukan isi perekaman.
         valueRow(R_ATUR_LAYAR, R.string.settings_atur_layar, getString(R.string.sum_atur_layar));
@@ -385,7 +390,6 @@ public class SettingsActivity extends Activity {
     private boolean isOn(int id) {
         switch (id) {
             case R_AUTOPAUSE: return Settings.autoPause(this);
-            case R_THEME:     return Settings.theme(this);
             case R_MAP:       return Settings.map(this);
             case R_BEEP:
             default:          return Settings.beep(this);
@@ -396,23 +400,6 @@ public class SettingsActivity extends Activity {
         switch (id) {
             case R_AUTOPAUSE: Settings.setAutoPause(this, v); break;
             case R_MAP:       Settings.setMap(this, v); break;
-            case R_THEME:
-                // Tema.terapkan: tandai palet baru seketika + simpan. Penanda
-                // memori diperbarui lebih dulu, jadi layar hasil recreate()
-                // di bawah ini pasti memakai palet baru walau tulisan ke disk
-                // belum sempat terbaca.
-                Tema.terapkan(this, v);
-                // Palet dipilih saat aktivitas DIBANGKAN (attachBaseContext),
-                // jadi aktivitas yang sedang berjalan tetap memakai palet lama.
-                // recreate() membangun ulang aktivitas ini dengan palet baru -
-                // tanpa itu sakelarnya akan terasa "tersimpan tapi tidak
-                // bereaksi".
-                //
-                // Sengaja hanya aktivitas ini: layar lain ikut sendiri lewat
-                // Tema.perbaikiKalauPerlu di onStart-nya, jadi tidak perlu
-                // daftar aktivitas yang dirawat dari sini.
-                recreate();
-                break;
             case R_BEEP:      Settings.setBeep(this, v); break;
             default: break;
         }
@@ -438,7 +425,8 @@ public class SettingsActivity extends Activity {
                 int mn = Settings.alertMin(this);
                 return mn <= 0 ? getString(R.string.settings_off) : getString(R.string.settings_minutes, mn);
             case R_BEEP:      return onOff(Settings.beep(this));
-            case R_THEME:     return onOff(Settings.theme(this));
+            case R_THEME:     return getString(Settings.theme(this)
+                    ? R.string.sum_theme_light : R.string.sum_theme_dark);
             case R_WEIGHT:    return getString(R.string.opt_kg, Math.round(Settings.weight(this)));
             case R_MAP:       return onOff(Settings.map(this));
             case R_HR: {
@@ -466,6 +454,30 @@ public class SettingsActivity extends Activity {
 
     private void onRow(int id) {
         switch (id) {
+            case R_THEME: {
+                // Pilihan eksplisit, bukan sakelar. Yang ditampilkan di dialog
+                // adalah pilihan yang TERSIMPAN sekarang, jadi tidak ada keadaan
+                // yang harus ditebak - dan satu ketukan langsung menetapkan
+                // satu nilai, tanpa ada "nyala/mati" yang bisa terbaca terbalik.
+                final boolean tersimpan = Settings.theme(this);
+                choose(R.string.settings_theme,
+                        new String[]{getString(R.string.sum_theme_dark),
+                                     getString(R.string.sum_theme_light)},
+                        tersimpan ? 1 : 0,
+                        new Pick() {
+                            @Override public void set(int i) {
+                                final boolean terang = (i == 1);
+                                // Pilihan yang sama tidak perlu membangun ulang.
+                                if (terang == Settings.theme(SettingsActivity.this)) {
+                                    paint();
+                                    return;
+                                }
+                                Tema.terapkan(SettingsActivity.this, terang);
+                                recreate();
+                            }
+                        });
+                break;
+            }
             case R_AP_SPEED: {
                 final float[] vals = {2, 3, 5, 8, 10};
                 choose(R.string.settings_ap_speed,

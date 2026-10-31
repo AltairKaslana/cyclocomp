@@ -157,6 +157,8 @@
     <string name="group_display">TAMPILAN</string>
     <string name="settings_theme">Tema terang</string>
     <string name="sum_theme">Latar terang dengan teks gelap. Berganti seketika.</string>
+    <string name="sum_theme_dark">Gelap</string>
+    <string name="sum_theme_light">Siang</string>
     <string name="group_map">PETA</string>
     <string name="group_other">LAINNYA</string>
 
