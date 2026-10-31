@@ -141,12 +141,48 @@ final class Tema {
         return paksa(base, false);
     }
 
-    private static Context paksa(Context base, boolean terang) {
+    /**
+     * Bit malam yang benar untuk sebuah nilai uiMode. Dipisah supaya bisa
+     * diuji tanpa perangkat: yang diuji di sini cuma aritmetika bit, dan itu
+     * tepat yang menentukan palet mana yang dipakai.
+     *
+     * Hanya dua bit UI_MODE_NIGHT_* yang disentuh; bit lain (tipe layar,
+     * kerapatan) dibiarkan apa adanya.
+     */
+    static int bitMalam(int uiMode, boolean terang) {
+        return (uiMode & ~Configuration.UI_MODE_NIGHT_MASK)
+                | (terang ? Configuration.UI_MODE_NIGHT_NO : Configuration.UI_MODE_NIGHT_YES);
+    }
+
+    /** Balikkan konteks yang resource-nya sudah terpaksa gelap/terang. */
+    static Context paksa(Context base, boolean terang) {
+        if (base == null) return null;
         try {
             Configuration cfg = new Configuration(base.getResources().getConfiguration());
-            int malam = terang ? Configuration.UI_MODE_NIGHT_NO : Configuration.UI_MODE_NIGHT_YES;
-            cfg.uiMode = (cfg.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | malam;
-            return base.createConfigurationContext(cfg);
+            cfg.uiMode = bitMalam(cfg.uiMode, terang);
+            Context c = base.createConfigurationContext(cfg);
+
+            // JALUR CADANGAN - dan ini yang penting.
+            //
+            // createConfigurationContext() punya bug di framework: override
+            // yang dipasang masuk ke konfigurasi KANONIK proses
+            // (ActivityThread.mCurrentConfig), bukan ke konfigurasi dasar
+            // aktivitas. Efek sampingnya, ResourcesImpl yang sudah dipakai
+            // sebelumnya bisa ikut ditimpa konfigurasi proses - sehingga
+            // meminta palet gelap SESUDAH sempat memakai palet terang
+            // mengembalikan Resources yang tetap memakai berkas values/
+            // (terang). Gejalanya di lapangan: sakelar tema "macet", hanya
+            // satu arah yang tidak bereaksi.
+            //
+            // updateConfiguration() memaksa konfigurasi itu benar-benar
+            // dipasang pada Resources yang AKAN dipakai layar ini, apa pun isi
+            // cache-nya. Ini jalur yang sama yang dipakai AppCompat sebagai
+            // cadangan (lihat AppCompatDelegateImpl.updateResourcesConfiguration).
+            // Bersifat best-effort: kalau gagal, palet tetap apa adanya -
+            // aplikasi tidak boleh mati karena urusan warna.
+            android.content.res.Resources res = c.getResources();
+            res.updateConfiguration(cfg, null);
+            return c;
         } catch (Throwable t) {
             // Lihat catatan kelas: gagal lembut, jangan sampai aplikasi mati.
             return base;

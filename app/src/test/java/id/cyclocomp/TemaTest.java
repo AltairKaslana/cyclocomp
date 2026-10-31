@@ -4,6 +4,7 @@ import android.content.res.Configuration;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -47,6 +48,37 @@ public class TemaTest {
         assertTrue(Tema.terangDariPenanda(siangPadat));
         int malamPadat = (3 << 8) | Configuration.UI_MODE_TYPE_NORMAL | Configuration.UI_MODE_NIGHT_YES;
         assertFalse(Tema.terangDariPenanda(malamPadat));
+    }
+
+    @Test
+    public void bitMalamDanPembacaannyaSinkron() {
+        // Bolak-balik: apa pun uiMode masuk, hasil paksa siang harus terbaca
+        // siang, dan hasil paksa gelap harus terbaca gelap. Kalau aritmetika
+        // bit-nya meleset, palet yang dipakai ikut salah - dan itu yang bikin
+        // sakelar tema terasa macet.
+        int[] contoh = {
+                0,
+                Configuration.UI_MODE_TYPE_NORMAL | Configuration.UI_MODE_NIGHT_NO,
+                Configuration.UI_MODE_TYPE_NORMAL | Configuration.UI_MODE_NIGHT_YES,
+                (2 << 8) | Configuration.UI_MODE_TYPE_DESK,
+                (4 << 8) | Configuration.UI_MODE_TYPE_NORMAL | Configuration.UI_MODE_NIGHT_UNDEFINED,
+        };
+        for (int masuk : contoh) {
+            assertTrue("paksa siang harus terbaca siang", Tema.terangDariPenanda(
+                    Tema.bitMalam(masuk, true)));
+            assertFalse("paksa gelap harus terbaca gelap", Tema.terangDariPenanda(
+                    Tema.bitMalam(masuk, false)));
+        }
+    }
+
+    @Test
+    public void bitMalamTidakMenyentuhBitLain() {
+        int masuk = (2 << 8) | Configuration.UI_MODE_TYPE_CAR | Configuration.UI_MODE_NIGHT_YES;
+        int hasil = Tema.bitMalam(masuk, true);
+        // kerapatan dan tipe layar harus utuh; hanya dua bit malam yang berubah
+        assertEquals("kerapatan utuh", 2 << 8, hasil & (0xff << 8));
+        assertEquals("tipe layar utuh",
+                Configuration.UI_MODE_TYPE_CAR, hasil & Configuration.UI_MODE_TYPE_MASK);
     }
 
     // ---------- keputusan membangun ulang ----------
