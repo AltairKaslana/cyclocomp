@@ -95,6 +95,12 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <!-- Sensor & roda (N-03): dipilih sambil berhenti, jadi portrait. -->
+        <activity
+            android:name=".SensorActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <!-- Peta layar penuh: posisi + rute + geser/zoom. Orientasi tak dikunci
              (mengikuti perangkat) supaya bisa dipakai sambil gowes. -->
         <activity

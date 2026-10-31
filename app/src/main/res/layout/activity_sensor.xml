@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Sensor & roda (rancangan UI/UX 5.4).
+
+  Kartu dibangun di SensorActivity karena isinya bergantung pada sensor yang
+  tersimpan dan status sambungan saat gowes. Layout ini hanya menyediakan
+  bilah atas dan wadah yang bisa digulung.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_bar_h"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/gap_snug"
+        android:paddingRight="@dimen/screen_edge">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            style="@style/IconBtn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="@string/back"
+            android:src="@drawable/ic_back" />
+
+        <TextView
+            style="@style/StatusBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/gap_snug"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="@string/sensor_title" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none"
+        android:paddingLeft="@dimen/screen_edge"
+        android:paddingRight="@dimen/screen_edge">
+
+        <LinearLayout
+            android:id="@+id/cards"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/gap_normal"
+            android:paddingBottom="@dimen/gap_spacious" />
+    </ScrollView>
+</LinearLayout>

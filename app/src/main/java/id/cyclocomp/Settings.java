@@ -28,6 +28,9 @@ final class Settings {
     private static final String K_LAST_RIDE   = "last_ride";
     private static final String K_HR_MAC      = "hr_mac";        // alamat sensor detak jantung
     private static final String K_HR_NAME     = "hr_name";
+    private static final String K_CSC_MAC     = "csc_mac";       // sensor kecepatan/kadensi
+    private static final String K_CSC_NAME    = "csc_name";
+    private static final String K_WHEEL_MM    = "wheel_mm";      // keliling roda, milimeter
     private static final String K_MAP         = "map";           // peta ubin di Ringkasan
     private static final String K_WEIGHT      = "weight";        // kg, dipakai hitung kalori
     private static final String K_THEME       = "theme_light";   // tema siang?
@@ -102,6 +105,32 @@ final class Settings {
     public static String hrName(Context c) { return sp(c).getString(K_HR_NAME, ""); }
     public static void setHrName(Context c, String v) {
         sp(c).edit().putString(K_HR_NAME, v == null ? "" : v).apply();
+    }
+
+    // ---------- sensor kecepatan/kadensi + roda ----------
+
+    /** MAC sensor CSC yang dipilih; "" = aplikasi mencari sendiri saat gowes. */
+    public static String cscMac(Context c) { return sp(c).getString(K_CSC_MAC, ""); }
+    public static void setCscMac(Context c, String v) {
+        sp(c).edit().putString(K_CSC_MAC, v == null ? "" : v).apply();
+    }
+
+    public static String cscName(Context c) { return sp(c).getString(K_CSC_NAME, ""); }
+    public static void setCscName(Context c, String v) {
+        sp(c).edit().putString(K_CSC_NAME, v == null ? "" : v).apply();
+    }
+
+    /**
+     * Keliling roda dalam milimeter. Sensor CSC hanya mengirim jumlah putaran,
+     * jadi angka ini yang mengubahnya menjadi jarak dan kecepatan. Nilai di
+     * luar batas wajar dijepit, bukan ditolak diam-diam.
+     */
+    public static int wheelMm(Context c) {
+        return Roda.normalisasi(sp(c).getInt(K_WHEEL_MM, Roda.BAWAAN_MM));
+    }
+
+    public static void setWheelMm(Context c, int mm) {
+        sp(c).edit().putInt(K_WHEEL_MM, Roda.normalisasi(mm)).apply();
     }
 
     // ---------- peta ----------

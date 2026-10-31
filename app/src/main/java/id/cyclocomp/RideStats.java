@@ -69,6 +69,64 @@ public class RideStats {
         return hrCount == 0 ? 0 : (int) Math.round(hrSum / hrCount);
     }
 
+    // ---------- sensor kecepatan/kadensi ----------
+
+    /** Kadensi terakhir dalam rpm; < 0 berarti belum ada data. */
+    public int cadence = -1;
+    /** Kecepatan terakhir dari sensor roda; < 0 berarti belum ada data. */
+    public float sensorSpeedMs = -1f;
+
+    private long cadenceAtMs, sensorSpeedAtMs;
+
+    /**
+     * Data sensor dianggap basi setelah beberapa detik tanpa notifikasi.
+     * Tanpa batas ini, sensor yang terputus akan menampilkan angka terakhir
+     * selamanya - lebih buruk daripada kembali ke GPS, karena angkanya
+     * terlihat normal padahal tidak lagi diperbarui.
+     */
+    private static final long CADENCE_FRESH_MS = 5000L;
+    private static final long SPEED_FRESH_MS = 3000L;
+
+    public void setCadence(int rpm, long nowMs) {
+        if (rpm < 0 || rpm > 250) return;
+        cadence = rpm;
+        cadenceAtMs = nowMs;
+    }
+
+    public void setSensorSpeed(float mps, long nowMs) {
+        if (Float.isNaN(mps) || mps < 0f || mps > 40f) return;
+        sensorSpeedMs = mps;
+        sensorSpeedAtMs = nowMs;
+    }
+
+    /** Buang nilai sensor saat sambungannya berakhir, supaya tidak tampil basi. */
+    public void clearSensor() {
+        cadence = -1;
+        sensorSpeedMs = -1f;
+        cadenceAtMs = 0;
+        sensorSpeedAtMs = 0;
+    }
+
+    public boolean hasCadence(long nowMs) {
+        return cadence >= 0 && nowMs - cadenceAtMs <= CADENCE_FRESH_MS;
+    }
+
+    public int cadenceNow(long nowMs) {
+        return hasCadence(nowMs) ? cadence : -1;
+    }
+
+    /**
+     * Kecepatan yang ditampilkan: sensor roda bila datanya masih segar,
+     * GPS bila tidak. Jarak tetap dihitung dari GPS, jadi sensor hanya
+     * memperhalus angka kecepatan - bukan mengubah rekaman rute.
+     */
+    public float speedMs(long nowMs) {
+        if (sensorSpeedMs >= 0f && nowMs - sensorSpeedAtMs <= SPEED_FRESH_MS) {
+            return sensorSpeedMs;
+        }
+        return currentSpeedMs;
+    }
+
     // ---------- lap ----------
     public int lapIndex;          // lap sedang berjalan (1-based)
     public double lapDistanceM;

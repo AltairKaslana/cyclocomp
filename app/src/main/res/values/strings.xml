@@ -219,6 +219,48 @@
     <string name="ble_connected">Tersambung: %s</string>
     <string name="ble_sensor_name">sensor</string>
 
+    <!-- layar Sensor & roda (N-03) -->
+    <string name="sensor_title">Sensor &amp; roda</string>
+    <string name="sensor_csc">Kecepatan &amp; kadensi</string>
+    <string name="sensor_hr">Detak jantung</string>
+    <string name="sensor_power">Daya</string>
+    <string name="sensor_power_note">Sensor daya (powermeter) belum didukung versi ini.</string>
+    <string name="sensor_csc_note">Sensor kecepatan/kadensi BLE standar (layanan CSC). Kecepatan dari sensor dipakai selama tersedia; jarak rekaman tetap dari GPS.</string>
+    <string name="sensor_hr_note">Jam, band, atau sabuk detak jantung BLE.</string>
+    <string name="sensor_wheel">Roda</string>
+    <string name="sensor_connect">Hubungkan</string>
+    <string name="sensor_disconnect">Putuskan</string>
+    <string name="sensor_status_connected">Tersambung</string>
+    <string name="sensor_status_off">Belum dipilih</string>
+    <string name="sensor_status_saved">Tersimpan: %s</string>
+    <string name="sensor_battery">Baterai %d%%</string>
+    <string name="sensor_csc_live">%1$s km/jam · %2$s rpm</string>
+    <string name="sensor_hr_live">%d bpm</string>
+    <string name="sensor_scan_title">Mencari sensor…</string>
+    <string name="sensor_scan_msg">Pastikan sensor sudah menyala dan tidak tersambung ke perangkat lain.\n\nPencarian berjalan 8 detik.</string>
+    <string name="sensor_no_csc_tag">  (tanpa CSC)</string>
+    <string name="sensor_pick_title">Pilih sensor</string>
+    <string name="sensor_none_title">Tidak ada sensor ditemukan</string>
+    <string name="sensor_none_msg">Pastikan sensor menyala, berada dekat dengan HP, dan belum tersambung ke aplikasi lain.\n\nSensor kecepatan/kadensi harus memakai layanan Cycling Speed and Cadence standar; sabuk detak jantung BLE apa pun langsung terbaca.</string>
+    <string name="sensor_saved">Sensor disimpan. Aktif saat gowes dimulai.</string>
+    <string name="sensor_forget_msg">Zylo akan berhenti memakai sensor ini.</string>
+    <string name="sensor_forget_btn">Putuskan</string>
+
+    <!-- ukuran roda -->
+    <string name="wheel_current">%1$s · %2$d mm</string>
+    <string name="wheel_current_manual">Manual · %d mm</string>
+    <string name="wheel_manual">Ukuran roda manual</string>
+    <string name="wheel_manual_hint">Keliling roda dalam mm (1000–3000)</string>
+    <string name="wheel_invalid">Ukuran roda harus 1000–3000 mm</string>
+    <string name="wheel_saved">Ukuran roda disimpan</string>
+    <string name="wheel_note">Keliling roda dipakai menghitung kecepatan dari sensor. Jarak rekaman tetap dari GPS.</string>
+    <string name="settings_sensor">Sensor &amp; roda</string>
+    <string name="sum_sensor">Detak jantung, kecepatan/kadensi, ukuran roda</string>
+    <string name="sensor_selected_none">Belum dipilih</string>
+    <string name="ble_searching_csc">Mencari sensor kecepatan/kadensi...</string>
+    <string name="ble_no_csc_service">Perangkat ini tidak menyiarkan kecepatan/kadensi</string>
+    <string name="ble_no_csc_char">Karakteristik kecepatan/kadensi tidak ada</string>
+
     <!-- riwayat: baris daftar & dialog detail -->
     <!-- Baris daftar (item_ride.xml). Keterangan di bawah angka jarak.
          Dipisah dari hist_item yang lama karena itu menyatukkan SEMUA angka ke dalam

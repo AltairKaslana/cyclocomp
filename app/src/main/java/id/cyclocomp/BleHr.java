@@ -388,10 +388,22 @@ public class BleHr {
             }
         }
 
+        // Android 13+ mengirim overload dengan byte[]; versi lama tetap dipakai
+        // perangkat API 23-32. Tanpa overload baru, detak jantung berhenti
+        // masuk di Android 13 ke atas meski sensor tersambung.
         @Override
         public void onCharacteristicChanged(BluetoothGatt g, BluetoothGattCharacteristic ch) {
+            handleHr(ch, ch == null ? null : ch.getValue());
+        }
+
+        @Override
+        public void onCharacteristicChanged(BluetoothGatt g, BluetoothGattCharacteristic ch,
+                                            byte[] value) {
+            handleHr(ch, value);
+        }
+
+        private void handleHr(BluetoothGattCharacteristic ch, byte[] v) {
             if (ch == null || !CH_HR.equals(ch.getUuid())) return;
-            byte[] v = ch.getValue();
             if (v == null || v.length < 2) return;
             int flags = v[0] & 0xFF;
             int bpm;

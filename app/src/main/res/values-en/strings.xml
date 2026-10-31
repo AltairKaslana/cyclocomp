@@ -217,6 +217,48 @@
     <string name="ble_connected">Connected: %s</string>
     <string name="ble_sensor_name">sensor</string>
 
+    <!-- Sensor & wheel screen (N-03) -->
+    <string name="sensor_title">Sensors &amp; wheel</string>
+    <string name="sensor_csc">Speed &amp; cadence</string>
+    <string name="sensor_hr">Heart rate</string>
+    <string name="sensor_power">Power</string>
+    <string name="sensor_power_note">Power meters are not supported in this version.</string>
+    <string name="sensor_csc_note">Standard BLE speed/cadence sensor (CSC service). Sensor speed is used while available; recorded distance still comes from GPS.</string>
+    <string name="sensor_hr_note">A BLE watch, band, or heart-rate strap.</string>
+    <string name="sensor_wheel">Wheel</string>
+    <string name="sensor_connect">Connect</string>
+    <string name="sensor_disconnect">Disconnect</string>
+    <string name="sensor_status_connected">Connected</string>
+    <string name="sensor_status_off">Not selected</string>
+    <string name="sensor_status_saved">Saved: %s</string>
+    <string name="sensor_battery">Battery %d%%</string>
+    <string name="sensor_csc_live">%1$s km/h · %2$s rpm</string>
+    <string name="sensor_hr_live">%d bpm</string>
+    <string name="sensor_scan_title">Searching for a sensor…</string>
+    <string name="sensor_scan_msg">Make sure the sensor is on and not connected to another device.\n\nSearch runs for 8 seconds.</string>
+    <string name="sensor_no_csc_tag">  (no CSC)</string>
+    <string name="sensor_pick_title">Choose a sensor</string>
+    <string name="sensor_none_title">No sensor found</string>
+    <string name="sensor_none_msg">Make sure the sensor is on, close to the phone, and not connected to another app.\n\nSpeed/cadence sensors must use the standard Cycling Speed and Cadence service; any BLE heart-rate strap works right away.</string>
+    <string name="sensor_saved">Sensor saved. It activates when the ride starts.</string>
+    <string name="sensor_forget_msg">Zylo will stop using this sensor.</string>
+    <string name="sensor_forget_btn">Disconnect</string>
+
+    <!-- wheel size -->
+    <string name="wheel_current">%1$s · %2$d mm</string>
+    <string name="wheel_current_manual">Manual · %d mm</string>
+    <string name="wheel_manual">Manual wheel size</string>
+    <string name="wheel_manual_hint">Wheel circumference in mm (1000–3000)</string>
+    <string name="wheel_invalid">Wheel size must be 1000–3000 mm</string>
+    <string name="wheel_saved">Wheel size saved</string>
+    <string name="wheel_note">Wheel circumference is used to compute sensor speed. Recorded distance still comes from GPS.</string>
+    <string name="settings_sensor">Sensors &amp; wheel</string>
+    <string name="sum_sensor">Heart rate, speed/cadence, wheel size</string>
+    <string name="sensor_selected_none">Not selected</string>
+    <string name="ble_searching_csc">Looking for a speed/cadence sensor...</string>
+    <string name="ble_no_csc_service">This device does not broadcast speed/cadence</string>
+    <string name="ble_no_csc_char">Speed/cadence characteristic missing</string>
+
     <!-- riwayat: baris daftar & dialog detail -->
     <!-- List rows (item_ride.xml). The caption under the distance number.
          Split from the old hist_item because that one merged EVERY number into a

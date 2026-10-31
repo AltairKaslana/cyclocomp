@@ -163,4 +163,54 @@ public class RideStatsTest {
         assertFalse(s.onFix(at(100, 1000, 5f)));   // waktunya lebih lama dari sebelumnya
         assertEquals(0.0, s.distanceM, 0.01);
     }
+
+    // ---------- sensor kecepatan/kadensi ----------
+
+    @Test public void kecepatanSensorDipakaiSelamaSegar() {
+        RideStats s = new RideStats();
+        s.setSensorSpeed(8.5f, 1000);
+        assertEquals(8.5f, s.speedMs(3000), 0.001f);
+
+        // lewat 3 detik tanpa notifikasi: kembali ke GPS (di sini 0)
+        assertEquals(0f, s.speedMs(4001), 0.001f);
+    }
+
+    @Test public void kecepatanGpsDipakaiKalauSensorBasi() {
+        RideStats s = new RideStats();
+        s.onFix(at(0, 1000, 4f));
+        s.onFix(at(100, 2000, 4f));                 // bergerak: GPS 4 m/s
+        s.setSensorSpeed(9f, 2000);
+        // dua detik kemudian sensor belum basi
+        assertEquals(9f, s.speedMs(4000), 0.001f);
+        // sembilan detik kemudian kembali ke kecepatan GPS 4 m/s
+        assertEquals(4f, s.speedMs(9000), 0.001f);
+    }
+
+    @Test public void kadensiBasiTidakDitampilkan() {
+        RideStats s = new RideStats();
+        s.setCadence(90, 1000);
+        assertEquals(90, s.cadenceNow(5000));
+        assertEquals(-1, s.cadenceNow(6001));
+    }
+
+    @Test public void nilaiSensorDiLuarBatasDiabaikan() {
+        RideStats s = new RideStats();
+        s.setCadence(-2, 1000);
+        s.setCadence(300, 1000);
+        assertEquals(-1, s.cadenceNow(1000));
+
+        s.setSensorSpeed(-1f, 1000);
+        s.setSensorSpeed(41f, 1000);
+        s.setSensorSpeed(Float.NaN, 1000);
+        assertEquals(0f, s.speedMs(1000), 0.001f);
+    }
+
+    @Test public void clearSensorMembuangNilaiTerakhir() {
+        RideStats s = new RideStats();
+        s.setCadence(88, 1000);
+        s.setSensorSpeed(7f, 1000);
+        s.clearSensor();
+        assertEquals(-1, s.cadenceNow(1000));
+        assertEquals(0f, s.speedMs(1000), 0.001f);
+    }
 }

@@ -554,9 +554,11 @@ public class MainActivity extends Activity implements RideService.Listener {
         List<String> p = new ArrayList<String>();
         p.add(Manifest.permission.ACCESS_FINE_LOCATION);
         if (Build.VERSION.SDK_INT >= 33) p.add(Manifest.permission.POST_NOTIFICATIONS);
-        // izin Bluetooth hanya diminta kalau Tuan memang sudah memilih sensor,
-        // supaya aplikasi tidak meminta izin yang tidak dipakai
-        if (!id.cyclocomp.Settings.hrMac(this).isEmpty() && !BleHr.hasPermission(this)) {
+        // izin Bluetooth hanya diminta kalau pengguna memang sudah memilih
+        // sensor, supaya aplikasi tidak meminta izin yang tidak dipakai
+        boolean adaSensor = !id.cyclocomp.Settings.hrMac(this).isEmpty()
+                || !id.cyclocomp.Settings.cscMac(this).isEmpty();
+        if (adaSensor && !BleHr.hasPermission(this)) {
             for (String s : BleHr.neededPermissions()) p.add(s);
         }
         requestPermissions(p.toArray(new String[0]), REQ_PERM);
@@ -610,7 +612,8 @@ public class MainActivity extends Activity implements RideService.Listener {
         long elapsed = service == null ? 0 : service.getElapsedMs();
 
         // ---------- SEKILAS ----------
-        tvSpeed.setText(Fmt.speed(s.currentSpeedMs));
+        // Kecepatan memakai sensor roda bila datanya segar, GPS bila tidak.
+        tvSpeed.setText(Fmt.speed(s.speedMs(SystemClock.elapsedRealtime())));
         isiNilaiSlot(slotSekilas, fieldsSekilas, s, elapsed, null);
 
         // gradien: ruas jalan memberi ARAH dan KESAN besarannya, angka memberi nilai

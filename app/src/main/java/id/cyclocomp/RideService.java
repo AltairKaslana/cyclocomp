@@ -89,6 +89,9 @@ public class RideService extends Service implements LocationListener {
     private RideDb db;
     private BleHr ble;
     private String bleStatus;
+    private BleCsc csc;
+    private String cscStatus;
+    private int cscBattery = -1;
     private GpxWriter gpx;
     private String gpxLoc;
     private Listener listener;
@@ -167,6 +170,7 @@ public class RideService extends Service implements LocationListener {
         releaseWakeLock();
         if (baro != null) { baro.stop(); baro = null; }
         stopBle();
+        stopCsc();
         if (tone != null) { tone.release(); tone = null; }
         db.close();
         super.onDestroy();
@@ -251,6 +255,7 @@ public class RideService extends Service implements LocationListener {
         state = State.RECORDING;
         if (baro != null) baro.start();
         startBle();
+        startCsc();
         saveSession();
         acquireWakeLock();
         handler.removeCallbacks(ticker);
@@ -389,6 +394,7 @@ public class RideService extends Service implements LocationListener {
         if (simpanGagal) toast(R.string.save_failed);
         if (baro != null) baro.stop();
         stopBle();
+        stopCsc();
         releaseWakeLock();
         state = State.IDLE;
         stopForeground(true);
@@ -444,6 +450,89 @@ public class RideService extends Service implements LocationListener {
     /** true kalau ada data detak jantung yang masuk. */
     public boolean hasHr() {
         return stats.hr > 0;
+    }
+
+    public boolean isHrConnected() {
+        return ble != null && ble.connected();
+    }
+
+    // ---------- sensor kecepatan/kadensi ----------
+
+    private void startCsc() {
+        if (!BleHr.hasPermission(this)) {
+            cscStatus = getString(R.string.ble_no_perm);
+            return;
+        }
+        if (!BleHr.available(this)) {
+            cscStatus = getString(R.string.ble_no_bt);
+            return;
+        }
+        stopCsc();
+        csc = new BleCsc(this, new BleCsc.Callback() {
+            @Override
+            public void onData(final float speedMps, final int cadenceRpm) {
+                handler.post(new Runnable() {
+                    @Override public void run() {
+                        long now = SystemClock.elapsedRealtime();
+                        if (speedMps >= 0f) stats.setSensorSpeed(speedMps, now);
+                        if (cadenceRpm >= 0) stats.setCadence(cadenceRpm, now);
+                        notifyUi();
+                    }
+                });
+            }
+
+            @Override
+            public void onBattery(final int pct) {
+                handler.post(new Runnable() {
+                    @Override public void run() { cscBattery = pct; notifyUi(); }
+                });
+            }
+
+            @Override
+            public void onStatus(final String text) {
+                handler.post(new Runnable() {
+                    @Override public void run() { cscStatus = text; notifyUi(); }
+                });
+            }
+        });
+        csc.setWheelMm(Settings.wheelMm(this));
+        csc.setMac(Settings.cscMac(this));
+        csc.start();
+    }
+
+    private void stopCsc() {
+        if (csc != null) {
+            csc.stop();
+            csc = null;
+        }
+        stats.clearSensor();
+        cscStatus = null;
+        cscBattery = -1;
+    }
+
+    /** Status sensor CSC; null = tidak ada sensor yang dipilih/diaktifkan. */
+    public String getCscStatus() {
+        return cscStatus;
+    }
+
+    public boolean isCscConnected() {
+        return csc != null && csc.connected();
+    }
+
+    /** Baterai sensor CSC dalam persen; -1 kalau tidak terbaca. */
+    public int getCscBattery() {
+        return cscBattery;
+    }
+
+    /**
+     * Ukuran roda baru dipakai sensor yang SEDANG tersambung.
+     *
+     * Tanpa ini, pengguna yang mengganti ukuran roda saat gowes masih melihat
+     * kecepatan lama sampai berhenti dan mulai lagi - padahal layar Sensor
+     * menampilkan angka langsung, jadi selisihnya terlihat seperti bug.
+     */
+    public void setWheelMm(int mm) {
+        if (csc != null) csc.setWheelMm(mm);
     }
 
     // ---------- auto-pause ----------
@@ -732,7 +821,8 @@ public class RideService extends Service implements LocationListener {
         } else {
             b = new Notification.Builder(this);
         }
-        String text = getString(R.string.notif_line, Fmt.speed(stats.currentSpeedMs),
+        String text = getString(R.string.notif_line,
+                Fmt.speed(stats.speedMs(SystemClock.elapsedRealtime())),
                 Fmt.km(stats.distanceM), Fmt.duration(getElapsedMs()));
         b.setSmallIcon(android.R.drawable.ic_menu_mylocation)
                 .setContentTitle(getString(R.string.notif_title))

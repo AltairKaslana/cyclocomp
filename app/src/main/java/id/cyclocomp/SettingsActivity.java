@@ -17,9 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.util.TypedValue;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Pengaturan berkelompok dalam kartu.
  *
@@ -34,14 +31,14 @@ public class SettingsActivity extends Activity {
     private static final int R_LAP_MODE = 4, R_LAP_DIST = 5, R_LAP_TIME = 6;
     private static final int R_ALERT_KM = 7, R_ALERT_MIN = 8, R_BEEP = 9;
     private static final int R_RESET = 10;
-    private static final int R_HR = 11, R_HR_FORGET = 12;
     private static final int R_STRAVA_ID = 21, R_STRAVA_SECRET = 22, R_STRAVA_LINK = 23;
     private static final int R_MAP = 13;
     private static final int R_WEIGHT = 14;
     private static final int R_THEME = 15;
     private static final int R_ATUR_LAYAR = 16, R_ABOUT = 17;
+    private static final int R_SENSOR = 18;
 
-    private static final int REQ_BLE = 71;
+    private static final int REQ_SENSOR = 81;
 
     private LinearLayout groups;
     private LinearLayout lastCard;
@@ -67,6 +64,17 @@ public class SettingsActivity extends Activity {
     protected void onStart() {
         super.onStart();
         Tema.perbaikiKalauPerlu(this);
+    }
+
+    /**
+     * Layar Sensor melaporkan RESULT_OK kalau ada yang diubah. Hanya saat itu
+     * daftar digambar ulang - menggambar ulang tanpa perubahan akan
+     * mengembalikan posisi gulir ke atas setiap kali pengguna kembali.
+     */
+    @Override
+    protected void onActivityResult(int req, int res, Intent data) {
+        super.onActivityResult(req, res, data);
+        if (req == REQ_SENSOR && res == RESULT_OK) paint();
     }
 
     /**
@@ -117,10 +125,11 @@ public class SettingsActivity extends Activity {
         valueRow(R_ALERT_MIN, R.string.settings_alert_min, getString(R.string.sum_alert_min));
 
         group(getString(R.string.group_sensor));
-        valueRow(R_HR, R.string.settings_hr, getString(R.string.sum_hr));
-        if (!Settings.hrMac(this).isEmpty()) {
-            valueRow(R_HR_FORGET, R.string.settings_hr_forget, getString(R.string.sum_hr_forget));
-        }
+        // T-11/N-03: detak jantung, kecepatan/kadensi, dan ukuran roda pindah
+        // ke satu layar sendiri. Di sini hanya satu baris: Pengaturan tumbuh
+        // dengan baris lain yang tidak berhubungan, dan pemindaian BLE butuh
+        // ruang untuk status, baterai, dan nilai langsung.
+        valueRow(R_SENSOR, R.string.settings_sensor, getString(R.string.sum_sensor));
         // Massa badan diletakkan di kelompok Sensor, bukan kelompok baru sendiri:
         // satu-satunya kegunaannya adalah memasukkan angka ke perhitungan kalori,
         // jadi ia lebih dekat ke detak jantung daripada ke lap atau peringatan.
@@ -299,78 +308,19 @@ public class SettingsActivity extends Activity {
 
     // ---------- sensor detak jantung ----------
 
-    private AlertDialog scanDialog;
-    private final List<String> foundNames = new ArrayList<String>();
-    private final List<String> foundMacs = new ArrayList<String>();
-
-    private void pickSensor() {
-        if (!BleHr.hasPermission(this)) {
-            requestPermissions(BleHr.neededPermissions(), REQ_BLE);
-            return;
+    /** Gabungan nama sensor yang tersimpan, untuk sisi kanan baris. */
+    private String sensorTersimpan() {
+        StringBuilder sb = new StringBuilder();
+        String hr = Settings.hrName(this);
+        if (hr.isEmpty()) hr = Settings.hrMac(this);
+        String csc = Settings.cscName(this);
+        if (csc.isEmpty()) csc = Settings.cscMac(this);
+        if (!hr.isEmpty()) sb.append(hr);
+        if (!csc.isEmpty()) {
+            if (sb.length() > 0) sb.append(" · ");
+            sb.append(csc);
         }
-        foundNames.clear();
-        foundMacs.clear();
-
-        scanDialog = new AlertDialog.Builder(this)
-                .setTitle(R.string.hr_scan_title)
-                .setMessage(R.string.hr_scan_msg)
-                .setNegativeButton(R.string.cancel, null)
-                .create();
-        scanDialog.show();
-
-        BleHr.scan(this, 8000, new BleHr.ScanListener() {
-            @Override public void onFound(String name, String mac, boolean hasHrService) {
-                // yang menyiarkan layanan detak jantung ditaruh paling atas
-                int at = hasHrService ? 0 : foundMacs.size();
-                foundNames.add(at, hasHrService ? name
-                        : name + getString(R.string.hr_no_hr_tag));
-                foundMacs.add(at, mac);
-            }
-
-            @Override public void onDone(String error) {
-                if (scanDialog != null && scanDialog.isShowing()) scanDialog.dismiss();
-                if (error != null) { Toast.makeText(SettingsActivity.this, error, Toast.LENGTH_LONG).show(); return; }
-                if (foundMacs.isEmpty()) { showNoSensor(); return; }
-                showFound();
-            }
-        });
-    }
-
-    private void showNoSensor() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.hr_none_title)
-                .setMessage(R.string.hr_none_msg)
-                .setPositiveButton(R.string.hr_retry, new DialogInterface.OnClickListener() {
-                    @Override public void onClick(DialogInterface d, int w) { pickSensor(); }
-                })
-                .setNegativeButton("Tutup", null)
-                .show();
-    }
-
-    private void showFound() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.hr_pick_title)
-                .setItems(foundNames.toArray(new String[0]), new DialogInterface.OnClickListener() {
-                    @Override public void onClick(DialogInterface d, int which) {
-                        Settings.setHrMac(SettingsActivity.this, foundMacs.get(which));
-                        String n = foundNames.get(which).replace(getString(R.string.hr_no_hr_tag), "");
-                        Settings.setHrName(SettingsActivity.this, n);
-                        paint();
-                        Toast.makeText(SettingsActivity.this, R.string.hr_saved,
-                                Toast.LENGTH_LONG).show();
-                    }
-                })
-                .show();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int req, String[] perms, int[] res) {
-        super.onRequestPermissionsResult(req, perms, res);
-        if (req != REQ_BLE) return;
-        boolean all = res.length > 0;
-        for (int r : res) if (r != android.content.pm.PackageManager.PERMISSION_GRANTED) all = false;
-        if (all) pickSensor();
-        else Toast.makeText(this, R.string.hr_need_perm, Toast.LENGTH_LONG).show();
+        return sb.length() == 0 ? getString(R.string.sensor_selected_none) : sb.toString();
     }
 
     // ---------- nilai ----------
@@ -417,11 +367,7 @@ public class SettingsActivity extends Activity {
                     ? R.string.sum_theme_light : R.string.sum_theme_dark);
             case R_WEIGHT:    return getString(R.string.opt_kg, Math.round(Settings.weight(this)));
             case R_MAP:       return onOff(Settings.map(this));
-            case R_HR: {
-                String n = Settings.hrName(this);
-                return n.isEmpty() ? getString(R.string.hr_none) : n;
-            }
-            case R_HR_FORGET: return "";
+            case R_SENSOR:    return sensorTersimpan();
             case R_STRAVA_ID:
                 String cid = StravaStore.clientId(this);
                 return cid.isEmpty() ? "-" : cid;
@@ -569,8 +515,8 @@ public class SettingsActivity extends Activity {
                         });
                 break;
             }
-            case R_HR:
-                pickSensor();
+            case R_SENSOR:
+                startActivityForResult(new Intent(this, SensorActivity.class), REQ_SENSOR);
                 break;
             case R_WEIGHT: {
                 // Langkah 1 kg dari 40 sampai 120: cukup rapat untuk orang normal,
@@ -595,21 +541,6 @@ public class SettingsActivity extends Activity {
                 });
                 break;
             }
-            case R_HR_FORGET:
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.settings_hr_forget)
-                        .setMessage(R.string.hr_forget_msg)
-                        .setNegativeButton(R.string.cancel, null)
-                        .setPositiveButton(R.string.hr_forget_btn,
-                                new DialogInterface.OnClickListener() {
-                            @Override public void onClick(DialogInterface d, int w) {
-                                Settings.setHrMac(SettingsActivity.this, "");
-                                Settings.setHrName(SettingsActivity.this, "");
-                                paint();
-                            }
-                        })
-                        .show();
-                break;
             case R_STRAVA_ID:
                 askText(R.string.settings_strava_id, StravaStore.clientId(this),
                         R.string.strava_id_hint, new Text() {

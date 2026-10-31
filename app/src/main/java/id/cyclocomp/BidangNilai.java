@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
+import android.os.SystemClock;
 import android.provider.Settings;
 
 import java.text.SimpleDateFormat;
@@ -56,7 +57,7 @@ public final class BidangNilai {
     public static String teks(Context c, int f, RideStats s, long elapsed, Lap lap) {
         switch (f) {
             case Bidang.KECEPATAN:
-                return Fmt.speed(s.currentSpeedMs);
+                return Fmt.speed(s.speedMs(SystemClock.elapsedRealtime()));
             case Bidang.RATA_RATA:
                 return Fmt.speed(lap != null && lap.movingMs > 0
                         ? (float) (lap.distanceM / (lap.movingMs / 1000.0))
@@ -69,8 +70,10 @@ public final class BidangNilai {
                 return Fmt.duration(lap != null ? lap.movingMs : s.movingMs);
             case Bidang.WAKTU_TOTAL:
                 return Fmt.duration(lap != null ? lap.elapsedMs : elapsed);
-            case Bidang.KADENSI:
-                return "-";          // sensor CSC belum ada (v1.1 N-03)
+            case Bidang.KADENSI: {
+                int rpm = s.cadenceNow(SystemClock.elapsedRealtime());
+                return rpm < 0 ? "-" : String.valueOf(rpm);
+            }
             case Bidang.DETAK:
                 return s.hr > 0 ? String.valueOf(s.hr) : "-";
             case Bidang.DAYA:
@@ -110,8 +113,10 @@ public final class BidangNilai {
             case Bidang.SENSOR_HR:
                 return id.cyclocomp.Settings.hrMac(c).isEmpty() && s.hr <= 0;
             case Bidang.SENSOR_CSC:
+                return id.cyclocomp.Settings.cscMac(c).isEmpty()
+                        && !s.hasCadence(SystemClock.elapsedRealtime());
             case Bidang.SENSOR_DAYA:
-                return true;    // belum ada dukungan sensor itu di versi ini
+                return true;    // sensor daya belum ada di versi ini
             default:
                 return false;
         }
@@ -132,6 +137,11 @@ public final class BidangNilai {
         s.altitudeM = 318.6;
         s.gradePercent = 4.2;
         s.hr = 142;
+        // contoh sensor: kadensi 84 rpm dan kecepatan roda 28,4 km/jam, supaya
+        // pratinjau KADENSI tidak tampil "-" di layar Atur layar
+        long now = SystemClock.elapsedRealtime();
+        s.setCadence(84, now);
+        s.setSensorSpeed(28.4f / 3.6f, now);
         Lap lap = null;
         if (f == Bidang.JARAK || f == Bidang.WAKTU_GERAK || f == Bidang.WAKTU_TOTAL
                 || f == Bidang.RATA_RATA) {
