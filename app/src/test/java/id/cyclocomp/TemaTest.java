@@ -110,4 +110,39 @@ public class TemaTest {
                 Tema.bolehPasangUlag(Tema.MAKS_PASANG_ULANG));
         assertFalse(Tema.bolehPasangUlag(Tema.MAKS_PASANG_ULANG + 5));
     }
+
+    // ---------- putus-nyambung pilihan tersimpan <-> palet ----------
+
+    /**
+     * Yang sempat rusak di lapangan: pilihan tersimpan tidak berubah walau
+     * pengguna memilih yang lain, jadi palet mengikuti pilihan lama di kedua
+     * arah dan tema terasa macet. Tes ini menjaga jalur simpan-baca itu:
+     * apa pun yang ditulis HARUS terbaca kembali.
+     */
+    @Test
+    public void pilihanTersimpanHarusTerbacaKembali() {
+        android.content.Context c = new android.content.Context();
+
+        Settings.setTheme(c, false);
+        assertFalse("pilih gelap harus tersimpan", Settings.theme(c));
+
+        Settings.setTheme(c, true);
+        assertTrue("pilih siang harus tersimpan", Settings.theme(c));
+
+        Settings.setTheme(c, false);
+        assertFalse("kembali ke gelap harus tersimpan - arah ini yang dulu macet",
+                Settings.theme(c));
+    }
+
+    /** Palet mengikuti pilihan, di KEDUA arah - tidak ada arah yang diistimewakan. */
+    @Test
+    public void paletMengikutiPilihanDuaArah() {
+        // pilihan gelap + palet terang -> bangun ulang
+        assertTrue(Tema.perluPasangUlang(true, false));
+        // pilihan siang + palet gelap -> bangun ulang
+        assertTrue(Tema.perluPasangUlang(false, true));
+        // keduanya cocok -> tidak usah
+        assertFalse(Tema.perluPasangUlang(false, false));
+        assertFalse(Tema.perluPasangUlang(true, true));
+    }
 }

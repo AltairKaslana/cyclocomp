@@ -39,7 +39,7 @@ public class SettingsActivity extends Activity {
     private static final int R_MAP = 13;
     private static final int R_WEIGHT = 14;
     private static final int R_THEME = 15;
-    private static final int R_ATUR_LAYAR = 16;
+    private static final int R_ATUR_LAYAR = 16, R_ABOUT = 17;
 
     private static final int REQ_BLE = 71;
 
@@ -67,11 +67,6 @@ public class SettingsActivity extends Activity {
     protected void onStart() {
         super.onStart();
         Tema.perbaikiKalauPerlu(this);
-        // SEMENTARA - diagnosa tema. Kalimat ini menunjukkan apa yang
-        // BENAR-BENAR terpasang, bukan pilihan tersimpan, supaya kalau palet
-        // tidak berganti kita tahu tepat di lapisan mana putusnya. Dibuang lagi
-        // sesudah penyebabnya ditemukan.
-        android.widget.Toast.makeText(this, Tema.diagnostik(this), android.widget.Toast.LENGTH_LONG).show();
     }
 
     /**
@@ -135,12 +130,12 @@ public class SettingsActivity extends Activity {
         // dengan peta: pilihan ini mengubah seluruh layar sekaligus, sementara
         // setelan peta hanya menyentuh satu bagian di layar Ringkasan.
         group(getString(R.string.group_display));
-        // Sakelar diganti baris pilihan: sakelar hanya punya dua keadaan dan
-        // arahnya mudah terbaca terbalik (nyala = siang, mati = gelap), apalagi
-        // di tempat ini sakelarnya juga ikut reaksi recreate(). Baris pilihan
-        // menampilkan kata "Gelap"/"Siang" yang sama dengan pilihan tersimpan,
-        // jadi yang tersimpan dan yang terlihat tidak mungkin berbeda.
-        valueRow(R_THEME, R.string.settings_theme, keteranganTema());
+        valueRow(R_THEME, R.string.settings_theme, getString(R.string.sum_theme));
+        // Versi selalu terlihat di sini. Bukan hiasan: saat tema bermasalah,
+        // pertanyaan pertama adalah "apakah HP benar-benar menjalankan APK yang
+        // dikirim" - dan tanpa nomor versi yang mudah dilihat, pertanyaan itu
+        // tidak bisa dijawab tanpa menebak.
+        valueRow(R_ABOUT, R.string.settings_about, getString(R.string.sum_about, versi()));
         // Atur layar diletakkan di kelompok TAMPILAN, tepat di bawah sakelar
         // tema: keduanya mengubah rupa dashboard, bukan isi perekaman.
         valueRow(R_ATUR_LAYAR, R.string.settings_atur_layar, getString(R.string.sum_atur_layar));
@@ -263,20 +258,13 @@ public class SettingsActivity extends Activity {
         addRow(v);
     }
 
-    /**
-     * SEMENTARA - keterangan baris tema ikut membawa versi terpasang dan
-     * apa yang benar-benar terpasang. Supaya kalau tema tidak berganti,
-     * keterangan ini menjawab "apakah HP benar-benar menjalankan APK yang
-     * aku kirim" dan "lapisan mana yang putus" dalam satu bacaan, tanpa
-     * perlu menangkap Toast yang hilang sendiri. Dibuang lagi sesudah
-     * penyebabnya ditemukan.
-     */
-    private String keteranganTema() {
-        String versi = "?";
+    /** Nomor versi yang BENAR-BENAR terpasang, bukan yang tertulis di sumber. */
+    private String versi() {
         try {
-            versi = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-        } catch (Throwable diabaikan) { /* versi saja */ }
-        return getString(R.string.sum_theme) + "  ·  v" + versi + "  ·  " + Tema.diagnostik(this);
+            return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (Throwable diabaikan) {
+            return "?";
+        }
     }
 
     private void switchRow(final int id, int titleRes, String summary) {

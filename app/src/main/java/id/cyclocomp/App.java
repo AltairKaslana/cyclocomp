@@ -88,6 +88,13 @@ public class App extends Application {
               .append(Build.MODEL).append("  Android ").append(Build.VERSION.RELEASE)
               .append(" (API ").append(Build.VERSION.SDK_INT).append(")\n");
             sb.append("thread  : ").append(t.getName()).append('\n');
+            // Keadaan tema ikut dilaporkan: tema pernah bermasalah, dan kalau
+            // aplikasi mati sesudah pemilihan tema berubah, palet yang terpasang
+            // adalah petunjuk pertama yang dibutuhkan - bukan sesuatu yang bisa
+            // dilihat dari luar.
+            try {
+                sb.append("tema    : ").append(Tema.diagnostik(this)).append('\n');
+            } catch (Throwable diabaikan) { /* laporan tetap jalan tanpa ini */ }
             sb.append('\n').append(stack(e)).append('\n');
 
             File f = new File(dir, "crash.txt");

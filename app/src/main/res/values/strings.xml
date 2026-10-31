@@ -157,6 +157,8 @@
     <string name="group_display">TAMPILAN</string>
     <string name="settings_theme">Tema terang</string>
     <string name="sum_theme">Latar terang dengan teks gelap. Berganti seketika.</string>
+    <string name="settings_about">Tentang</string>
+    <string name="sum_about">Zylo versi %1$s</string>
     <string name="sum_theme_dark">Gelap</string>
     <string name="sum_theme_light">Siang</string>
     <string name="group_map">PETA</string>

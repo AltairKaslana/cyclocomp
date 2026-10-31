@@ -144,10 +144,23 @@ final class Settings {
         // commit(), bukan apply(): nilai harus sudah sampai disk SEBELUM layar
         // di-recreate. apply() menulis di thread lain, dan sebagian perangkat
         // masih mengembalikan nilai lama sesaat sesudahnya - layar baru lalu
-        // terbangun dengan palet yang salah (sakelar tema terasa macet).
+        // terbangun dengan palet yang salah (pilihan tema terasa macet).
         // Satu boolean, murah: menunggu beberapa milidetik lebih baik daripada
         // tema yang tidak ikut berganti.
-        sp(c).edit().putBoolean(K_THEME, v).commit();
+        //
+        // commit() bisa mengembalikan false (disk sibuk, atau penulisan sedang
+        // bersaing). Dulu nilai baliknya diabaikan, dan akibatnya pilihan yang
+        // gagal ditulis terlihat sama dengan pilihan yang berhasil - pengguna
+        // menekan "Gelap", layar dibangun ulang, dan temanya tetap siang tanpa
+        // ada penjelasan. Sekarang ditulis ulang sekali, lalu dibaca balik:
+        // yang menentukan bukan "semoga berhasil", tapi apa yang benar-benar
+        // terbaca sesudahnya.
+        for (int i = 0; i < 2; i++) {
+            if (sp(c).edit().putBoolean(K_THEME, v).commit()
+                    && sp(c).getBoolean(K_THEME, !v) == v) {
+                return;
+            }
+        }
     }
 
     // ---------- onboarding ----------

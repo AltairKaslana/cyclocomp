@@ -155,6 +155,8 @@
     <string name="group_display">DISPLAY</string>
     <string name="settings_theme">Light theme</string>
     <string name="sum_theme">Light background with dark text. Switches instantly.</string>
+    <string name="settings_about">About</string>
+    <string name="sum_about">Zylo version %1$s</string>
     <string name="sum_theme_dark">Dark</string>
     <string name="sum_theme_light">Light</string>
     <string name="group_map">MAP</string>

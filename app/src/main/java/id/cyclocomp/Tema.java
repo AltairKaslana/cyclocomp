@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 
+import java.io.File;
+
 import java.util.WeakHashMap;
 
 /**
@@ -169,9 +171,71 @@ final class Tema {
             Configuration cfg = new Configuration(a.getResources().getConfiguration());
             cfg.uiMode = bitMalam(cfg.uiMode, terang);
             a.getResources().updateConfiguration(cfg, null);
+            catat(a, terang);
         } catch (Throwable diabaikan) {
             // Sengaja kosong: lihat catatan kelas.
         }
+    }
+
+    /**
+     * Nama berkas catatan keputusan tema, di folder berkas luar aplikasi.
+     *
+     * Kenapa ADA berkas ini: tema pernah bermasalah dan butuh ENAM rilis
+     * untuk menemukan penyebabnya, karena satu-satunya sumber kebenaran ada
+     * di dalam HP pengguna - dan yang bisa dilihat dari luar cuma gejalanya
+     * ("tidak berganti"). Sekarang setiap keputusan tema dicatat, jadi kalau
+     * masalah serupa muncul lagi, satu berkas sudah menjawab lapisan mana
+     * yang putus - tanpa perlu rilis diagnosa khusus.
+     */
+    private static final String BERKAS_CATATAN = "tema.log";
+
+    /** Batas baris yang disimpan. Berkas ini bukan log tak terbatas. */
+    private static final int MAKS_BARIS = 40;
+
+    /**
+     * Catat satu keputusan tema: pilihan, apa yang benar-benar terpasang, dan
+     * warna latar yang terselesaikan.
+     *
+     * Ditulis ke folder berkas luar aplikasi (bisa dilihat lewat file manager
+     * atau kabel USB, seperti berkas crash). Gagal menulis DIABAIKAN
+     * diam-diam: catatan tidak boleh membuat aplikasi mati, dan beberapa
+     * perangkat menolak folder itu kalau penyimpanan belum siap.
+     */
+    private static void catat(Context c, boolean terangDiminta) {
+        try {
+            File dir = c.getExternalFilesDir(null);
+            if (dir == null) return;
+            File f = new File(dir, BERKAS_CATATAN);
+            java.util.List<String> baris = new java.util.ArrayList<String>();
+            if (f.exists()) {
+                java.io.BufferedReader r = new java.io.BufferedReader(
+                        new java.io.FileReader(f));
+                String t;
+                while ((t = r.readLine()) != null) baris.add(t);
+                r.close();
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append(now()).append(" layar=").append(c.getClass().getSimpleName())
+              .append(" minta=").append(terangDiminta ? "SIANG" : "GELAP")
+              .append(" terpasang=").append(sedangTerang(c) ? "SIANG" : "GELAP")
+              .append(" uiMode=0x").append(Integer.toHexString(
+                      c.getResources().getConfiguration().uiMode))
+              .append(" bg=#").append(Integer.toHexString(
+                      c.getResources().getColor(R.color.bg) & 0xFFFFFF));
+            baris.add(sb.toString());
+            while (baris.size() > MAKS_BARIS) baris.remove(0);
+            java.io.PrintWriter w = new java.io.PrintWriter(
+                    new java.io.FileWriter(f, false));
+            for (int i = 0; i < baris.size(); i++) w.println(baris.get(i));
+            w.close();
+        } catch (Throwable diabaikan) {
+            // Sengaja kosong: lihat catatan metode.
+        }
+    }
+
+    private static String now() {
+        return new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss",
+                java.util.Locale.US).format(new java.util.Date());
     }
 
     /**
