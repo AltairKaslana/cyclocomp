@@ -89,6 +89,8 @@
     <string name="route_none">Rute tidak tersedia</string>
     <string name="route_live_desc">Peta rute yang sudah dilalui</string>
     <string name="map_recenter">Ke posisi ku</string>
+    <string name="summary_show_map">Tampilkan peta</string>
+    <string name="summary_hide_map">Sembunyikan peta</string>
     <string name="btn_share_gpx">BAGIKAN GPX</string>
     <string name="summary_title">GOWES SELESAI</string>
 
@@ -133,6 +135,11 @@
     <string name="settings_hr">Sensor detak jantung</string>
     <string name="settings_hr_forget">Lupakan sensor</string>
     <string name="settings_map">Peta OpenStreetMap</string>
+    <string name="settings_map_cache">Cache peta</string>
+    <string name="sum_map_cache">Ubin OpenStreetMap yang tersimpan</string>
+    <string name="map_cache_clear_title">Hapus cache peta?</string>
+    <string name="map_cache_clear_msg">Ubin yang tersimpan akan diunduh ulang saat peta dibuka lagi. Rekaman gowes tidak terhapus.</string>
+    <string name="map_cache_cleared">Cache peta dihapus</string>
     <string name="settings_reset">Kembalikan ke bawaan</string>
     <string name="settings_on">Aktif</string>
     <string name="settings_off">Mati</string>
@@ -170,7 +177,9 @@
     <string name="sum_alert_min">Beri tahu tiap selang waktu</string>
     <string name="sum_hr">Jam, band, atau sabuk detak jantung BLE</string>
     <string name="sum_hr_forget">Putuskan dan kosongkan pilihan</string>
-    <string name="sum_map">Tampilkan peta di layar ringkasan</string>
+    <string name="sum_map">Peta live di Sekilas dan layar peta</string>
+    <string name="settings_summary_map">Peta di Ringkasan</string>
+    <string name="sum_summary_map">Muat ubin peta di layar Ringkasan</string>
     <string name="sum_reset">Kembalikan semua ke nilai bawaan</string>
 
     <!-- catatan barometer di bawah pengaturan -->

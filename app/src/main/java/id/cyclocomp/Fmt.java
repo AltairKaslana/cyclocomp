@@ -52,4 +52,19 @@ final class Fmt {
     static String kcal(int kcal) {
         return String.format(Locale.getDefault(), "%,d", Math.max(0, kcal));
     }
+
+    /**
+     * Ukuran cache (byte) untuk baris Pengaturan.
+     *
+     * Satuannya dipilih supaya angkanya pendek: "0 B", "512 KB", "12.3 MB".
+     * Locale.US sama dengan angka lain di aplikasi ini.
+     */
+    static String size(long bytes) {
+        if (bytes <= 0) return "0 B";
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024L * 1024L) {
+            return String.format(Locale.US, "%.0f KB", bytes / 1024.0);
+        }
+        return String.format(Locale.US, "%.1f MB", bytes / (1024.0 * 1024.0));
+    }
 }

@@ -86,6 +86,8 @@
     <!-- peta -->
 <string name="route_live_desc">Map of the route ridden</string>
 <string name="map_recenter">Back to me</string>
+    <string name="summary_show_map">Show map</string>
+    <string name="summary_hide_map">Hide map</string>
     <string name="route_none">Route unavailable</string>
     <string name="btn_share_gpx">SHARE GPX</string>
     <string name="summary_title">RIDE DONE</string>
@@ -131,6 +133,11 @@
     <string name="settings_hr">Heart rate sensor</string>
     <string name="settings_hr_forget">Forget sensor</string>
     <string name="settings_map">OpenStreetMap</string>
+    <string name="settings_map_cache">Map cache</string>
+    <string name="sum_map_cache">Stored OpenStreetMap tiles</string>
+    <string name="map_cache_clear_title">Clear map cache?</string>
+    <string name="map_cache_clear_msg">Stored tiles will be downloaded again when the map is opened. Recorded rides are not deleted.</string>
+    <string name="map_cache_cleared">Map cache cleared</string>
     <string name="settings_reset">Reset to defaults</string>
     <string name="settings_on">On</string>
     <string name="settings_off">Off</string>
@@ -168,7 +175,9 @@
     <string name="sum_alert_min">Tell me every so many minutes</string>
     <string name="sum_hr">Watch, band, or BLE heart-rate strap</string>
     <string name="sum_hr_forget">Disconnect and clear the choice</string>
-    <string name="sum_map">Show the map on the summary screen</string>
+    <string name="sum_map">Live map on glance and map screen</string>
+    <string name="settings_summary_map">Summary map</string>
+    <string name="sum_summary_map">Load map tiles on the summary screen</string>
     <string name="sum_reset">Restore everything to defaults</string>
 
     <!-- catatan barometer -->

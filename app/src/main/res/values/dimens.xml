@@ -102,6 +102,9 @@
     <dimen name="text_value_s">32sp</dimen>    <!-- nilai metrik sedang -->
     <dimen name="text_value_row">28sp</dimen>  <!-- angka utama di baris daftar -->
     <dimen name="text_value_l">36sp</dimen>    <!-- nilai besar -->
+    <!-- N-05: jarak di puncak layar Ringkasan. Satu tingkat di atas nilai besar:
+         angka ini dibaca dari jarak satu tangan, dan hanya ada satu di layar. -->
+    <dimen name="text_value_hero">56sp</dimen>
     <dimen name="text_speed">176sp</dimen>     <!-- angka kecepatan dominan -->
 
     <!-- Titik indikator halaman (layar Bagikan). Sebelumnya ukuran dan celahnya

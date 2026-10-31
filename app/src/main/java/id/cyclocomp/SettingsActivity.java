@@ -37,6 +37,8 @@ public class SettingsActivity extends Activity {
     private static final int R_THEME = 15;
     private static final int R_ATUR_LAYAR = 16, R_ABOUT = 17;
     private static final int R_SENSOR = 18;
+    private static final int R_MAP_CACHE = 19;
+    private static final int R_SUMMARY_MAP = 20;
 
     private static final int REQ_SENSOR = 81;
 
@@ -151,6 +153,13 @@ public class SettingsActivity extends Activity {
 
         group(getString(R.string.group_map));
         switchRow(R_MAP, R.string.settings_map, getString(R.string.sum_map));
+        // N-05: peta Ringkasan punya pilihan sendiri dan bawaannya mati. Baris
+        // ini memberi jalan menyalakannya tanpa harus membuka satu gowes dulu.
+        switchRow(R_SUMMARY_MAP, R.string.settings_summary_map, getString(R.string.sum_summary_map));
+        // N-05: cache ubin dibatasi 20 MB, jadi baris ini menunjukkan berapa
+        // yang terpakai dan memberi jalan membersihkannya tanpa menunggu
+        // pemangkasan otomatis.
+        valueRow(R_MAP_CACHE, R.string.settings_map_cache, getString(R.string.sum_map_cache));
 
         group(getString(R.string.group_strava));
 
@@ -329,6 +338,7 @@ public class SettingsActivity extends Activity {
         switch (id) {
             case R_AUTOPAUSE: return Settings.autoPause(this);
             case R_MAP:       return Settings.map(this);
+            case R_SUMMARY_MAP: return Settings.summaryMap(this);
             case R_BEEP:
             default:          return Settings.beep(this);
         }
@@ -338,6 +348,7 @@ public class SettingsActivity extends Activity {
         switch (id) {
             case R_AUTOPAUSE: Settings.setAutoPause(this, v); break;
             case R_MAP:       Settings.setMap(this, v); break;
+            case R_SUMMARY_MAP: Settings.setSummaryMap(this, v); break;
             case R_BEEP:      Settings.setBeep(this, v); break;
             default: break;
         }
@@ -367,6 +378,8 @@ public class SettingsActivity extends Activity {
                     ? R.string.sum_theme_light : R.string.sum_theme_dark);
             case R_WEIGHT:    return getString(R.string.opt_kg, Math.round(Settings.weight(this)));
             case R_MAP:       return onOff(Settings.map(this));
+            case R_SUMMARY_MAP: return onOff(Settings.summaryMap(this));
+            case R_MAP_CACHE: return Fmt.size(TileMapView.cacheSize(this));
             case R_SENSOR:    return sensorTersimpan();
             case R_STRAVA_ID:
                 String cid = StravaStore.clientId(this);
@@ -565,6 +578,21 @@ public class SettingsActivity extends Activity {
                 break;
             case R_ATUR_LAYAR:
                 startActivity(new Intent(this, AturLayarActivity.class));
+                break;
+            case R_MAP_CACHE:
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.map_cache_clear_title)
+                        .setMessage(R.string.map_cache_clear_msg)
+                        .setNegativeButton(R.string.cancel, null)
+                        .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+                            @Override public void onClick(DialogInterface d, int w) {
+                                TileMapView.clearCache(SettingsActivity.this);
+                                paint();
+                                Toast.makeText(SettingsActivity.this,
+                                        R.string.map_cache_cleared, Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .show();
                 break;
             case R_RESET:
                 new AlertDialog.Builder(this)

@@ -67,6 +67,32 @@
         android:layout_height="wrap_content"
         android:text="@string/summary_title" />
 
+    <!-- ===== hero: jarak + tanggal =====
+         Angka pertama yang dicari sesudah gowes adalah jarak, jadi ia berdiri
+         sendiri di puncak layar dengan ukuran paling besar - bukan salah satu
+         dari empat angka yang sejajar di kartu metrik. Tanggal menempel di
+         bawahnya supaya satu blok terbaca sebagai "gowes yang mana".
+
+         Tingginya tidak diikat: teks 56sp, dan di lebar 360dp dengan font
+         1,3x angka terpanjang (199,99) masih muat bersama satuannya. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingTop="@dimen/gap_cozy">
+
+        <TextView android:id="@+id/tvDist" style="@style/ValueHero"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:tag="num" android:text="0,00" />
+
+        <TextView style="@style/ValueUnit"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/gap_snug"
+            android:paddingBottom="@dimen/gap_normal"
+            android:text="@string/unit_km" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/tvWhen"
         style="@style/EmptyText"
@@ -75,66 +101,73 @@
         android:paddingTop="@dimen/gap_tight"
         android:paddingBottom="@dimen/gap_loose" />
 
-    <id.cyclocomp.TileMapView
-        android:id="@+id/route"
+    <!-- ===== rute =====
+         Isinya dibuat di kode (lihat SummaryActivity.tampilkanRute): RouteView
+         biasa, atau TileMapView kalau pengguna meminta peta. Wadah FrameLayout
+         memungkinkan keduanya bertukar tanpa mengubah tata letak.
+
+         Kenapa tidak langsung TileMapView: rute hampir selalu cukup, sedangkan
+         ubin peta memakan data dan memori. TileMapView baru dibuat setelah
+         pengguna menekan "Tampilkan peta", dan pilihan itu diingat. -->
+    <FrameLayout
+        android:id="@+id/routeWrap"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:minHeight="@dimen/route_map_min"
         android:background="@drawable/bg_card" />
 
-    <!-- angka utama -->
-    <!-- ===== angka utama: jarak & waktu bergerak =====
-         Kedalaman layout dibatasi 7 tingkat per layar (aturan rancangan).
-         Sebelumnya satu kartu memuat BARIS di dalam kartu - 8 tingkat - jadi
-         yang dirapikan: kartunya sendiri yang jadi baris. Tiga kartu horizontal
-         berdampingan, pemisah di antaranya, tampilannya sama. -->
+    <!-- Tombol peta sengaja kecil dan di kanan: peta adalah hiasan rute, bukan
+         hal yang dibagikan. Tombol aksen selebar layar di sini akan bersaing
+         dengan BAGIKAN GAMBAR yang justru aksi utama layar ini. -->
+    <Button
+        android:id="@+id/btnMap"
+        style="@style/TinyBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/touch_target_min"
+        android:layout_gravity="end"
+        android:text="@string/summary_show_map"
+        android:textColor="@color/accent" />
+
+    <!-- ===== tingkat pertama: waktu bergerak =====
+         Jarak sudah menjadi hero di atas, jadi yang setingkat besar di sini
+         adalah waktu bergerak. Waktu total menyusul kecil di bawahnya: ia
+         angka pembanding, bukan angka yang dicari lebih dulu.
+
+         Kenapa tidak dua kolom besar berdampingan: "10:00:00" delapan karakter
+         di 36sp x font 1,3x hampir selebar separuh layar 360dp, dan angka
+         panjang akan terpotong di tepi. Satu kolom penuh aman untuk durasi
+         ekstrem tanpa mengecilkan angkanya. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/gap_loose"
         android:background="@drawable/bg_card"
-        android:baselineAligned="false"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
+        android:gravity="center"
+        android:orientation="vertical"
         android:paddingTop="@dimen/gap_roomy"
         android:paddingBottom="@dimen/gap_roomy">
 
-        <LinearLayout
-            android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1" android:gravity="center"
-            android:orientation="vertical">
-            <TextView style="@style/Label" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="@string/label_distance" />
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gap_tight"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:baselineAligned="false">
-                <TextView android:id="@+id/tvDist" style="@style/ValueBig"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,00"/>
-                <TextView style="@style/ValueUnit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="@dimen/gap_tight"
-                    android:text="@string/unit_km" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <View android:layout_width="@dimen/hairline" android:layout_height="@dimen/divider_lap"
-            android:layout_gravity="center_vertical" android:background="@color/divider" />
+        <TextView style="@style/Label" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="@string/label_moving" />
+        <TextView android:id="@+id/tvMoving" style="@style/ValueBig"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00:00" />
 
         <LinearLayout
-            android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1" android:gravity="center"
-            android:orientation="vertical">
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/gap_snug"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
             <TextView style="@style/Label" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="@string/label_moving" />
-            <TextView android:id="@+id/tvMoving" style="@style/ValueBig"
+                android:layout_height="wrap_content" android:text="@string/label_total" />
+            <TextView android:id="@+id/tvTotal" style="@style/ValueUnit"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00:00" />
+                android:paddingLeft="@dimen/gap_cozy" android:tag="num"
+                android:textSize="@dimen/text_body_m"
+                android:textColor="@color/value"
+                android:text="0:00:00" />
         </LinearLayout>
     </LinearLayout>
 
@@ -228,25 +261,6 @@
                     android:text="@string/unit_m" />
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-
-    <!-- ===== waktu total ===== -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/gap_loose"
-        android:background="@drawable/bg_card"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:paddingTop="@dimen/gap_loose"
-        android:paddingBottom="@dimen/gap_loose">
-
-        <TextView style="@style/Label" android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="@string/label_total" />
-        <TextView android:id="@+id/tvTotal"
-            style="@style/ValueSmall"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/gap_cozy" android:tag="num" android:text="0:00:00" />
     </LinearLayout>
 
 

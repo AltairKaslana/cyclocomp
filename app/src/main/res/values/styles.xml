@@ -108,6 +108,16 @@
         <item name="android:includeFontPadding">false</item>
     </style>
 
+    <!-- N-05: jarak di puncak Ringkasan. Rata kiri (bukan tengah) karena ia
+         berdiri sendiri, bukan bagian dari deretan kolom metrik. -->
+    <style name="ValueHero">
+        <item name="android:textSize">@dimen/text_value_hero</item>
+        <item name="android:textColor">@color/value</item>
+        <item name="android:gravity">start</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
     <!-- angka utama di baris daftar: dominan, tapi tidak sebesar angka lap —
          daftar harus tetap bisa memuat banyak baris. -->
     <style name="ValueRow">

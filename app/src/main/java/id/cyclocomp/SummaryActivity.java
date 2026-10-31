@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +34,13 @@ public class SummaryActivity extends Activity {
 
     private RideDb db;
     private RideDb.Row row;
+
+    /** Wadah rute; isinya RouteView biasa atau TileMapView, dibuat di kode. */
+    private FrameLayout routeWrap;
+    private List<GpxReader.P> track;
+    /** Hanya terisi kalau peta sedang tampil (N-05: dibuat sesuai permintaan). */
+    private TileMapView peta;
+    private boolean petaTampil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +89,18 @@ public class SummaryActivity extends Activity {
         findViewById(R.id.btnShareCard).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { bukaLayarBagikan(); }
         });
+        // N-05: peta adalah pilihan, bukan bawaan. Ketukan ini membuat atau
+        // membuang TileMapView, dan pilihannya diingat untuk gowes berikutnya.
+        Button btnMap = (Button) findViewById(R.id.btnMap);
+        if (btnMap != null) {
+            btnMap.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    boolean nyala = !petaTampil;
+                    Settings.setSummaryMap(SummaryActivity.this, nyala);
+                    tampilkanRute(nyala);
+                }
+            });
+        }
         Button strava = (Button) findViewById(R.id.btnStrava);
         strava.setVisibility(StravaStore.connected(this) ? View.VISIBLE : View.GONE);
         strava.setOnClickListener(new View.OnClickListener() {
@@ -117,6 +137,12 @@ public class SummaryActivity extends Activity {
     }
 
     @Override protected void onDestroy() {
+        // Thread unduhan ubin milik TileMapView harus dilepas bersama layarnya;
+        // kalau tidak, kumpulan thread tetap hidup selama proses aplikasi.
+        if (peta != null) {
+            peta.release();
+            peta = null;
+        }
         if (db != null) db.close();
         super.onDestroy();
     }
@@ -136,12 +162,16 @@ public class SummaryActivity extends Activity {
         bindKalori();
 
         // rute & peta: kalau gagal, angka di atas tetap tampil (rute tidak, itu saja)
+        routeWrap = (FrameLayout) findViewById(R.id.routeWrap);
         File gpx = GpxStore.materialize(this, row.gpxPath);
         try {
-            TileMapView rv = (TileMapView) findViewById(R.id.route);
-            rv.setMapEnabled(Settings.map(this));
-            List<GpxReader.P> track = GpxReader.read(gpx);
-            rv.setTrack(track);
+            if (gpx != null) track = GpxReader.read(gpx);
+        } catch (Throwable t) {
+            Log.e("Summary", "rute gagal dibaca", t);
+        }
+        try {
+            // Peta hanya dibuat kalau pengguna pernah memintanya (pilihan diingat).
+            tampilkanRute(Settings.summaryMap(this));
             bindDetak(track);
         } catch (Throwable t) {
             Log.e("Summary", "rute gagal ditampilkan", t);
@@ -195,6 +225,46 @@ public class SummaryActivity extends Activity {
         Button share = (Button) findViewById(R.id.btnShare);
         share.setEnabled(adaGpx);
         share.setAlpha(adaGpx ? 1f : 0.4f);
+    }
+
+    /**
+     * Ganti isi wadah rute: RouteView biasa, atau TileMapView kalau peta diminta.
+     *
+     * TileMapView dibuat di sini, bukan di layout, supaya selama pengguna tidak
+     * memintanya tidak ada thread unduhan, cache bitmap, atau permintaan
+     * jaringan sama sekali. Rute tetap tergambar oleh RouteView - peta hanya
+     * hiasan di belakangnya.
+     */
+    private void tampilkanRute(boolean pakaiPeta) {
+        if (routeWrap == null) return;
+        routeWrap.removeAllViews();
+        if (peta != null) {
+            peta.release();
+            peta = null;
+        }
+
+        View v;
+        if (pakaiPeta) {
+            peta = new TileMapView(this);
+            peta.setMapEnabled(true);
+            peta.setTrack(track);
+            v = peta;
+        } else {
+            RouteView r = new RouteView(this);
+            r.setTrack(track);
+            v = r;
+        }
+        routeWrap.addView(v, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT));
+        petaTampil = pakaiPeta;
+
+        Button b = (Button) findViewById(R.id.btnMap);
+        if (b != null) {
+            b.setText(pakaiPeta ? R.string.summary_hide_map : R.string.summary_show_map);
+            // Tanpa rute yang terbaca, peta tidak memberi informasi apa pun.
+            b.setVisibility(track == null || track.isEmpty() ? View.GONE : View.VISIBLE);
+        }
     }
 
     /**

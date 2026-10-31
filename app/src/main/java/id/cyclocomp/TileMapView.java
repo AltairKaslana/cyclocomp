@@ -19,11 +19,14 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Rute di atas ubin peta OpenStreetMap.
@@ -49,6 +52,18 @@ public class TileMapView extends RouteView {
     private static final String URL_TEMPLATE = "https://tile.openstreetmap.org/%d/%d/%d.png";
     /** Kebijakan OSM mewajibkan agen pengguna yang jelas; tanpa ini permintaan ditolak. */
     private static final String UA = "Cyclocomp/0.8.0 (bike computer; Android)";
+
+    /**
+     * Batas cache ubin di disk. Peta hanya hiasan; tanpa batas, membuka
+     * banyak rute di area berbeda akan menumpuk ratusan MB tanpa terasa.
+     */
+    private static final long DISK_CAP = 20L * 1024 * 1024;
+    /** Setelah melewati batas, sisakan sedikit di bawahnya agar tidak memangkas tiap ubin. */
+    private static final long DISK_TARGET = DISK_CAP * 4 / 5;
+
+    private static final Object DISK_LOCK = new Object();
+    /** -1 berarti belum dihitung. Hanya disentuh di dalam {@link #DISK_LOCK}. */
+    private static long diskBytes = -1;
 
     private final Paint pTile = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG);
     private final Paint pAttrib = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -270,50 +285,144 @@ public class TileMapView extends RouteView {
 
     private String key(int x, int y) { return zoom + "/" + x + "/" + y; }
 
+    /** Akar cache ubin. Satu tempat, supaya unduhan dan pembersihan tidak meleset. */
+    private static File cacheDir(Context c) { return new File(c.getCacheDir(), "tiles"); }
+
+    /** Ukuran cache ubin di disk (byte), untuk baris Pengaturan. */
+    public static long cacheSize(Context c) {
+        synchronized (DISK_LOCK) {
+            if (diskBytes < 0) diskBytes = ukuran(cacheDir(c));
+            return diskBytes;
+        }
+    }
+
+    /** Hapus seluruh cache ubin. Rekaman gowes tidak tersentuh. */
+    public static void clearCache(Context c) {
+        synchronized (DISK_LOCK) {
+            hapus(cacheDir(c));
+            diskBytes = 0;
+        }
+    }
+
+    private static long ukuran(File f) {
+        if (f == null || !f.exists()) return 0;
+        if (f.isFile()) return f.length();
+        File[] anak = f.listFiles();
+        if (anak == null) return 0;
+        long n = 0;
+        for (File a : anak) n += ukuran(a);
+        return n;
+    }
+
+    private static void hapus(File f) {
+        if (f == null || !f.exists()) return;
+        if (f.isFile()) {
+            //noinspection ResultOfMethodCallIgnored
+            f.delete();
+            return;
+        }
+        File[] anak = f.listFiles();
+        if (anak != null) for (File a : anak) hapus(a);
+        //noinspection ResultOfMethodCallIgnored
+        f.delete();
+    }
+
+    private static void kumpulkan(File f, List<File> out) {
+        if (f == null) return;
+        if (f.isFile()) { out.add(f); return; }
+        File[] anak = f.listFiles();
+        if (anak != null) for (File a : anak) kumpulkan(a, out);
+    }
+
+    /**
+     * Catat ubin baru dan, kalau melewati batas, buang berkas paling lama.
+     * Dipanggil dari thread unduhan - tidak pernah menyentuh thread UI.
+     */
+    private void catatSimpan(long n) {
+        synchronized (DISK_LOCK) {
+            if (diskBytes < 0) diskBytes = ukuran(cacheDir(getContext()));
+            diskBytes += n;
+            if (diskBytes <= DISK_CAP) return;
+
+            List<File> semua = new ArrayList<File>();
+            kumpulkan(cacheDir(getContext()), semua);
+            Collections.sort(semua, new Comparator<File>() {
+                @Override public int compare(File a, File b) {
+                    return Long.compare(a.lastModified(), b.lastModified());
+                }
+            });
+            for (File f : semua) {
+                if (diskBytes <= DISK_TARGET) break;
+                long len = f.length();
+                //noinspection ResultOfMethodCallIgnored
+                if (f.delete()) diskBytes -= len;
+            }
+        }
+    }
+
     private File diskFile(int z, int x, int y) {
-        File dir = new File(getContext().getCacheDir(), "tiles/" + z + "/" + x);
+        File dir = new File(cacheDir(getContext()), z + "/" + x);
         //noinspection ResultOfMethodCallIgnored
         dir.mkdirs();
         return new File(dir, y + ".png");
+    }
+
+    /**
+     * Lepaskan thread unduhan dan cache bitmap saat tampilan peta tidak dipakai
+     * lagi. Tanpa ini, kumpulan thread tetap hidup selama proses aplikasi.
+     */
+    public void release() {
+        if (!pool.isShutdown()) pool.shutdownNow();
+        synchronized (tileLock) {
+            diminta.clear();
+            gagal.clear();
+        }
+        mem.evictAll();
     }
 
     private void request(final int x, final int y) {
         final int z = zoom;
         final String k = key(x, y);
         synchronized (tileLock) {
+            if (pool.isShutdown()) return;
             if (diminta.contains(k) || gagal.contains(k)) return;
             diminta.add(k);
         }
 
-        pool.execute(new Runnable() {
-            @Override public void run() {
-                Bitmap b = null;
-                File f = diskFile(z, x, y);
+        try {
+            pool.execute(new Runnable() {
+                @Override public void run() {
+                    Bitmap b = null;
+                    File f = diskFile(z, x, y);
 
-                // 1. cache disk
-                if (f.exists() && f.length() > 0) {
-                    b = BitmapFactory.decodeFile(f.getAbsolutePath());
-                }
-
-                // 2. jaringan, hanya kalau belum ada di disk
-                if (b == null) b = download(z, x, y, f);
-
-                synchronized (tileLock) {
-                    diminta.remove(k);
-                    if (b == null) {
-                        gagal.add(k);
-                        return;
+                    // 1. cache disk
+                    if (f.exists() && f.length() > 0) {
+                        b = BitmapFactory.decodeFile(f.getAbsolutePath());
                     }
-                }
-                final Bitmap got = b;
-                post(new Runnable() {
-                    @Override public void run() {
-                        mem.put(k, got);
-                        invalidate();
+
+                    // 2. jaringan, hanya kalau belum ada di disk
+                    if (b == null) b = download(z, x, y, f);
+
+                    synchronized (tileLock) {
+                        diminta.remove(k);
+                        if (b == null) {
+                            gagal.add(k);
+                            return;
+                        }
                     }
-                });
-            }
-        });
+                    final Bitmap got = b;
+                    post(new Runnable() {
+                        @Override public void run() {
+                            mem.put(k, got);
+                            invalidate();
+                        }
+                    });
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            // release() menutup pool tepat saat ubin diminta; bukan kesalahan.
+            synchronized (tileLock) { diminta.remove(k); }
+        }
     }
 
     private Bitmap download(int z, int x, int y, File save) {
@@ -345,6 +454,7 @@ public class TileMapView extends RouteView {
                 out = new FileOutputStream(save);
                 out.write(data);
                 out.flush();
+                catatSimpan(data.length);
             } catch (Throwable ignored) { }
 
             return b;

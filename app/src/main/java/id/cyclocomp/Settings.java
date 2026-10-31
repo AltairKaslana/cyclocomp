@@ -31,7 +31,8 @@ final class Settings {
     private static final String K_CSC_MAC     = "csc_mac";       // sensor kecepatan/kadensi
     private static final String K_CSC_NAME    = "csc_name";
     private static final String K_WHEEL_MM    = "wheel_mm";      // keliling roda, milimeter
-    private static final String K_MAP         = "map";           // peta ubin di Ringkasan
+    private static final String K_MAP         = "map";           // peta ubin live
+    private static final String K_SUMMARY_MAP = "summary_map";   // peta ubin di Ringkasan
     private static final String K_WEIGHT      = "weight";        // kg, dipakai hitung kalori
     private static final String K_THEME       = "theme_light";   // tema siang?
     private static final String K_ONBOARDING  = "onboarding_done"; // 3 langkah pertama sudah dilewati?
@@ -135,9 +136,29 @@ final class Settings {
 
     // ---------- peta ----------
 
-    /** Tampilkan peta ubin OpenStreetMap di layar Ringkasan. */
+    /**
+     * Peta ubin OpenStreetMap untuk peta LIVE (Sekilas dan layar Peta).
+     *
+     * Tetap bawaan nyala: layar Peta dibuka secara eksplisit oleh pengguna,
+     * jadi di sana ubin memang yang dicari.
+     */
     public static boolean map(Context c) { return sp(c).getBoolean(K_MAP, true); }
     public static void setMap(Context c, boolean v) { sp(c).edit().putBoolean(K_MAP, v).apply(); }
+
+    /**
+     * Peta ubin di layar RINGKASAN, terpisah dari peta live.
+     *
+     * Bawaan MATI (N-05): Ringkasan hampir selalu cukup dengan garis rute,
+     * sedangkan ubin memakan data dan memori. Pengguna menyalakannya lewat
+     * "Tampilkan peta" di Ringkasan; pilihan itu diingat untuk gowes berikutnya.
+     *
+     * Kenapa kuncinya terpisah: kalau memakai {@link #map}, mematikan peta di
+     * Ringkasan ikut mematikan layar Peta yang justru dibuka untuk melihat peta.
+     */
+    public static boolean summaryMap(Context c) { return sp(c).getBoolean(K_SUMMARY_MAP, false); }
+    public static void setSummaryMap(Context c, boolean v) {
+        sp(c).edit().putBoolean(K_SUMMARY_MAP, v).apply();
+    }
 
     /** Bunyi bip saat peringatan & lap. */
     public static boolean beep(Context c) { return sp(c).getBoolean(K_BEEP, true); }

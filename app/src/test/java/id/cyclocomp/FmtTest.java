@@ -149,4 +149,29 @@ public class FmtTest {
     public void gradeSatuDesimal() {
         assertEquals("3.5", Fmt.grade(3.46));
     }
+
+    // ---------- size (cache peta) ----------
+
+    @Test
+    public void sizeNolDanNegatif() {
+        assertEquals("0 B", Fmt.size(0));
+        assertEquals("0 B", Fmt.size(-10));
+    }
+
+    @Test
+    public void sizeByte() {
+        assertEquals("999 B", Fmt.size(999));
+    }
+
+    @Test
+    public void sizeKilobyte() {
+        assertEquals("1 KB", Fmt.size(1024));
+        assertEquals("512 KB", Fmt.size(512L * 1024));
+    }
+
+    @Test
+    public void sizeMegabyte() {
+        assertEquals("12.3 MB", Fmt.size((long) (12.3 * 1024 * 1024)));
+        assertEquals("20.0 MB", Fmt.size(20L * 1024 * 1024));
+    }
 }
