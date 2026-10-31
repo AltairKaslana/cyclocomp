@@ -41,6 +41,18 @@ public class MapActivity extends Activity implements RideService.Listener {
         }
     };
 
+    /**
+     * Paksa palet gelap/terang SEBELUM resource dibaca.
+     *
+     * Tanpa ini layar peta memakai palet bawaan perangkat: pengguna yang memilih
+     * tema siang tetap melihat peta gelap - satu-satunya layar yang tidak ikut.
+     * Lihat {@link Tema} kenapa harus di attachBaseContext, bukan onCreate.
+     */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Tema.bungkus(base));
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

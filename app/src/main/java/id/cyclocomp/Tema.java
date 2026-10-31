@@ -1,7 +1,10 @@
 package id.cyclocomp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+
+import java.util.WeakHashMap;
 
 /**
  * Pemilih tema aplikasi: gelap (bawaan) atau siang.
@@ -34,11 +37,81 @@ import android.content.res.Configuration;
  * rusak.
  */
 final class Tema {
-    private Tema() {}
+    /**
+     * Pilihan tema yang sedang berlaku di proses ini.
+     *
+     * Diisi saat layar memasang palet (lihat {@link #bungkus}), dan diganti
+     * seketika saat pengguna menekan sakelar (lihat {@link #terapkan}).
+     *
+     * Kenapa ikut disimpan di memori dan tidak cukup dari SharedPreferences:
+     * penulisan SharedPreferences dengan apply() berjalan di thread lain, dan
+     * sebagian perangkat mengembalikan nilai LAMA sesaat sesudah itu. Kalau
+     * layar baru membaca pilihan tepat di attachBaseContext dan kebetulan
+     * mendapat nilai lama, layar itu terbangun dengan palet yang salah -
+     * gejalanya persis sakelar tema yang "macet": pilih terang bisa, tapi balik
+     * ke gelap tidak terlihat. Penanda ini selalu nilai terbaru.
+     */
+    private static boolean terangTerpasang;
+
+    /**
+     * Layar yang sudah pernah dipasang ulang karena paletnya tidak cocok.
+     * WeakHashMap supaya tidak menahan aktivitas yang sudah ditutup.
+     */
+    private static final WeakHashMap<Activity, Boolean> sudahPasangUlang =
+            new WeakHashMap<Activity, Boolean>();
+
+    private Tema(){}
+
+    /**
+     * Ganti pilihan tema: tandai seketika, lalu simpan.
+     *
+     * Urutan sengaja begini - penanda memori diperbarui LEBIH DULU supaya layar
+     * apa pun yang dibangun sesudah ini (termasuk layar hasil recreate()) pasti
+     * memakai palet baru, tidak peduli apa yang masih tertulis di disk.
+     */
+    static void terapkan(Context c, boolean terang) {
+        terangTerpasang = terang;
+        Settings.setTheme(c, terang);
+    }
+
+    /**
+     * Palet yang BENAR-BENAR terpasang pada konteks ini - bukan pilihan
+     * tersimpan. Bedanya penting: kalau pemasangan ulang gagal, keduanya
+     * berbeda, dan itu yang harus diperbaiki (lihat
+     * {@link #perbaikiKalauPerlu}), bukan disembunyikan.
+     */
+    static boolean sedangTerang(Context c) {
+        int malam = c.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        return malam == Configuration.UI_MODE_NIGHT_NO;
+    }
+
+    /**
+     * Kalau palet yang terpasang pada layar ini tidak sama dengan pilihan
+     * tersimpan, bangun ulang layar SEKALI.
+     *
+     * Dipakai dari onStart layar utama. Dua hal yang dijaga:
+     *   1. Layar yang masih hidup di tumpukan belakang (mis. layar utama saat
+     *      pengguna menekan kembali dari Pengaturan) ikut palet baru.
+     *   2. Kalau recreate() di sebagian perangkat tidak memasang ulang konteks,
+     *      palet tetap akhirnya mengikuti pilihan pengguna.
+     *
+     * Sekali saja per layar (sudahPasangUlang): kalau pemasangan palet gagal
+     * sama sekali, perbaikan tidak boleh jadi pengulangan tanpa akhir - satu
+     * recreate per kunjungan sudah cukup, dan aplikasi tetap bisa dipakai.
+     */
+    static void perbaikiKalauPerlu(Activity a) {
+        if (a == null || a.isFinishing()) return;
+        if (sedangTerang(a) == Settings.theme(a)) return;
+        if (Boolean.TRUE.equals(sudahPasangUlang.get(a))) return;
+        sudahPasangUlang.put(a, Boolean.TRUE);
+        a.recreate();
+    }
 
     /** Bungkus konteks dasar sebuah aktivitas supaya warnanya sesuai pilihan. */
     static Context bungkus(Context base) {
-        return paksa(base, Settings.theme(base));
+        if (base == null) return null;
+        terangTerpasang = Settings.theme(base);
+        return paksa(base, terangTerpasang);
     }
 
     /**

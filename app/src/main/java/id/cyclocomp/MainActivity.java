@@ -163,7 +163,10 @@ public class MainActivity extends Activity implements RideService.Listener {
         tvHr = (TextView) findViewById(R.id.tvHr);
         tvHrHeart = (TextView) findViewById(R.id.tvHrHeart);
         liveMap = (TileMapView) findViewById(R.id.liveMap);
-        liveMap.setMapEnabled(id.cyclocomp.Settings.map(this));
+        // Layout landscape TIDAK punya peta (tidak muat peta + angka sekaligus),
+        // jadi liveMap null di sana. Tanpa penjagaan ini aplikasi langsung mati
+        // begitu HP dimiringkan - yang dilaporkan sebagai "landscape crash".
+        if (liveMap != null) liveMap.setMapEnabled(id.cyclocomp.Settings.map(this));
 
         // halaman DETAIL
         tvSpeed2 = (TextView) findViewById(R.id.tvSpeed2);
@@ -258,7 +261,9 @@ public class MainActivity extends Activity implements RideService.Listener {
                 Nav.open(MainActivity.this, SettingsActivity.class);
             }
         });
-        btnMap.setOnClickListener(new View.OnClickListener() {
+        // Tombol peta juga tidak ada di layout landscape (peta dibuka dari
+        // layar penuh sendiri). Dicek null supaya landscape tidak mati.
+        if (btnMap != null) btnMap.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 Nav.open(MainActivity.this, MapActivity.class);
             }
@@ -417,6 +422,10 @@ public class MainActivity extends Activity implements RideService.Listener {
     @Override
     protected void onStart() {
         super.onStart();
+        // Jaring pengaman palet: kalau tema diganti di Pengaturan lalu pengguna
+        // menekan kembali, layar ini (yang masih hidup) ikut palet baru. Lihat
+        // Tema.perbaikiKalauPerlu.
+        Tema.perbaikiKalauPerlu(this);
         bound = bindService(new Intent(this, RideService.class), conn, Context.BIND_AUTO_CREATE);
         // Susunan bidang bisa berubah di layar Atur layar; onStart (bukan
         // onCreate) supaya perubahan itu terlihat juga saat pengguna menekan

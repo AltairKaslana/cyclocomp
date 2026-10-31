@@ -56,6 +56,19 @@ public class SettingsActivity extends Activity {
     }
 
     /**
+     * Jaring pengaman palet. attachBaseContext sudah memasang palet yang benar
+     * saat layar ini dibangun; onStart mengecek ulang supaya kalau ada yang
+     * tidak ikut (layar lama di tumpukan belakang, atau recreate() yang tidak
+     * memasang ulang konteks di sebagian perangkat) paletnya tetap mengikuti
+     * pilihan pengguna. Lihat {@link Tema#perbaikiKalauPerlu}.
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Tema.perbaikiKalauPerlu(this);
+    }
+
+    /**
      * Paksa penanda mode gelap/terang SEBELUM resource apa pun dibaca.
      *
      * Harus di attachBaseContext, bukan di onCreate: onCreate sudah dipanggil
@@ -362,16 +375,20 @@ public class SettingsActivity extends Activity {
             case R_AUTOPAUSE: Settings.setAutoPause(this, v); break;
             case R_MAP:       Settings.setMap(this, v); break;
             case R_THEME:
-                Settings.setTheme(this, v);
+                // Tema.terapkan: tandai palet baru seketika + simpan. Penanda
+                // memori diperbarui lebih dulu, jadi layar hasil recreate()
+                // di bawah ini pasti memakai palet baru walau tulisan ke disk
+                // belum sempat terbaca.
+                Tema.terapkan(this, v);
                 // Palet dipilih saat aktivitas DIBANGKAN (attachBaseContext),
                 // jadi aktivitas yang sedang berjalan tetap memakai palet lama.
                 // recreate() membangun ulang aktivitas ini dengan palet baru -
                 // tanpa itu sakelarnya akan terasa "tersimpan tapi tidak
                 // bereaksi".
                 //
-                // Sengaja hanya aktivitas ini: layar lain dibangun ulang sendiri
-                // saat dibuka nanti, dan me-recreate semuanya dari sini butuh
-                // daftar aktivitas yang harus dirawat.
+                // Sengaja hanya aktivitas ini: layar lain ikut sendiri lewat
+                // Tema.perbaikiKalauPerlu di onStart-nya, jadi tidak perlu
+                // daftar aktivitas yang dirawat dari sini.
                 recreate();
                 break;
             case R_BEEP:      Settings.setBeep(this, v); break;

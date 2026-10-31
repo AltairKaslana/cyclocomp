@@ -141,7 +141,13 @@ final class Settings {
      */
     public static boolean theme(Context c) { return sp(c).getBoolean(K_THEME, false); }
     public static void setTheme(Context c, boolean v) {
-        sp(c).edit().putBoolean(K_THEME, v).apply();
+        // commit(), bukan apply(): nilai harus sudah sampai disk SEBELUM layar
+        // di-recreate. apply() menulis di thread lain, dan sebagian perangkat
+        // masih mengembalikan nilai lama sesaat sesudahnya - layar baru lalu
+        // terbangun dengan palet yang salah (sakelar tema terasa macet).
+        // Satu boolean, murah: menunggu beberapa milidetik lebih baik daripada
+        // tema yang tidak ikut berganti.
+        sp(c).edit().putBoolean(K_THEME, v).commit();
     }
 
     // ---------- onboarding ----------
