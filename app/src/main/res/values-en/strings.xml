@@ -113,10 +113,10 @@
     <string name="onb_mulai">Start riding</string>
     <string name="onb_lokasi_judul">One permission, once</string>
     <string name="onb_lokasi_isi">Zylo uses GPS for distance, speed, and elevation. Location is only used while you press START - nothing is sent anywhere.</string>
-    <string name="onb_baterai_judul">So the system won't stop your ride</string>
+    <string name="onb_baterai_judul">So the system won\'t stop your ride</string>
     <string name="onb_baterai_isi">Let Zylo run without battery restrictions. If skipped, Android may stop recording mid-ride.</string>
     <string name="onb_sensor_judul">Have a heart rate or cadence sensor?</string>
-    <string name="onb_sensor_isi">That's fine later - connect it any time from Settings. Without sensors, speed, distance, and time still record from GPS.</string>
+    <string name="onb_sensor_isi">That\'s fine later - connect it any time from Settings. Without sensors, speed, distance, and time still record from GPS.</string>
     <string name="onb_lokasi_ikon">Location icon</string>
     <string name="onb_baterai_ikon">Battery icon</string>
     <string name="onb_sensor_ikon">Sensor icon</string>
