@@ -123,7 +123,7 @@ public class MainActivity extends Activity implements RideService.Listener {
         if (Onboarding.layakDitampilkan(id.cyclocomp.Settings.onboardingDone(this),
                 checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                         == PackageManager.PERMISSION_GRANTED,
-                bateraiDikecualikan())) {
+                batteryOptimized())) {
             startActivity(new Intent(this, OnboardingActivity.class));
         }
 
@@ -797,7 +797,7 @@ public class MainActivity extends Activity implements RideService.Listener {
         tvLapBadge.setText(getString(R.string.lap_badge, idx));
         tvLapTitle.setText(getString(R.string.lap_current) + " " + idx);
         isiNilaiSlot(slotLap, fieldsLap, service == null ? new RideStats() : service.getStats(),
-                elapsed, cur);
+                service == null ? 0 : service.getElapsedMs(), cur);
 
         List<Lap> done = service.getLaps();
         if (done.isEmpty()) {

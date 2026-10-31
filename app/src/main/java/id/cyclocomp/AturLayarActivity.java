@@ -56,7 +56,7 @@ public class AturLayarActivity extends Activity {
 
         preview = (LinearLayout) findViewById(R.id.preview);
         chips = (LinearLayout) findViewById(R.id.chips);
-        hint = (TextView) findViewById(R.id.hint);
+        hint = (TextView) findViewById(R.id.tvHint);
 
         ((ImageButton) findViewById(R.id.btnBack)).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { finish(); }
