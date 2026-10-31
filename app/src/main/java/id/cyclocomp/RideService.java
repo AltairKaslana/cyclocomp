@@ -363,19 +363,29 @@ public class RideService extends Service implements LocationListener {
                 r.caloriesKcal = Calories.estimate(stats.distanceM, stats.movingMs,
                         stats.elevGainM, Settings.weight(this));
                 long id = db.insert(r);
-                Settings.setLastRideId(this, id);
+                if (id > 0) {
+                    Settings.setLastRideId(this, id);
+                    SessionRecovery.clear(this);
+                } else {
+                    // insert() bisa mengembalikan -1 tanpa melempar; itu sama
+                    // gagalnya dengan pengecualian.
+                    simpanGagal = true;
+                }
             } catch (Throwable t) {
                 Log.e(TAG, "simpan riwayat gagal", t);
                 simpanGagal = true;
             }
-            SessionRecovery.clear(this);
-        } else if (gpxLoc != null) {
-            // rekaman terlalu pendek, buang
-            GpxStore.delete(this, gpxLoc);
-            gpxLoc = null;
+            // Saat simpan gagal, penanda TIDAK dibersihkan: GPX masih utuh di
+            // disk dan SessionRecovery.recover() mendapat kesempatan lagi saat
+            // aplikasi dibuka berikutnya.
+        } else {
+            // rekaman terlalu pendek, buang - tidak ada yang layak dipulihkan
+            if (gpxLoc != null) {
+                GpxStore.delete(this, gpxLoc);
+                gpxLoc = null;
+            }
             SessionRecovery.clear(this);
         }
-        SessionRecovery.clear(this);
         if (simpanGagal) toast(R.string.save_failed);
         if (baro != null) baro.stop();
         stopBle();

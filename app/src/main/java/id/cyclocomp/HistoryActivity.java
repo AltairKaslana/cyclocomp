@@ -72,6 +72,19 @@ public class HistoryActivity extends Activity {
 
         weekCard = findViewById(R.id.weekCard);
         weekText = (TextView) findViewById(R.id.weekText);
+    }
+
+    /**
+     * Muat ulang setiap kali layar kembali ke depan, bukan hanya saat dibuat.
+     *
+     * Ringkasan bisa MENGHAPUS gowes; dulu kembali dari sana menampilkan daftar
+     * lama - baris yang baru dihapus masih ada dan masih bisa diketuk, lalu
+     * membuka Ringkasan kosong. Sekalian menutup kasus pemulihan sesi yang
+     * selesai saat layar ini sudah terbuka.
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
         reload();
     }
 

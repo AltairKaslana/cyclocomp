@@ -38,6 +38,14 @@ public class AturLayarActivity extends Activity {
     private TextView hint;
 
     private int halaman = Bidang.SEKILAS;
+    /**
+     * Susunan KETIGA halaman, bukan hanya yang sedang dibuka. Perubahan
+     * di satu tab tetap ada saat berpindah tab, dan SIMPAN menulis semuanya
+     * sekaligus - satu tombol simpan yang hanya menyimpan sebagian layar
+     * adalah janji yang tidak ditepati.
+     */
+    private final int[][] urutanHalaman = new int[Bidang.HALAMAN_JUMLAH][];
+    /** Selalu menunjuk urutanHalaman[halaman]; disingkat karena dipakai di banyak tempat. */
     private int[] urutan;
     private int slotTerpilih = -1;
     private boolean berubah = false;
@@ -76,22 +84,34 @@ public class AturLayarActivity extends Activity {
                 // ATUR ULANG hanya mengembalikan halaman yang sedang dibuka,
                 // bukan ketiganya: orang datang ke sini untuk memperbaiki satu
                 // halaman, dan mereset yang tidak diminta justru mengejutkan.
-                Settings.resetPageFields(AturLayarActivity.this, halaman);
-                urutan = Bidang.bawaan(halaman);
-                berubah = false;
+                //
+                // Hasilnya hanya DIPASANG di layar, belum ditulis: atur ulang
+                // adalah perubahan seperti perubahan lain, jadi ia baru berlaku
+                // saat SIMPAN ditekan - dan bisa dibatalkan dengan keluar.
+                urutanHalaman[halaman] = Bidang.bawaan(halaman);
+                urutan = urutanHalaman[halaman];
+                slotTerpilih = -1;
+                berubah = true;
                 gambar();
             }
         });
         ((Button) findViewById(R.id.btnSave)).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                Settings.setPageFields(AturLayarActivity.this, halaman, urutan);
+                // Ketiga halaman disimpan, bukan hanya tab yang terlihat.
+                for (int h = 0; h < Bidang.HALAMAN_JUMLAH; h++) {
+                    Settings.setPageFields(AturLayarActivity.this, h, urutanHalaman[h]);
+                }
                 berubah = false;
+                gambar();   // tombol SIMPAN kembali mati
                 android.widget.Toast.makeText(AturLayarActivity.this,
                         R.string.atur_saved, android.widget.Toast.LENGTH_SHORT).show();
             }
         });
 
-        urutan = Settings.pageFields(this, halaman);
+        for (int h = 0; h < Bidang.HALAMAN_JUMLAH; h++) {
+            urutanHalaman[h] = Settings.pageFields(this, h);
+        }
+        urutan = urutanHalaman[halaman];
         gambar();
     }
 
@@ -100,12 +120,10 @@ public class AturLayarActivity extends Activity {
     private void pilihHalaman(int h) {
         if (h == halaman) return;
         halaman = h;
-        // Susunan tiap halaman disimpan sendiri-sendiri; ganti tab TIDAK
-        // membuang perubahan di tab sebelumnya selama belum disimpan - tapi
-        // juga tidak menggabungkannya. Yang ditampilkan selalu isi tersimpan
-        // untuk halaman itu, supaya pratinjau tidak menjanjikan sesuatu yang
-        // belum ada di pengaturan.
-        urutan = Settings.pageFields(this, halaman);
+        // Yang ditampilkan adalah susunan di layar, bukan yang tersimpan:
+        // perubahan di tab sebelumnya tidak boleh hilang hanya karena tab
+        // lain dibuka. Semuanya baru ditulis oleh SIMPAN.
+        urutan = urutanHalaman[halaman];
         slotTerpilih = -1;
         gambar();
     }
@@ -144,13 +162,18 @@ public class AturLayarActivity extends Activity {
     }
 
     private void tandaiTab() {
-        int terang = R.drawable.bg_pill;          // pil terisi = tab aktif
+        // Tab aktif memakai pil AKSEN, bukan card2: dengan latar card2 dan
+        // teks on_accent, teks putih di atas abu-abu muda hanya 1,2:1 -
+        // praktis tak terbaca di tema siang. Aksen + on_accent tetap
+        // berkontras tinggi di kedua tema.
+        int aktif = R.drawable.bg_btn_primary;
+        int pasif = R.drawable.bg_btn_secondary;
         ((Button) findViewById(R.id.tabGlance)).setBackgroundResource(
-                halaman == Bidang.SEKILAS ? terang : R.drawable.bg_btn_secondary);
+                halaman == Bidang.SEKILAS ? aktif : pasif);
         ((Button) findViewById(R.id.tabDetail)).setBackgroundResource(
-                halaman == Bidang.DETAIL ? terang : R.drawable.bg_btn_secondary);
+                halaman == Bidang.DETAIL ? aktif : pasif);
         ((Button) findViewById(R.id.tabLap)).setBackgroundResource(
-                halaman == Bidang.LAP ? terang : R.drawable.bg_btn_secondary);
+                halaman == Bidang.LAP ? aktif : pasif);
         ((Button) findViewById(R.id.tabGlance)).setTextColor(getResources().getColor(
                 halaman == Bidang.SEKILAS ? R.color.on_accent : R.color.label));
         ((Button) findViewById(R.id.tabDetail)).setTextColor(getResources().getColor(
@@ -235,7 +258,10 @@ public class AturLayarActivity extends Activity {
             final int field = f;
             TextView chip = new TextView(this);
             chip.setText(Bidang.label(f));
-            chip.setTextColor(getResources().getColor(R.color.on_accent));
+            // Chip adalah daftar pilihan, bukan tombol aksen: latar card2
+            // dengan teks value. accent_soft + on_accent membuat teks putih
+            // di atas biru muda (siang) hanya ~1,2:1.
+            chip.setTextColor(getResources().getColor(R.color.value));
             chip.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
                     getResources().getDimensionPixelSize(R.dimen.text_caption));
             chip.setPadding(dp(14), dp(10), dp(14), dp(10));
@@ -243,7 +269,7 @@ public class AturLayarActivity extends Activity {
             GradientDrawable bg = new GradientDrawable();
             bg.setShape(GradientDrawable.RECTANGLE);
             bg.setCornerRadius(dp(22));
-            bg.setColor(getResources().getColor(R.color.accent_soft));
+            bg.setColor(getResources().getColor(R.color.card2));
             bg.setStroke(dp(1), getResources().getColor(R.color.stroke_ctrl));
             chip.setBackground(bg);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(

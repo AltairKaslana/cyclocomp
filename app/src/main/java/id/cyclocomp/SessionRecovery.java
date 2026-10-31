@@ -60,7 +60,17 @@ final class SessionRecovery {
 
     /**
      * Selamatkan sesi yang tertinggal. Mengembalikan true bila ada yang dipulihkan.
-     * Aman dipanggil berkali-kali: penanda langsung dibersihkan.
+     *
+     * Penanda hanya dibersihkan setelah baris riwayat benar-benar TERSIMPAN.
+     * Dulu penanda dihapus paling awal, sebelum DB disentuh: kalau insert gagal
+     * (penyimpanan penuh, DB terkunci), GPX yang masih utuh di disk menjadi
+     * yatim - tidak ada di Riwayat, dan tidak ada lagi penanda yang menuntun
+     * pemulihan berikutnya. Jadi selama insert belum berhasil, penanda sengaja
+     * dibiarkan; percobaan berikutnya masih punya kesempatan.
+     *
+     * Untuk sebab yang tidak akan berubah (tidak ada berkas, rekaman terlalu
+     * pendek), penanda tetap dibersihkan: menyimpannya hanya akan mengulang
+     * pekerjaan yang sama tiap aplikasi dibuka.
      */
     static boolean recover(Context c) {
         if (!isActive(c)) return false;
@@ -72,18 +82,24 @@ final class SessionRecovery {
         double maxSp = sp(c).getFloat(K_MAX, 0f);
         double elev = sp(c).getFloat(K_ELEV, 0f);
         String laps = sp(c).getString(K_LAPS, null);
-        clear(c);
 
-        if (path == null) return false;
+        if (path == null) {
+            clear(c);
+            return false;
+        }
 
         // GPX yang terputus tidak punya footer; tambahkan supaya bisa dibaca aplikasi lain
         GpxWriter.closeTruncated(c, path);
 
-        if (!GpxStore.exists(c, path)) return false;
+        if (!GpxStore.exists(c, path)) {
+            clear(c);
+            return false;
+        }
 
         // terlalu pendek = tidak layak masuk riwayat
         if (dist < 20) {
             GpxStore.delete(c, path);
+            clear(c);
             return false;
         }
 
@@ -99,8 +115,10 @@ final class SessionRecovery {
             r.gpxPath = path;
             r.laps = laps;
             long id = db.insert(r);
+            if (id <= 0) return false;
             Settings.setLastRideId(c, id);
-            return id > 0;
+            clear(c);
+            return true;
         } finally {
             db.close();
         }

@@ -208,9 +208,4 @@ final class Settings {
         }
         sp(c).edit().putString(K_FIELDS + halaman, sb.toString()).apply();
     }
-
-    /** Kembalikan satu halaman ke susunan bawaan. */
-    public static void resetPageFields(Context c, int halaman) {
-        sp(c).edit().remove(K_FIELDS + halaman).apply();
-    }
 }
