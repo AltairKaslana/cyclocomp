@@ -493,5 +493,13 @@
     <string name="nav_clear_title">Hapus rute navigasi?</string>
     <string name="nav_clear_msg">Rute impor dihapus dari perangkat. Rekaman gowes tidak terhapus.</string>
     <string name="nav_removed">Rute navigasi dihapus</string>
+    <string name="nav_remain">Sisa %1$s km</string>
+    <string name="nav_turn_left">Belok kiri</string>
+    <string name="nav_turn_right">Belok kanan</string>
+    <string name="nav_straight">Lurus</string>
+    <string name="nav_off_route">Di luar rute</string>
+    <string name="nav_wait">Mencari GPS</string>
+    <string name="nav_cd">%1$s, %2$s, sisa %3$s km</string>
+    <string name="nav_route_desc">Panduan rute: arah maju selalu ke atas</string>
 
 </resources>

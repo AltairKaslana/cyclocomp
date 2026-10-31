@@ -39,6 +39,12 @@
          Strip ringkas: rute yang sudah dilalui sebagai thumbnail. -->
     <dimen name="glance_map_h">120dp</dimen>
 
+    <!-- N-10: panduan rute di Sekilas. Pita sengaja lebih pendek daripada peta
+         live: yang perlu terbaca di atas sepeda hanya jalan 130 m ke depan dan
+         panah belokan, bukan seluruh jejak perjalanan. -->
+    <dimen name="glance_nav_h">76dp</dimen>
+    <dimen name="nav_arrow">40dp</dimen>
+
     <!-- pembatas vertikal antar kolom metrik -->
     <dimen name="divider_short">34dp</dimen>
     <dimen name="divider_lap">42dp</dimen>

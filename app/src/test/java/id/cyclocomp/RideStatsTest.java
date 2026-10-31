@@ -36,6 +36,22 @@ public class RideStatsTest {
         assertEquals(0.0, s.distanceM, 0.01);
     }
 
+    @Test public void posisiTerakhirDisimpanUntukPanduanRute() {
+        RideStats s = new RideStats();
+        assertFalse(s.hasLast());
+        s.onFix(at(0, 1000, 5f));
+        assertTrue(s.hasLast());
+        assertEquals(0.0, s.lastLat, 1e-9);
+        s.onFix(at(100, 2000, 5f));
+        assertEquals(100 * DEG_PER_M, s.lastLat, 1e-9);
+
+        RideStats jelek = new RideStats();
+        RideStats.Fix f = at(50, 1000, 5f);
+        f.accuracyM = 80f;
+        jelek.onFix(f);
+        assertFalse("fix berakurasi buruk tidak boleh menggeser posisi", jelek.hasLast());
+    }
+
     @Test public void akurasiJelekDibuang() {
         RideStats s = new RideStats();
         RideStats.Fix f = at(0, 1000, 5f);

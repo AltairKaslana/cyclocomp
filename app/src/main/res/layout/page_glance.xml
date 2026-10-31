@@ -182,6 +182,71 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- N-10: panduan rute impor. Muncul hanya saat gowes berjalan DAN ada rute;
+         selama tampil, peta live di bawahnya disembunyikan - dua panel rute
+         sekaligus memakan ruang kecepatan tanpa menambah informasi. -->
+    <LinearLayout
+        android:id="@+id/navCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/gap_loose"
+        android:background="@drawable/bg_card"
+        android:orientation="vertical"
+        android:padding="@dimen/gap_normal"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <id.cyclocomp.TurnArrow
+                android:id="@+id/navArrow"
+                android:layout_width="@dimen/nav_arrow"
+                android:layout_height="@dimen/nav_arrow" />
+
+            <TextView
+                android:id="@+id/navTurnDist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/gap_normal"
+                android:includeFontPadding="false"
+                android:tag="num"
+                android:textColor="@color/value"
+                android:textSize="@dimen/text_value_s" />
+
+            <TextView
+                android:id="@+id/navTurnDistUnit"
+                style="@style/ValueUnit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/gap_tight"
+                android:text="@string/unit_m"
+                android:visibility="gone" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/navRemain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:textColor="@color/label"
+                android:textSize="@dimen/text_caption" />
+        </LinearLayout>
+
+        <id.cyclocomp.NavRibbon
+            android:id="@+id/navRibbon"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/glance_nav_h"
+            android:layout_marginTop="@dimen/gap_normal"
+            android:contentDescription="@string/nav_route_desc" />
+    </LinearLayout>
+
     <!-- Peta live: rute yang sudah dilalui, di bawah kartu metrik (angka km).
          TileMapView = ubin OSM di belakang garis rute; kalau tile gagal (offline),
          latar kisi dari RouteView tetap tampil. Disembunyikan sampai gowes dimulai. -->

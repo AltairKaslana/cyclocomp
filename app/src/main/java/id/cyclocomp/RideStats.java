@@ -45,6 +45,15 @@ public class RideStats {
     public double elevGainM;
     public double altitudeM = Double.NaN;
 
+    /**
+     * Koordinat fix terakhir yang lolos saringan akurasi; NaN sebelum ada GPS.
+     * Dipakai panduan rute untuk tahu di mana pengendara berada - bukan untuk
+     * jarak, yang tetap dihitung {@link #distanceM}.
+     */
+    public double lastLat = Double.NaN, lastLon = Double.NaN;
+
+    public boolean hasLast() { return !Double.isNaN(lastLat); }
+
     /** Kemiringan jalan dalam persen; positif = naik. */
     public double gradePercent;
 
@@ -178,6 +187,8 @@ public class RideStats {
     /** @return true bila titik layak ditulis ke GPX (sedang bergerak / titik awal). */
     public boolean onFix(Fix f) {
         if (f.accuracyM >= 0 && f.accuracyM > MAX_ACCURACY_M) return false;
+        lastLat = f.lat;
+        lastLon = f.lon;
         updateElevation(f);
 
         if (last == null) {

@@ -479,5 +479,13 @@
     <string name="nav_clear_title">Remove navigation route?</string>
     <string name="nav_clear_msg">The imported route is removed from this device. Recorded rides are not deleted.</string>
     <string name="nav_removed">Navigation route removed</string>
+    <string name="nav_remain">%1$s km remaining</string>
+    <string name="nav_turn_left">Turn left</string>
+    <string name="nav_turn_right">Turn right</string>
+    <string name="nav_straight">Straight</string>
+    <string name="nav_off_route">Off route</string>
+    <string name="nav_wait">Waiting for GPS</string>
+    <string name="nav_cd">%1$s, %2$s, %3$s km remaining</string>
+    <string name="nav_route_desc">Route guide: travel direction always points up</string>
 
 </resources>

@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Dashboard. Hanya menampilkan dan mengirim perintah; semua state ada di RideService.
@@ -59,6 +60,18 @@ public class MainActivity extends Activity implements RideService.Listener {
     private TextView tvHr, tvHrHeart;
     private TileMapView liveMap;          // peta live rute (halaman SEKILAS)
     private long lastLiveMapMs;           // throttle pembacaan rute live
+
+    // N-10: panduan rute impor. Hanya ada di layout portrait - landscape
+    // memang tidak punya ruang untuk panel rute (lihat page_glance.xml).
+    private View navCard;
+    private TurnArrow navArrow;
+    private NavRibbon navRibbon;
+    private TextView navTurnDist, navTurnDistUnit, navRemain;
+    private NavRoute navRoute;            // null = tidak ada rute impor
+    private long navStamp = -1;           // cap berkas terakhir yang dibaca
+    private final NavRoute.Snap navSnap = new NavRoute.Snap();
+    /** Di atas jarak ini, posisi dianggap keluar rute. */
+    private static final double NAV_OFF_M = 60.0;
     private TextView tvSpeed2, tvDist2, tvTime2, tvAvg2, tvMax2, tvElev2, tvAlt2, tvKcal2, tvHr2;
     private TextView tvMoving, tvTotal, tvLapDist, tvLapTime, tvLapAvg, tvLapMoving, tvLapTitle;
     private ListView lapList;
@@ -168,6 +181,14 @@ public class MainActivity extends Activity implements RideService.Listener {
         // jadi liveMap null di sana. Tanpa penjagaan ini aplikasi langsung mati
         // begitu HP dimiringkan - yang dilaporkan sebagai "landscape crash".
         if (liveMap != null) liveMap.setMapEnabled(id.cyclocomp.Settings.map(this));
+
+        // null di landscape: layout di sana tidak memuat kartu panduan rute.
+        navCard = findViewById(R.id.navCard);
+        navArrow = (TurnArrow) findViewById(R.id.navArrow);
+        navRibbon = (NavRibbon) findViewById(R.id.navRibbon);
+        navTurnDist = (TextView) findViewById(R.id.navTurnDist);
+        navTurnDistUnit = (TextView) findViewById(R.id.navTurnDistUnit);
+        navRemain = (TextView) findViewById(R.id.navRemain);
 
         // halaman DETAIL
         tvSpeed2 = (TextView) findViewById(R.id.tvSpeed2);
@@ -464,6 +485,9 @@ public class MainActivity extends Activity implements RideService.Listener {
         // onCreate) supaya perubahan itu terlihat juga saat pengguna menekan
         // tombol kembali, bukan hanya setelah aplikasi ditutup dan dibuka ulang.
         muatSlot();
+        // Rute bisa diimpor di Pengaturan saat layar ini masih di belakang;
+        // onStart memastikan rutenya terbaca begitu pengguna kembali.
+        muatRuteNav();
         refresh();
     }
 
@@ -591,10 +615,11 @@ public class MainActivity extends Activity implements RideService.Listener {
      * ulang seluruh berkas. Saat tidak gowes peta disembunyikan (bukan tampil
      * kosong) supaya dasbor tidak berisik.
      */
-    private void updateLiveMap(RideService.State st) {
+    private void updateLiveMap(RideService.State st, boolean boleh) {
         if (liveMap == null) return;
         boolean riding = service != null
-                && (st == RideService.State.RECORDING || st == RideService.State.PAUSED);
+                && (st == RideService.State.RECORDING || st == RideService.State.PAUSED)
+                && boleh;
         if (!riding) {
             if (liveMap.getVisibility() != View.GONE) {
                 liveMap.setVisibility(View.GONE);
@@ -610,6 +635,85 @@ public class MainActivity extends Activity implements RideService.Listener {
             liveMap.setVisibility(View.VISIBLE);
             liveMap.setTrack(track);
         }
+    }
+
+    /** Muat rute impor hanya kalau berkasnya berubah. */
+    private void muatRuteNav() {
+        long stamp = NavStore.stamp(this);
+        if (stamp == navStamp) return;
+        navStamp = stamp;
+        NavStore.Info info = NavStore.load(this);
+        navRoute = info == null ? null : info.route;
+    }
+
+    private boolean navTampil(RideService.State st) {
+        return navCard != null && navRoute != null && service != null
+                && (st == RideService.State.RECORDING || st == RideService.State.PAUSED);
+    }
+
+    /**
+     * Isi kartu panduan: panah belokan, jarak ke belokan, dan sisa rute.
+     *
+     * Sebelum fix GPS pertama, rute tetap digambar dari awal tanpa angka -
+     * pengendara perlu melihat bahwa rutenya termuat, dan panah kosong akan
+     * terbaca seperti rute gagal diimpor.
+     */
+    private void updateNav(boolean aktif, RideStats s) {
+        if (navCard == null) return;
+        if (!aktif) {
+            if (navCard.getVisibility() != View.GONE) navCard.setVisibility(View.GONE);
+            return;
+        }
+        if (navCard.getVisibility() != View.VISIBLE) navCard.setVisibility(View.VISIBLE);
+
+        boolean adaFix = s.hasLast();
+        if (adaFix) navRoute.snap(navSnap, s.lastLat, s.lastLon);
+        else navRoute.snapAlong(navSnap, 0);
+        boolean diLuar = adaFix && navSnap.offM > NAV_OFF_M;
+
+        navArrow.setTurn(navSnap.turnDir);
+        if (!adaFix) {
+            navTurnDist.setText("—");
+            navTurnDistUnit.setVisibility(View.GONE);
+            navRemain.setText(R.string.nav_wait);
+        } else if (diLuar) {
+            navTurnDist.setText("—");
+            navTurnDistUnit.setVisibility(View.GONE);
+            navRemain.setText(R.string.nav_off_route);
+        } else {
+            isiJarakBelokan(navSnap.toTurnM);
+            navRemain.setText(getString(R.string.nav_remain, Fmt.km(navSnap.remainM)));
+        }
+
+        String jarak = (!adaFix || diLuar) ? "—" : teksJarak(navSnap.toTurnM);
+        navCard.setContentDescription(getString(R.string.nav_cd,
+                arahBelokan(navSnap.turnDir), jarak, Fmt.km(navSnap.remainM)));
+        navRibbon.setSnap(navRoute, navSnap, diLuar);
+    }
+
+    /** Angka besar dibulatkan ke 10 m; di atas 1 km memakai satu desimal. */
+    private void isiJarakBelokan(double m) {
+        navTurnDistUnit.setVisibility(View.VISIBLE);
+        if (m >= 995) {
+            navTurnDist.setText(String.format(Locale.US, "%.1f", m / 1000.0));
+            navTurnDistUnit.setText(R.string.unit_km);
+        } else {
+            navTurnDist.setText(String.valueOf(Math.round(m / 10.0) * 10));
+            navTurnDistUnit.setText(R.string.unit_m);
+        }
+    }
+
+    private String teksJarak(double m) {
+        if (m >= 995) {
+            return String.format(Locale.US, "%.1f", m / 1000.0) + " " + getString(R.string.unit_km);
+        }
+        return Math.round(m / 10.0) * 10 + " " + getString(R.string.unit_m);
+    }
+
+    private String arahBelokan(int turn) {
+        return getString(turn == NavRoute.KIRI ? R.string.nav_turn_left
+                : turn == NavRoute.KANAN ? R.string.nav_turn_right
+                : R.string.nav_straight);
     }
 
     private void refresh() {
@@ -643,8 +747,11 @@ public class MainActivity extends Activity implements RideService.Listener {
             tvHrHeart.setVisibility(View.GONE);
         }
 
-        // peta live: rute yang sudah dilalui (halaman SEKILAS)
-        updateLiveMap(st);
+        // panduan rute impor menggantikan peta live selama aktif: dua panel
+        // rute sekaligus memakan ruang kecepatan tanpa menambah informasi.
+        boolean nav = navTampil(st);
+        updateNav(nav, s);
+        updateLiveMap(st, !nav);
 
         // ---------- DETAIL ----------
         isiNilaiSlot(slotDetail, fieldsDetail, s, elapsed, null);
