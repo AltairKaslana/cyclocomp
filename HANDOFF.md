@@ -3,9 +3,9 @@
 Dokumen serah-terima untuk developer / sesi AI berikutnya. Baca ini dulu sebelum mengubah kode.
 Versi kerangka: 0.1.0 · Bahasa UI: Indonesia · Bahasa kode/komentar: Java + komentar Indonesia.
 
-> **Status terbaru (31 Okt 2026): v1.2 "Garasi" sudah ada di `main`, versionCode 70.**
+> **Status terbaru (31 Okt 2026): v1.3 "Navigasi" (impor GPX) sudah ada di `main`, versionCode 80.**
 > Bagian 2 di bawah masih menggambarkan kerangka v0.1.0 dan sudah usang; status mutakhir,
-> skema DB v5, dan aturan yang harus dipertahankan ada di **bagian 17**.
+> skema DB v5, aturan Garasi, dan aturan navigasi ada di **bagian 17** dan **bagian 18**.
 
 ---
 
@@ -503,3 +503,90 @@ otomatis mengoreksi odometer, dan counter tersimpan pasti akan basi. Ini keputus
 ### Berikutnya
 
 Roadmap v1.3 navigasi (bagian 12), menunggu umpan balik uji perangkat v1.2.
+
+---
+
+## 18. Status v1.3 — Navigasi (impor GPX) (31 Okt 2026)
+
+Sudah digabung ke `main` dan APK-nya sudah diserahkan ke pemilik proyek. Satu tugas satu commit:
+
+| Commit | Isi |
+|---|---|
+| `ea2a817` | N-09 `GpxImport`, `NavRoute`, `NavStore`, layar Pengaturan → NAVIGASI |
+| `b2b20c9` | N-10 `TurnArrow`, `NavRibbon`, kartu panduan di Sekilas, naik versi 1.3.0 |
+
+CI `build-apk` run `41217270678` lulus (167 unit test + APK rilis). Hasil: `Zylo-v1.3.0.apk`,
+471.467 byte, `versionCode 80`, `versionName 1.3.0`, sha256
+`fe81d7dab2a4e4d3bcca080e9d53fd702eb6ed129609e3d938a6312fc147955f`.
+Rilis GitHub: tag `v1.3.0`, aset `app-release.apk`.
+
+### Alur data
+
+1. Pengguna memilih berkas lewat `ACTION_OPEN_DOCUMENT` (tanpa izin penyimpanan) di Pengaturan.
+2. `GpxImport.read` (SAX, tanpa dependensi Android) mengambil `trkpt`/`rtept`; `simplify`
+   membuang titik yang kurang dari 5 m dari titik terakhir yang disimpan, maksimal 12000 titik
+   (sisanya dijarangkan, ujung tetap dipertahankan).
+3. `NavRoute.build` menyiapkan geometri; `NavStore.save` menulis berkas privat
+   `filesDir/nav/rute.txt` (format teks `ZYLONAV 1`, satu baris `%.6f %.6f` per titik) secara
+   atomik (tulis `.tmp` lalu rename).
+4. Saat gowes, `MainActivity.updateNav` memakai `RideStats.lastLat/lastLon` (fix terakhir yang
+   lolos saringan akurasi) untuk `NavRoute.snap`, lalu mengisi panah, jarak, sisa, dan pita.
+
+### Geometri (`NavRoute`) — angka yang jangan diubah tanpa menguji ulang
+
+- Proyeksi lokal ekuirektangular di sekitar `lat0/lon0` rute (`R` = 6371000, sumbu X dikali
+  `cos(lat0)`), satuan meter. Rute 100 km masih layak; ini bukan proyeksi peta.
+- Deteksi belokan: selisih arah jendela ±18 m, ambang 25°, belokan dalam radius 40 m digabung
+  dan yang paling tajam menang. Di bawah 25° dianggap lurus supaya tikungan jalan yang lebar
+  tidak diumumkan sebagai belokan.
+- Snapping memilih segmen terdekat; `alongM` dipakai untuk sisa rute, jarak ke belokan
+  (`turnAlongM`), dan `courseAt` (arah pita). Belokan yang sudah lewat lebih dari 3 m tidak
+  lagi diumumkan; bila tidak ada belokan lagi, arah = LURUS dan `toTurnM` = sisa rute.
+- Rute yang titiknya < 2 atau panjangnya < 10 m ditolak saat impor (`nav_import_empty`).
+
+### Aturan UI yang harus dipertahankan
+
+- **Pita rute menggantikan peta jejak live selama rute aktif** (`navTampil` di `refresh()`):
+  dua panel rute sekaligus memakan ruang kecepatan tanpa menambah informasi. `updateLiveMap`
+  menerima parameter `boleh` untuk itu.
+- **Arah maju selalu ke atas** (`NavRibbon`): yang diputar adalah jalan, penanda pengendara
+  tetap di bawah tengah, sehingga pengendara tidak perlu memutar peta di kepala. Jendela
+  gambar 50 m ke belakang dan 195 m ke depan; skala vertikal 130 m per tinggi pita.
+- **Ambang di luar rute satu angka**: `NAV_OFF_M` = 60 m di `MainActivity`, dan `NavRibbon`
+  menerima `diLuar` jadi cincin merah dan teks "Di luar rute" tidak bisa berbeda pendapat.
+  Jangan mengembalikan ambang kedua di dalam view.
+- **Sebelum fix GPS pertama** rute digambar dari awal, angka jarak `—`, keterangan
+  "Mencari GPS": rute kosong akan terbaca seperti impor gagal.
+- **Kartu panduan hanya ada di `page_glance.xml` portrait.** `page_glance.xml` landscape
+  tidak punya `navCard`/`navRibbon`; `findViewById` mengembalikan null dan `navTampil` false.
+  Jangan menambah id panduan hanya di satu varian: semua id bersama dua varian itu wajib sama.
+- `TurnArrow` dan `NavRibbon` digambar sendiri (Canvas), bukan glif teks atau ikon: panah
+  Unicode tidak tersedia di semua font perangkat lama.
+- Jarak ke belokan: < 995 m dibulatkan ke 10 m + satuan m; di atasnya 1 desimal + km.
+  `Fmt.km` yang sama dipakai untuk sisa rute.
+
+### Sudah diverifikasi
+
+- Kompilasi tiap commit (main + test) terhadap `android-all` API 33 di mesin pengembang.
+- 167 unit test lulus (166 lama + 1 `RideStatsTest.posisiTerakhirDisimpanUntukPanduanRute`).
+  `NavRouteTest` 10 kasus (belokan kiri/kanan, lurus, di luar rute, melewati ujung, snapAlong),
+  `GpxImportTest` 5 kasus (atribut terpisah baris, `wpt`/`rtept`, penyaringan 5 m, batas 12000).
+- Manifest APK: paket `id.cyclocomp`, `versionName 1.3.0`; tanda tangan `CERT.RSA`/`CERT.SF` ada.
+
+### BELUM diverifikasi (harus di perangkat)
+
+1. Impor GPX dari Unduhan/Drive lewat pemilih berkas; nama rute tampil di baris Pengaturan.
+2. Ketepatan panah dan jarak belokan saat bersepeda (uji rute yang dikenal), termasuk
+   perilaku di jalan sejajar dan saat berhenti.
+3. Tampilan Sekilas 720×1600 dan 360×640 dengan font 1,3×: kartu panduan + angka kecepatan
+   masih muat tanpa mendorong tombol aksi keluar layar.
+4. Di luar rute > 60 m: cincin merah dan teks "Di luar rute"; kembali ke garis memulihkan angka.
+5. Putar layar ke landscape saat rute aktif: tidak ada NPE dan Sekilas landscape tampil seperti
+   sebelumnya (tanpa panduan).
+6. Rute besar (mis. 100 km / 12000 titik): impor tidak terasa menggantung (dialog "Membaca rute…")
+   dan pita tetap lancar.
+7. Hapus rute lalu mulai gowes: Sekilas kembali memakai peta jejak live.
+
+### Berikutnya
+
+Menunggu umpan balik uji perangkat v1.3; kandidat lanjutan ada di roadmap bagian 12.
