@@ -69,8 +69,8 @@ public class App extends Application {
         //
         // Sekarang keduanya jalan di thread terpisah. Aplikasi bisa langsung
         // tampil; kalau ada rekaman yang perlu diselamatkan, pemberitahuannya
-        muncul sedikit kemudian - dan itu jauh lebih baik daripada aplikasi
-        yang terasa berat setiap kali dibuka.
+        // muncul sedikit kemudian - dan itu jauh lebih baik daripada aplikasi
+        // yang terasa berat setiap kali dibuka.
         new Thread(new Runnable() {
             @Override public void run() {
                 kerjaLambat();
