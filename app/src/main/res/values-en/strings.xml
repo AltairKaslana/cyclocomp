@@ -77,7 +77,8 @@
 
     <!-- riwayat -->
     <string name="title_history">History</string>
-    <string name="history_empty">No rides yet.</string>
+    <string name="history_empty">No rides yet. Start one today.</string>
+    <string name="history_preview_cd">Route preview</string>
     <string name="back">Back</string>
     <string name="delete">Delete</string>
     <string name="close">Close</string>
@@ -265,7 +266,8 @@
          single string — distance, time and speed competing inside one line of text. -->
     <string name="row_sub_ride">moving %1$s  •  %2$s km/h</string>
     <string name="row_sub_lap">%1$s  •  %2$s km/h</string>
-    <string name="row_laps">%d laps</string>
+    <string name="chip_laps">%1$d laps</string>
+    <string name="chip_commute">commute</string>
     <string name="hist_delete_title">Delete ride?</string>
     <string name="hist_delete_msg">The ride and its GPX file will be deleted permanently.</string>
 
@@ -312,7 +314,6 @@
 
     <!-- commute -->
     <string name="label_commute">Commute</string>
-    <string name="row_commute"> • commute</string>
 
     <!-- RPE (perceived exertion): 1-10, rated AFTER the ride -->
     <string name="rpe_title">How hard was it?</string>
@@ -420,6 +421,8 @@
 <string name="status_gps_paused">Paused, GPS not recording</string>
 <string name="card_page_fmt">Card %1$d of %2$d: %3$s</string>
 <string name="share_pager_desc">Share card preview, %1$d cards. Swipe left or right to change.</string>
-<string name="history_week_fmt">Last seven days: %1$s km over %2$d rides, %3$s moving</string>
+<string name="history_week_title">LAST 7 DAYS</string>
+<string name="history_week_sub">%1$d rides  ·  %2$s moving</string>
+<string name="history_week_cd">Last seven days: %1$s km over %2$d rides, %3$s moving</string>
 
 </resources>

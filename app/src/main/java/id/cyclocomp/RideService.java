@@ -24,6 +24,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -363,6 +364,11 @@ public class RideService extends Service implements LocationListener {
                 r.elevGainM = stats.elevGainM;
                 r.gpxPath = gpxLoc;
                 r.laps = encodeLaps(laps);
+                // Pratinjau thumbnail dihitung SEKALI di sini, saat berkas GPX
+                // baru selesai ditulis. Kalau ditunda sampai Riwayat dibuka,
+                // daftar harus membaca semua GPX setiap kali tampil - puluhan
+                // berkas besar di layar yang seharusnya ringan.
+                r.preview = buatPratinjau(gpxLoc);
                 // Kalori dihitung dari daya perkiraan (gulung + udara + tanjakan),
                 // bukan dari jarak saja. Lihat Calories untuk asumsinya.
                 r.caloriesKcal = Calories.estimate(stats.distanceM, stats.movingMs,
@@ -400,6 +406,23 @@ public class RideService extends Service implements LocationListener {
         stopForeground(true);
         stopSelf();
         notifyUi();
+    }
+
+    /**
+     * Rute ringkas untuk thumbnail Riwayat, dari GPX yang baru ditutup.
+     *
+     * Gagal membaca bukan alasan membatalkan penyimpanan: rute tanpa thumbnail
+     * masih berguna, sedangkan kehilangan seluruh gowes tidak.
+     */
+    private String buatPratinjau(String loc) {
+        if (loc == null) return null;
+        try {
+            File f = GpxStore.materialize(this, loc);
+            return RuteRingkas.dariGpx(f, RuteRingkas.MAKS_TITIK);
+        } catch (Throwable t) {
+            Log.w(TAG, "pratinjau rute gagal", t);
+            return null;
+        }
     }
 
     // ---------- sensor detak jantung ----------

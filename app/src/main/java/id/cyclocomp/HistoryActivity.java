@@ -1,39 +1,55 @@
 package id.cyclocomp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Riwayat: daftar gowes yang sudah selesai.
  *
- * T-10 (B8): ketukan pada baris langsung membuka Ringkasan gowes itu.
- * Sebelumnya ia membuka dialog bawaan sistem berisi angka yang sama - dua
- * layar untuk satu data, dan dialog bawaan tidak mengikuti tema gelap
- * aplikasi (tombolnya biru Holo). Hapus dan Rute pindah ke menu kecil di
- * layar Ringkasan.
+ * T-10 (B8): ketukan pada baris langsung membuka Ringkasan gowes itu. Dialog
+ * pratinjau bawaan sistem sudah dihapus: ia menampilkan angka yang sama dengan
+ * Ringkasan, jadi hanya menambah satu langkah.
  *
- * T-19: total mingguan duduk di atas daftar.
+ * N-04: kartu tujuh hari dengan batang per hari, thumbnail rute di tiap baris,
+ * chip LAP/KOMUTER, dan hapus lewat tekan lama. Thumbnail digambar dari
+ * polyline ringkas di database - tidak ada ubin peta di daftar.
  */
 public class HistoryActivity extends Activity {
     private RideDb db;
     private ListView list;
     private List<RideDb.Row> rows;
-    /** Kartu ringkasan mingguan; disembunyikan kalau belum ada gowes minggu ini. */
+
+    /** Kartu ringkasan mingguan; disembunyikan kalau belum ada gowes di jendela. */
     private View weekCard;
+    private TextView weekDist;
     private TextView weekText;
+    private WeekBars weekBars;
+
+    /**
+     * Satu pengisian pratinjau rekaman lama berjalan pada satu waktu. Membuka
+     * beberapa sesi berturut-turut tidak boleh melahirkan beberapa pembaca GPX
+     * yang berebut berkas dan database.
+     */
+    private volatile boolean isiPratinjauAktif;
+
     /** Tanggal mengikuti bahasa perangkat, bukan pola tetap Indonesia/Inggris. */
     private final DateFormat df = DateFormat.getDateTimeInstance(
             DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault());
@@ -50,13 +66,21 @@ public class HistoryActivity extends Activity {
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> p, View v, int pos, long id) {
-                // Satu ketukan = satu tujuan. Dialog pratinjau yang dulu ada di
-                // sini menampilkan angka yang sama seperti Ringkasan, jadi ia
-                // cuma menambah satu langkah sebelum sampai ke tempat yang sebenarnya
-                // berguna (rute, bagikan kartu, hapus).
+                // Satu ketukan = satu tujuan.
                 startActivity(new Intent(HistoryActivity.this, SummaryActivity.class)
                         .putExtra(SummaryActivity.EXTRA_ID, rows.get(pos).id));
                 overridePendingTransition(R.anim.screen_enter, R.anim.screen_exit);
+            }
+        });
+        // N-04: hapus tersedia dari daftar lewat TEKAN LAMA, bukan ketukan
+        // biasa. Satu ketukan tetap membuka Ringkasan; menghapus satu rekaman
+        // tidak boleh bisa terjadi karena jari terpeleset saat menggulir.
+        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> p, View v, int pos, long id) {
+                if (pos < 0 || pos >= rows.size()) return false;
+                konfirmasiHapus(rows.get(pos));
+                return true;
             }
         });
 
@@ -71,7 +95,9 @@ public class HistoryActivity extends Activity {
         }
 
         weekCard = findViewById(R.id.weekCard);
+        weekDist = (TextView) findViewById(R.id.weekDist);
         weekText = (TextView) findViewById(R.id.weekText);
+        weekBars = (WeekBars) findViewById(R.id.weekBars);
     }
 
     /**
@@ -91,21 +117,15 @@ public class HistoryActivity extends Activity {
     /**
      * Paksa penanda mode gelap/terang SEBELUM resource apa pun dibaca.
      *
-     * Harus di attachBaseContext, bukan di onCreate: onCreate sudah dipanggil
-     * sesudah sistem menyiapkan resource aktivitas ini. Kalau ditulis di
-     * onCreate, palet yang sudah terbaca tetap dipakai dan sakelar tema tidak
-     * bereaksi. Lihat {@link Tema} untuk alasannya memakai penanda konfigurasi
-     * dan bukan dua tema terpisah.
+     * Lihat {@link Tema} untuk alasannya memakai penanda konfigurasi dan bukan
+     * dua tema terpisah.
      */
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(Tema.bungkus(base));
     }
 
-
-    /**
-     * Transisi cermin saat keluar lewat tombol kembali. Lihat Nav.close.
-     */
+    /** Transisi cermin saat keluar lewat tombol kembali. Lihat Nav.close. */
     @Override
     public void finish() {
         super.finish();
@@ -125,62 +145,147 @@ public class HistoryActivity extends Activity {
         List<RowItem> items = new ArrayList<RowItem>();
         for (RideDb.Row r : rows) {
             List<Lap> lp = RideService.decodeLaps(r.laps);
-            String tag = lp.isEmpty() ? null : getString(R.string.row_laps, lp.size());
-            // Komuter masuk ke tag, bukan ke baris keterangan: kalau tidak ada lap,
-            // tag masih bisa menampung satu penanda tanpa mengubah format baris
-            // keterangan yang sudah dipakai di seluruh layar.
-            if (r.commute) {
-                tag = (tag == null ? "" : tag) + getString(R.string.row_commute);
-            }
+            String tag = lp.isEmpty() ? null : getString(R.string.chip_laps, lp.size());
             items.add(new RowItem(
+                    r.id,
                     df.format(new Date(r.startMs)),
                     tag,
+                    r.commute,
+                    r.preview,
                     Fmt.km(r.distanceM),
                     getString(R.string.row_sub_ride, Fmt.duration(r.movingMs),
                             Fmt.speed(r.avgSpeedMs()))));
         }
         list.setAdapter(new RowAdapter(this, items));
+        isiPratinjauLama();
     }
 
     /**
-     * T-19: total tujuh hari terakhir, ditaruh di atas daftar.
+     * Kartu tujuh hari: total, jumlah gowes, waktu bergerak, dan batang per hari.
      *
-     * Kenapa di atas, bukan di bawah: yang paling sering dicari orang yang
-     * membuka Riwayat adalah "sejauh mana aku minggu ini". Kalau jawabannya ada
-     * di bawah daftar yang makin panjang, ia harus menggulir melewati semua
-     * rekaman lama dulu - dan riwayat gowes bisa puluhan baris.
+     * Jendelanya hari ini + enam hari sebelumnya menurut kalender lokal (lihat
+     * {@link Minggu}), bukan tujuh kali 24 jam. Dengan begitu batang hari
+     * pertama dan total di atasnya selalu memakai batas yang sama.
      *
-     * Jendelanya tujuh hari ke belakang dari sekarang, BUKAN minggu kalender
-     * (Senin-Minggu). Alasannya: kalau dibuka hari Minggu, minggu kalender baru
-     * saja berganti dan totalnya nol - terlihat seperti data hilang, padahal
-     * yang baru selesai justru kemarin. "Minggu ini" dalam percakapan berarti
-     * tujuh hari terakhir yang masih utuh.
-     *
-     * Kalau belum ada gowes dalam jendela itu, kartunya disembunyikan - bukan
-     * ditampilkan dengan angka nol. Kartu berisi "0,00 km" mengklaim sesuatu
-     * yang belum diketahui pengguna, sementara daftar di bawahnya sudah jelas
-     * kosong.
+     * Kalau belum ada gowes di jendela itu, kartunya disembunyikan - bukan
+     * ditampilkan dengan angka nol. "0,00 km" mengklaim sesuatu yang belum
+     * diketahui pengguna, sementara daftar di bawahnya sudah jelas kosong.
      */
     private void tampilkanMinggu() {
-        if (weekCard == null) return;
+        if (weekCard == null || weekBars == null) return;
 
-        long batas = System.currentTimeMillis() - 7L * 24L * 60L * 60L * 1000L;
+        long now = System.currentTimeMillis();
+        TimeZone tz = TimeZone.getDefault();
+        long[] b = Minggu.batas(now, tz);
+
+        long[] mulai = new long[rows.size()];
+        double[] meter = new double[rows.size()];
         double jarak = 0;
         long gerak = 0;
         int kali = 0;
-        for (RideDb.Row r : rows) {
-            if (r.startMs < batas) continue;
-            jarak += r.distanceM;
-            gerak += r.movingMs;
-            kali++;
+        for (int i = 0; i < rows.size(); i++) {
+            RideDb.Row r = rows.get(i);
+            mulai[i] = r.startMs;
+            meter[i] = r.distanceM;
+            if (r.startMs >= b[0] && r.startMs < b[Minggu.HARI]) {
+                jarak += r.distanceM;
+                gerak += r.movingMs;
+                kali++;
+            }
         }
 
         if (kali == 0) {
             weekCard.setVisibility(View.GONE);
             return;
         }
+
         weekCard.setVisibility(View.VISIBLE);
-        weekText.setText(getString(R.string.history_week_fmt, Fmt.km(jarak), kali,
-                Fmt.duration(gerak)));
+        weekDist.setText(Fmt.km(jarak));
+        weekText.setText(getString(R.string.history_week_sub, kali, Fmt.duration(gerak)));
+        weekBars.setData(Minggu.jarak(now, mulai, meter, tz));
+        // Batang hanya bentuk; pembaca layar mendapat ringkasan yang sama
+        // dengan yang tertulis di kartu.
+        weekBars.setContentDescription(getString(R.string.history_week_cd,
+                Fmt.km(jarak), kali, Fmt.duration(gerak)));
+    }
+
+    /**
+     * Isi pratinjau rekaman yang dibuat SEBELUM kolom preview ada.
+     *
+     * Dijalankan di latar belakang dengan koneksi database sendiri, supaya
+     * layar tidak menunggu membaca puluhan berkas GPX dan supaya onDestroy
+     * layar ini tidak menutup koneksi yang sedang dipakai. Dibatasi 24 rekaman
+     * per kunjungan: membuka Riwayat pertama kali sesudah pembaruan tidak boleh
+     * menjadi pekerjaan berat; kunjungan berikutnya melengkapi sisanya.
+     */
+    private void isiPratinjauLama() {
+        if (isiPratinjauAktif) return;
+
+        final List<Long> ids = new ArrayList<Long>();
+        final List<String> jalur = new ArrayList<String>();
+        for (RideDb.Row r : rows) {
+            if (ids.size() >= 24) break;
+            if (r.gpxPath != null && (r.preview == null || r.preview.isEmpty())) {
+                ids.add(r.id);
+                jalur.add(r.gpxPath);
+            }
+        }
+        if (ids.isEmpty()) return;
+
+        isiPratinjauAktif = true;
+        final Context app = getApplicationContext();
+        new Thread(new Runnable() {
+            @Override public void run() {
+                RideDb latar = new RideDb(app);
+                try {
+                    for (int i = 0; i < ids.size(); i++) {
+                        final long rid = ids.get(i);
+                        File f = GpxStore.materialize(app, jalur.get(i));
+                        final String preview = RuteRingkas.dariGpx(f, RuteRingkas.MAKS_TITIK);
+                        if (preview == null) continue;
+                        latar.updatePreview(rid, preview);
+
+                        runOnUiThread(new Runnable() {
+                            @Override public void run() {
+                                if (isFinishing() || isDestroyed()) return;
+                                RowAdapter a = (RowAdapter) list.getAdapter();
+                                if (a == null) return;
+                                for (int k = 0; k < a.getCount(); k++) {
+                                    RowItem it = a.getItem(k);
+                                    if (it != null && it.id == rid) it.preview = preview;
+                                }
+                                a.notifyDataSetChanged();
+                            }
+                        });
+                    }
+                } catch (Throwable ignored) {
+                    // pratinjau hanya hiasan; kegagalan membaca GPX tidak boleh
+                    // mengganggu daftar yang sudah tampil
+                } finally {
+                    latar.close();
+                    isiPratinjauAktif = false;
+                }
+            }
+        }, "pratinjau-riwayat").start();
+    }
+
+    /** Konfirmasi hapus dari daftar. Berkas GPX ikut dihapus, tidak bisa dibatalkan. */
+    private void konfirmasiHapus(final RideDb.Row r) {
+        AlertDialog d = new AlertDialog.Builder(this)
+                .setTitle(R.string.hist_delete_title)
+                .setMessage(R.string.hist_delete_msg)
+                .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface d, int w) {
+                        if (r.gpxPath != null) GpxStore.delete(HistoryActivity.this, r.gpxPath);
+                        db.delete(r.id);
+                        reload();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+        // Merah, bukan aksen: menghapus bukan jalur "lanjutkan". Alasan lengkap
+        // ada di SummaryActivity.konfirmasiHapus().
+        Button ya = d.getButton(AlertDialog.BUTTON_POSITIVE);
+        if (ya != null) ya.setTextColor(getResources().getColor(R.color.danger));
     }
 }

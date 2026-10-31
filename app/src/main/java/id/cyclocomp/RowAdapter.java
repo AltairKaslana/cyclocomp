@@ -11,11 +11,26 @@ import java.util.List;
 
 /** Isi satu baris daftar: label di atas, jarak sebagai angka utama, keterangan di bawah. */
 final class RowItem {
-    final String label, tag, dist, sub;
+    /** Id rekaman; 0 untuk baris lap (tidak punya pratinjau maupun aksi hapus). */
+    final long id;
+    final String label, dist, sub;
+    final String tag;
+    final boolean commute;
+    /** Pratinjau rute tersimpan; boleh berubah saat rekaman lama diisi di latar. */
+    String preview;
 
+    /** Baris lap di layar utama: tanpa id, pratinjau, maupun chip komuter. */
     RowItem(String label, String tag, String dist, String sub) {
+        this(0, label, tag, false, null, dist, sub);
+    }
+
+    RowItem(long id, String label, String tag, boolean commute, String preview,
+            String dist, String sub) {
+        this.id = id;
         this.label = label;
         this.tag = tag;
+        this.commute = commute;
+        this.preview = preview;
         this.dist = dist;
         this.sub = sub;
     }
@@ -46,7 +61,9 @@ class RowAdapter extends ArrayAdapter<RowItem> {
     }
 
     static class Holder {
-        TextView label, tag, dist, sub;
+        TextView label, tag, commute, dist, unit, sub;
+        RuteThumb thumb;
+        View chipRow;
     }
 
     @Override
@@ -57,14 +74,21 @@ class RowAdapter extends ArrayAdapter<RowItem> {
             h = new Holder();
             h.label = (TextView) convert.findViewById(R.id.tvLabel);
             h.tag = (TextView) convert.findViewById(R.id.tvTag);
+            h.commute = (TextView) convert.findViewById(R.id.tvCommute);
             h.dist = (TextView) convert.findViewById(R.id.tvDist);
+            h.unit = (TextView) convert.findViewById(R.id.tvUnit);
             h.sub = (TextView) convert.findViewById(R.id.tvSub);
+            h.thumb = (RuteThumb) convert.findViewById(R.id.tvThumb);
+            h.chipRow = convert.findViewById(R.id.chipRow);
 
             Context c = getContext();
             h.label.setTypeface(Ui.body(c));
             h.tag.setTypeface(Ui.body(c));
+            h.commute.setTypeface(Ui.body(c));
             h.dist.setTypeface(Ui.condBold(c));   // angka utama: condensed tebal
+            h.unit.setTypeface(Ui.body(c));
             h.sub.setTypeface(Ui.body(c));
+            h.commute.setText(R.string.chip_commute);
 
             convert.setTag(h);
         } else {
@@ -78,14 +102,17 @@ class RowAdapter extends ArrayAdapter<RowItem> {
         h.dist.setText(it.dist);
         h.sub.setText(it.sub);
 
-        // Tag (jumlah lap) tidak selalu ada. Kalau tidak ada, disembunyikan — bukan
-        // dikosongkan, supaya ruangnya ikut hilang dan baris tidak punya celah aneh.
-        if (it.tag == null || it.tag.length() == 0) {
-            h.tag.setVisibility(View.GONE);
-        } else {
-            h.tag.setVisibility(View.VISIBLE);
-            h.tag.setText(it.tag);
-        }
+        // Pratinjau hanya ada pada rekaman baru/terisi. Baris lap dan rekaman
+        // lama tanpa rute memakai lebar penuh - lebih baik daripada kotak kosong.
+        boolean adaPreview = it.preview != null && it.preview.length() > 0;
+        h.thumb.setVisibility(adaPreview ? View.VISIBLE : View.GONE);
+        h.thumb.setPreview(adaPreview ? it.preview : null);
+
+        boolean adaTag = it.tag != null && it.tag.length() > 0;
+        h.tag.setVisibility(adaTag ? View.VISIBLE : View.GONE);
+        if (adaTag) h.tag.setText(it.tag);
+        h.commute.setVisibility(it.commute ? View.VISIBLE : View.GONE);
+        h.chipRow.setVisibility(adaTag || it.commute ? View.VISIBLE : View.GONE);
         return convert;
     }
 }

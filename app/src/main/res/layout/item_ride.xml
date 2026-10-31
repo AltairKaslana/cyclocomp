@@ -6,81 +6,110 @@
   waktu sebagai keterangan di bawahnya. Orang yang membuka riwayat mencari "berapa
   jauh aku hari itu", jadi jarak tidak boleh berebut perhatian dengan kecepatan.
 
-  Sebelumnya baris ini memakai android.R.layout.simple_list_item_1 dengan satu string
-  berformat "26 Okt 2026, 17.30\n12,34 km • 0:42:10 • 17,6 km/jam". Dua masalah:
-    1. Layout bawaan Android memakai font SISTEM. Ui.fonts() hanya menyisir pohon view
-       yang sudah ada saat dipanggil, dan adapter membuat baris SETELAH itu — jadi
-       daftar ini satu-satunya tempat di aplikasi yang tidak memakai Barlow.
-    2. Semua angka setara: jarak, waktu, kecepatan berebut dalam satu baris teks.
+  N-04: thumbnail rute 64dp di kiri. Thumbnail digambar dari polyline ringkas
+  yang tersimpan di database (RuteRingkas), BUKAN peta - daftar yang digulir
+  tidak boleh mengunduh ubin atau menyimpan bitmap besar. Kalau rekaman belum
+  punya pratinjau, thumbnail disembunyikan dan isi baris memakai lebar penuh;
+  kotak kosong akan terbaca seperti gambar yang gagal dimuat.
+
+  Chip LAP dan KOMUTER punya barisnya sendiri. Menempelkannya di samping
+  tanggal membuat tanggal terpotong di layar 320dp saat ukuran huruf 1,3x -
+  dan tanggal adalah alasan baris ini ada.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="@dimen/touch_target_min"
-    android:orientation="vertical"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
     android:background="?android:attr/selectableItemBackground"
     android:paddingLeft="@dimen/screen_edge"
     android:paddingRight="@dimen/screen_edge"
     android:paddingTop="@dimen/gap_roomy"
     android:paddingBottom="@dimen/gap_roomy">
 
-    <!-- baris 1: kapan (atau lap ke berapa) + jumlah lap di kanan -->
+    <id.cyclocomp.RuteThumb
+        android:id="@+id/tvThumb"
+        android:layout_width="@dimen/ride_thumb"
+        android:layout_height="@dimen/ride_thumb"
+        android:layout_marginRight="@dimen/gap_roomy"
+        android:background="@drawable/bg_thumb"
+        android:contentDescription="@string/history_preview_cd"
+        android:visibility="gone" />
+
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:orientation="vertical"
         android:baselineAligned="false">
 
+        <!-- baris 1: kapan (atau lap ke berapa) -->
         <TextView
             android:id="@+id/tvLabel"
             style="@style/StatusBar"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:maxLines="1"
             android:ellipsize="end" />
 
-        <TextView
-            android:id="@+id/tvTag"
-            style="@style/StatusBar"
-            android:layout_width="wrap_content"
+        <!-- baris 2: jarak sebagai angka utama, satuannya kecil di samping -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/gap_normal"
-            android:textColor="@color/accent"
-            android:visibility="gone" />
+            android:layout_marginTop="@dimen/gap_tight"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <TextView
+                android:id="@+id/tvDist"
+                style="@style/ValueRow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tag="num" />
+
+            <TextView
+                android:id="@+id/tvUnit"
+                style="@style/GradeUnit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/gap_snug"
+                android:text="@string/unit_km" />
+        </LinearLayout>
+
+        <!-- baris 3: keterangan -->
+        <TextView
+            android:id="@+id/tvSub"
+            style="@style/EmptyText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/gap_tight"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <!-- baris 4: chip status; hilang sepenuhnya kalau tidak ada -->
+        <LinearLayout
+            android:id="@+id/chipRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/gap_cozy"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvTag"
+                style="@style/ChipSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvCommute"
+                style="@style/ChipSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/gap_cozy"
+                android:visibility="gone" />
+        </LinearLayout>
     </LinearLayout>
-
-    <!-- baris 2: jarak sebagai angka utama, satuannya kecil di samping -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/gap_tight"
-        android:orientation="horizontal"
-        android:baselineAligned="false">
-
-        <TextView
-            android:id="@+id/tvDist"
-            style="@style/ValueRow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:tag="num" />
-
-        <TextView
-            android:id="@+id/tvUnit"
-            style="@style/GradeUnit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/gap_snug"
-            android:text="@string/unit_km" />
-    </LinearLayout>
-
-    <!-- baris 3: keterangan -->
-    <TextView
-        android:id="@+id/tvSub"
-        style="@style/EmptyText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/gap_tight"
-        android:maxLines="1"
-        android:ellipsize="end" />
 </LinearLayout>

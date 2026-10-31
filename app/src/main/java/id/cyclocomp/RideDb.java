@@ -12,7 +12,7 @@ import java.util.List;
 /** Ringkasan tiap rekaman. Titik detailnya ada di file GPX. */
 public class RideDb extends SQLiteOpenHelper {
     private static final String NAME = "cyclocomp.db";
-    private static final int VERSION = 3;
+    private static final int VERSION = 4;
 
     public static class Row {
         public long id, startMs, durationMs, movingMs;
@@ -27,6 +27,12 @@ public class RideDb extends SQLiteOpenHelper {
         public int rpe;
         /** true kalau perjalanan ini komuter/pulang-pergi. */
         public boolean commute;
+
+        // ---- v4 ----
+        /** Rute ringkas "lat,lon;lat,lon;..." untuk thumbnail; null = belum ada. */
+        public String preview;
+        /** Sepeda yang dipakai; 0 = belum dikaitkan (fitur Garasi, v1.2). */
+        public long bikeId;
 
         public float avgSpeedMs() {
             return movingMs > 0 ? (float) (distanceM / (movingMs / 1000.0)) : 0f;
@@ -43,7 +49,8 @@ public class RideDb extends SQLiteOpenHelper {
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + "start_ms INTEGER, duration_ms INTEGER, moving_ms INTEGER,"
                 + "distance_m REAL, max_speed REAL, elev_gain REAL, gpx_path TEXT,"
-                + "laps TEXT, calories_kcal INTEGER, rpe INTEGER, commute INTEGER)");
+                + "laps TEXT, calories_kcal INTEGER, rpe INTEGER, commute INTEGER,"
+                + "preview TEXT, bike_id INTEGER)");
     }
 
     @Override
@@ -60,6 +67,13 @@ public class RideDb extends SQLiteOpenHelper {
             addColumn(db, "calories_kcal INTEGER");
             addColumn(db, "rpe INTEGER");
             addColumn(db, "commute INTEGER");
+        }
+        if (oldV < 4) {
+            // v4: pratinjau rute untuk thumbnail Riwayat dan kaitan sepeda
+            // (dipakai Garasi di rilis berikutnya). Rekaman lama tetap null;
+            // Riwayat mengisinya sekali dari berkas GPX di latar belakang.
+            addColumn(db, "preview TEXT");
+            addColumn(db, "bike_id INTEGER");
         }
     }
 
@@ -82,6 +96,9 @@ public class RideDb extends SQLiteOpenHelper {
         v.put("calories_kcal", r.caloriesKcal);
         v.put("rpe", r.rpe);
         v.put("commute", r.commute ? 1 : 0);
+        v.put("preview", r.preview);
+        if (r.bikeId > 0) v.put("bike_id", r.bikeId);
+        else v.putNull("bike_id");
         return getWritableDatabase().insert("rides", null, v);
     }
 
@@ -149,9 +166,9 @@ public class RideDb extends SQLiteOpenHelper {
     }
 
     /**
-     * Baca kolom v3. Sengaja lewat getColumnIndex (bukan OrThrow) supaya basis data
-     * yang belum sempat di-upgrade tidak membuat layar Riwayat dan Ringkasan mati —
-     * rekaman lama cukup tampil tanpa kalori/RPE/komuter.
+     * Baca kolom v3/v4. Sengaja lewat getColumnIndex (bukan OrThrow) supaya basis
+     * data yang belum sempat di-upgrade tidak membuat layar Riwayat dan Ringkasan
+     * mati — rekaman lama cukup tampil tanpa kalori/RPE/komuter/pratinjau.
      */
     private static void readMeta(Cursor c, Row r) {
         int ci = c.getColumnIndex("calories_kcal");
@@ -160,6 +177,10 @@ public class RideDb extends SQLiteOpenHelper {
         r.rpe = ri >= 0 && !c.isNull(ri) ? c.getInt(ri) : 0;
         int mi = c.getColumnIndex("commute");
         r.commute = mi >= 0 && !c.isNull(mi) && c.getInt(mi) != 0;
+        int pi = c.getColumnIndex("preview");
+        r.preview = pi >= 0 && !c.isNull(pi) ? c.getString(pi) : null;
+        int bi = c.getColumnIndex("bike_id");
+        r.bikeId = bi >= 0 && !c.isNull(bi) ? c.getLong(bi) : 0L;
     }
 
     /**
@@ -188,6 +209,14 @@ public class RideDb extends SQLiteOpenHelper {
         if (id <= 0) return;
         ContentValues v = new ContentValues();
         v.put("gpx_path", path);
+        getWritableDatabase().update("rides", v, "id=?", new String[]{String.valueOf(id)});
+    }
+
+    /** Simpan pratinjau rute sekali; dipakai rekaman lama yang belum punya thumbnail. */
+    public void updatePreview(long id, String preview) {
+        if (id <= 0 || preview == null || preview.length() == 0) return;
+        ContentValues v = new ContentValues();
+        v.put("preview", preview);
         getWritableDatabase().update("rides", v, "id=?", new String[]{String.valueOf(id)});
     }
 }

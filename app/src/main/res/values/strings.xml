@@ -79,7 +79,8 @@
 
     <!-- riwayat -->
     <string name="title_history">Riwayat</string>
-    <string name="history_empty">Belum ada rekaman.</string>
+    <string name="history_empty">Belum ada gowes. Mulai satu hari ini.</string>
+    <string name="history_preview_cd">Pratinjau rute</string>
     <string name="back">Kembali</string>
     <string name="delete">Hapus</string>
     <string name="close">Tutup</string>
@@ -267,7 +268,8 @@
          satu string — jarak, waktu, kecepatan berebut dalam satu baris teks. -->
     <string name="row_sub_ride">gerak %1$s  •  %2$s km/jam</string>
     <string name="row_sub_lap">%1$s  •  %2$s km/jam</string>
-    <string name="row_laps">%d lap</string>
+    <string name="chip_laps">%1$d lap</string>
+    <string name="chip_commute">komuter</string>
     <string name="hist_delete_title">Hapus rekaman?</string>
     <string name="hist_delete_msg">Rekaman dan berkas GPX-nya akan dihapus permanen.</string>
 
@@ -325,7 +327,6 @@
 
     <!-- komuter -->
     <string name="label_commute">Komuter</string>
-    <string name="row_commute"> • komuter</string>
 
     <!-- RPE (perceived exertion): skala 1-10, dinilai SETELAH gowes -->
     <string name="rpe_title">Seberapa berat?</string>
@@ -434,6 +435,8 @@
 <string name="status_gps_paused">Dijeda, GPS tidak merekam</string>
 <string name="card_page_fmt">Kartu %1$d dari %2$d: %3$s</string>
 <string name="share_pager_desc">Pratinjau kartu bagikan, %1$d kartu. Geser ke kiri atau kanan untuk mengganti.</string>
-<string name="history_week_fmt">Tujuh hari terakhir: %1$s km dalam %2$d gowes, total bergerak %3$s</string>
+<string name="history_week_title">7 HARI TERAKHIR</string>
+<string name="history_week_sub">%1$d gowes  ·  bergerak %2$s</string>
+<string name="history_week_cd">Tujuh hari terakhir: %1$s km dalam %2$d gowes, bergerak %3$s</string>
 
 </resources>

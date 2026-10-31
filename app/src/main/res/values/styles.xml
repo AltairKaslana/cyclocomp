@@ -378,6 +378,27 @@
         <item name="android:stateListAnimator">@null</item>
     </style>
 
+    <!--
+      Chip kecil di baris daftar Riwayat (jumlah lap, penanda komuter).
+
+      Berbeda dari chip pilihan di layar Sensor: chip ini BUKAN tombol, hanya
+      label status. Karena itu tingginya mengikuti teks (bukan 48dp) - membuat
+      label status setinggi target sentuh akan menggelembungkan setiap baris
+      daftar tanpa menambah apa pun yang bisa ditekan.
+    -->
+    <style name="ChipSmall">
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textColor">@color/label</item>
+        <item name="android:background">@drawable/bg_chip_small</item>
+        <item name="android:paddingLeft">@dimen/gap_normal</item>
+        <item name="android:paddingRight">@dimen/gap_normal</item>
+        <item name="android:paddingTop">@dimen/gap_snug</item>
+        <item name="android:paddingBottom">@dimen/gap_snug</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
     <!-- teks penjelas (daftar kosong) -->
     <style name="EmptyText">
         <item name="android:textSize">@dimen/text_body_s</item>

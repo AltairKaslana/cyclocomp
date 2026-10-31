@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Riwayat: daftar rekaman. Kalau kosong, pesannya TENGAH layar supaya terbaca
-  sebagai keadaan, bukan teks yang tersesat di atas.
+  Riwayat: kartu tujuh hari + daftar rekaman. Kalau kosong, ikon dan pesannya
+  TENGAH layar supaya terbaca sebagai keadaan, bukan teks yang tersesat di atas.
 
-  Dulu pesan ini memakai gaya Label — yang dirancang untuk label metrik (pelacakan
-  huruf 0,14, rata tengah). Untuk pesan berdiri sendiri itu salah peran: hurufnya
-  jadi terlalu renggang dan warnanya abu muda. Sekarang gaya EmptyText sendiri.
+  N-04: kartu mingguan sekarang menampilkan jarak besar, jumlah gowes/waktu,
+  dan tujuh batang per hari. Ditaruh di ATAS daftar karena pertanyaan yang
+  paling sering dibawa orang ke layar ini adalah "sejauh mana aku minggu ini";
+  daftar gowes bisa puluhan baris, jadi jawaban di bawahnya berarti pengguna
+  harus menggulir melewati semua rekaman lama dulu.
 
-  T-10 (B8): bilah atas dengan judul + tombol kembali.
-  Sebelumnya layar ini memakai setTitle() saja, tapi tema aplikasi adalah
-  NoActionBar - jadi judul itu tidak pernah terlihat dan tidak ada tombol kembali
-  sama sekali. Satu-satunya jalan keluar adalah tombol kembali sistem, yang tidak
-  terlihat di perangkat tanpa tombol navigasi layar.
+  Kartunya disembunyikan dari kode kalau belum ada gowes dalam jendela itu -
+  bukan ditampilkan dengan "0,00 km" dan tujuh batang kosong. Angka nol
+  mengklaim sesuatu yang belum diketahui pengguna, sementara daftar di
+  bawahnya sudah menjelaskan keadaannya.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -41,19 +42,6 @@
             android:text="@string/title_history" />
     </LinearLayout>
 
-    <!-- ===== T-19: total tujuh hari terakhir =====
-         Ditaruh di ATAS daftar, bukan di bawah: yang paling sering dicari orang
-         yang membuka Riwayat adalah "sejauh mana aku minggu ini", dan daftar
-         gowes bisa puluhan baris. Menjawabnya di bawah daftar berarti menjawab
-         setelah pengguna menggulir melewati semua rekaman lama.
-
-         Kartunya sendiri disembunyikan dari kode kalau belum ada gowes dalam
-         tujuh hari terakhir - bukan ditampilkan dengan "0,00 km". Kartu berisi
-         nol mengklaim sesuatu yang belum diketahui pengguna, sementara daftar
-         di bawahnya sudah jelas kosong.
-
-         Tingginya wrap_content, jadi kartu ini tidak mengambil ruang daftar
-         saat disembunyikan maupun saat tampil sebagai satu baris ringkas. -->
     <LinearLayout
         android:id="@+id/weekCard"
         android:layout_width="match_parent"
@@ -62,8 +50,7 @@
         android:layout_marginRight="@dimen/gap_normal"
         android:layout_marginTop="@dimen/gap_normal"
         android:background="@drawable/bg_card"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:orientation="vertical"
         android:paddingLeft="@dimen/gap_wide"
         android:paddingRight="@dimen/gap_wide"
         android:paddingTop="@dimen/gap_roomy"
@@ -71,13 +58,54 @@
         android:baselineAligned="false">
 
         <TextView
-            android:id="@+id/weekText"
-            style="@style/SettingSummary"
-            android:layout_width="0dp"
+            style="@style/SectionLabel"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:maxLines="2"
-            android:ellipsize="end" />
+            android:text="@string/history_week_title" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/gap_cozy"
+            android:orientation="horizontal"
+            android:gravity="bottom"
+            android:baselineAligned="false">
+
+            <TextView
+                android:id="@+id/weekDist"
+                style="@style/ValueBig"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom"
+                android:tag="num" />
+
+            <TextView
+                style="@style/GradeUnit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/gap_snug"
+                android:layout_marginBottom="@dimen/gap_snug"
+                android:text="@string/unit_km" />
+
+            <TextView
+                android:id="@+id/weekText"
+                style="@style/SettingSummary"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginTop="0dp"
+                android:paddingLeft="@dimen/gap_normal"
+                android:gravity="end|bottom"
+                android:maxLines="2"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- Tujuh batang, urut lama ke hari ini. Isinya digambar WeekBars. -->
+        <id.cyclocomp.WeekBars
+            android:id="@+id/weekBars"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/week_bars_h"
+            android:layout_marginTop="@dimen/gap_loose" />
     </LinearLayout>
 
     <FrameLayout
@@ -91,13 +119,29 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <TextView
+        <LinearLayout
             android:id="@+id/empty"
-            style="@style/EmptyText"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:orientation="vertical"
             android:gravity="center"
-            android:textSize="@dimen/text_empty"
-            android:text="@string/history_empty" />
+            android:padding="@dimen/gap_spacious">
+
+            <ImageView
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:alpha="0.55"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_history" />
+
+            <TextView
+                style="@style/EmptyText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_normal"
+                android:gravity="center"
+                android:textSize="@dimen/text_empty"
+                android:text="@string/history_empty" />
+        </LinearLayout>
     </FrameLayout>
 </LinearLayout>

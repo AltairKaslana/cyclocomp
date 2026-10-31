@@ -67,6 +67,16 @@
     <dimen name="radius_card">14dp</dimen>
     <dimen name="radius_pill">20dp</dimen>
     <dimen name="radius_capsule">30dp</dimen>
+    <dimen name="radius_thumb">10dp</dimen>
+    <dimen name="radius_chip_small">10dp</dimen>
+
+    <!-- ===== Riwayat v2 ===== -->
+    <!-- Sisi thumbnail rute di baris daftar. 64dp cukup untuk mengenali bentuk
+         perjalanan tanpa memakan lebar yang dibutuhkan tanggal dan jarak. -->
+    <dimen name="ride_thumb">64dp</dimen>
+    <!-- Tinggi batang tujuh hari; sengaja pendek agar kartu mingguan tidak
+         mendorong daftar gowes keluar layar. -->
+    <dimen name="week_bars_h">40dp</dimen>
 
     <!-- ===== ukuran huruf =====
          SATU tangga, dipakai semua layar. Nama per peran supaya kalau skalanya
