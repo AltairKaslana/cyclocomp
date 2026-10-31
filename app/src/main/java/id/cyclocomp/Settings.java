@@ -26,6 +26,7 @@ final class Settings {
     private static final String K_ALERT_MIN   = "alert_min";    // menit, 0 = mati
     private static final String K_BEEP        = "beep";
     private static final String K_LAST_RIDE   = "last_ride";
+    private static final String K_LAST_BIKE   = "last_bike";      // sepeda untuk gowes berikutnya
     private static final String K_HR_MAC      = "hr_mac";        // alamat sensor detak jantung
     private static final String K_HR_NAME     = "hr_name";
     private static final String K_CSC_MAC     = "csc_mac";       // sensor kecepatan/kadensi
@@ -93,6 +94,19 @@ final class Settings {
     /** Id rekaman terakhir yang disimpan (dipakai layar Ringkasan). */
     public static long lastRideId(Context c) { return sp(c).getLong(K_LAST_RIDE, -1); }
     public static void setLastRideId(Context c, long id) { sp(c).edit().putLong(K_LAST_RIDE, id).apply(); }
+
+    /**
+     * Sepeda yang dipakai untuk gowes berikutnya; 0 = belum ada sepeda.
+     *
+     * Disimpan di sini, bukan di tabel, karena sifatnya pilihan tampilan:
+     * pengguna bisa berganti sepeda tanpa mengubah kaitan gowes yang sudah
+     * tersimpan. RideService menyalin nilai ini ke kolom bike_id saat gowes
+     * selesai, jadi gowes lama tidak ikut berpindah kalau pilihan berubah.
+     */
+    public static long lastBikeId(Context c) { return sp(c).getLong(K_LAST_BIKE, 0); }
+    public static void setLastBikeId(Context c, long id) {
+        sp(c).edit().putLong(K_LAST_BIKE, id <= 0 ? 0 : id).apply();
+    }
 
     // ---------- sensor detak jantung ----------
 

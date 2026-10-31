@@ -114,6 +114,10 @@ final class SessionRecovery {
             r.elevGainM = elev;
             r.gpxPath = path;
             r.laps = laps;
+            // Gowes yang dipulihkan tetap masuk ke sepeda yang sedang dipilih;
+            // kaitannya tidak dicatat di penanda sesi karena penanda itu dibuat
+            // sebelum Garasi ada dan harus tetap bisa dibaca versi lama.
+            r.bikeId = Settings.lastBikeId(c);
             long id = db.insert(r);
             if (id <= 0) return false;
             Settings.setLastRideId(c, id);

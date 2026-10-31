@@ -373,6 +373,9 @@ public class RideService extends Service implements LocationListener {
                 // bukan dari jarak saja. Lihat Calories untuk asumsinya.
                 r.caloriesKcal = Calories.estimate(stats.distanceM, stats.movingMs,
                         stats.elevGainM, Settings.weight(this));
+                // N-06: gowes dikaitkan ke sepeda yang dipilih di Garasi.
+                // 0 (belum ada sepeda) dibiarkan null, bukan id palsu.
+                r.bikeId = Settings.lastBikeId(this);
                 long id = db.insert(r);
                 if (id > 0) {
                     Settings.setLastRideId(this, id);

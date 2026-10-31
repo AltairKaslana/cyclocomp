@@ -12,7 +12,7 @@ import java.util.List;
 /** Ringkasan tiap rekaman. Titik detailnya ada di file GPX. */
 public class RideDb extends SQLiteOpenHelper {
     private static final String NAME = "cyclocomp.db";
-    private static final int VERSION = 4;
+    private static final int VERSION = 5;
 
     public static class Row {
         public long id, startMs, durationMs, movingMs;
@@ -51,6 +51,25 @@ public class RideDb extends SQLiteOpenHelper {
                 + "distance_m REAL, max_speed REAL, elev_gain REAL, gpx_path TEXT,"
                 + "laps TEXT, calories_kcal INTEGER, rpe INTEGER, commute INTEGER,"
                 + "preview TEXT, bike_id INTEGER)");
+        createGarage(db);
+    }
+
+    /**
+     * Tabel Garasi (v1.2). Odometer tidak disimpan: yang disimpan offset awal
+     * sepeda dan komponen menyimpan batas serta odometer saat dipasang, lalu
+     * angka sekarang dihitung dari SUM(distance_m) gowes sepeda itu.
+     */
+    private static void createGarage(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS bikes ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "name TEXT NOT NULL, type TEXT,"
+                + "odo_offset_m REAL NOT NULL DEFAULT 0, created_ms INTEGER)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS components ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "bike_id INTEGER NOT NULL, name TEXT NOT NULL,"
+                + "limit_m REAL NOT NULL, start_odo_m REAL NOT NULL DEFAULT 0)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_components_bike ON components(bike_id)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_rides_bike ON rides(bike_id)");
     }
 
     @Override
@@ -74,6 +93,11 @@ public class RideDb extends SQLiteOpenHelper {
             // Riwayat mengisinya sekali dari berkas GPX di latar belakang.
             addColumn(db, "preview TEXT");
             addColumn(db, "bike_id INTEGER");
+        }
+        if (oldV < 5) {
+            // v5: Garasi (N-06). Tabel baru, bukan kolom baru; CREATE IF NOT
+            // EXISTS supaya upgrade yang terputus di tengah tetap bisa diulang.
+            createGarage(db);
         }
     }
 
