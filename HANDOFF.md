@@ -3,6 +3,10 @@
 Dokumen serah-terima untuk developer / sesi AI berikutnya. Baca ini dulu sebelum mengubah kode.
 Versi kerangka: 0.1.0 · Bahasa UI: Indonesia · Bahasa kode/komentar: Java + komentar Indonesia.
 
+> **Status terbaru (31 Okt 2026): v1.2 "Garasi" sudah ada di `main`, versionCode 70.**
+> Bagian 2 di bawah masih menggambarkan kerangka v0.1.0 dan sudah usang; status mutakhir,
+> skema DB v5, dan aturan yang harus dipertahankan ada di **bagian 17**.
+
 ---
 
 ## 1. Tujuan
@@ -433,3 +437,69 @@ selain JUnit.
 **CI wajib menjalankan `testDebugUnitTest`.** Sebelum v0.6.0 workflow hanya `assembleDebug`,
 jadi tes yang tidak dikompilasi tidak pernah ketahuan rusak. Sekarang ada langkah
 "Run unit tests" sebelum build APK.
+
+## 17. Status v1.2 — Garasi (31 Okt 2026)
+
+Sudah digabung ke `main` dan APK-nya sudah diserahkan ke pemilik proyek. Satu tugas satu commit:
+
+| Commit | Isi |
+|---|---|
+| `21e8f15` | N-06 skema `bikes`/`components`, `Bike`, `Komponen`, `GarasiStore`, kaitan gowes |
+| `f46a3ae` | N-07 layar Garasi + tombol Garasi di dashboard |
+| `af06e12` | N-08 pengingat perawatan di Ringkasan |
+
+CI `build-apk` run `41214550195` lulus (unit test + APK rilis). Hasil: `Zylo-v1.2.0.apk`,
+461.108 byte, `versionCode 70`, `versionName 1.2.0`, sha256
+`70bef309f045a05cf389616a52632214f2f7f2e3d492531a5cae0fd05ddbe933`.
+
+### Skema basis data v5
+
+- `bikes(id, name, type, odo_offset_m, created_ms)`
+- `components(id, bike_id, name, limit_m, start_odo_m)`
+- indeks `idx_components_bike`, `idx_rides_bike`
+- dibuat `RideDb.createGarage()` dari `onCreate` dan dari `onUpgrade` saat `oldV < 5`.
+
+**Odometer TIDAK disimpan.** `odo = odo_offset_m + SUM(distance_m)` dari `rides` milik sepeda itu
+(`GarasiStore.ringkas`). Jangan menambah kolom atau counter odometer: menghapus gowes harus
+otomatis mengoreksi odometer, dan counter tersimpan pasti akan basi. Ini keputusan sadar.
+
+### Aturan yang harus dipertahankan
+
+- **Sepeda pertama mengadopsi riwayat lama**: `GarasiStore.addBike` mengisi `rides.bike_id`
+  untuk baris yang masih NULL ketika tabel `bikes` kosong. Tanpa blok ini, pengguna lama melihat
+  odometer mulai dari 0.
+- **Kaitan gowes ditulis saat menyimpan**, bukan saat menampilkan: `RideService.stopRide` dan
+  `SessionRecovery` menyalin `Settings.lastBikeId` ke `Row.bikeId` (0 = NULL).
+- **Hapus sepeda tidak menghapus gowes**: `deleteBike` menghapus komponen, melepas
+  `rides.bike_id` jadi NULL, lalu memilih sepeda lain sebagai aktif.
+- **Logika status hanya di `Komponen`** — BAIK < 80%, SEGERA 80–100%, LEWAT > 100%; tepat 100%
+  masih SEGERA. Layar Garasi dan pengingat Ringkasan sama-sama memakainya; jangan menduplikasi
+  ambang di UI. Dikunci `KomponenTest` (7 kasus).
+- Pengingat Ringkasan (`SummaryActivity.bindPerawatan`) memakai `row.bikeId`, dan jatuh ke
+  `Settings.lastBikeId` bila gowes tidak punya sepeda.
+
+### Peta kelas
+
+- `GarasiStore` — semua akses DB Garasi; membuka dan menutup helper per panggilan.
+- `GarageActivity` — layar dibangun di kode (pola `SensorActivity`); odometer memakai
+  `AutoFitText` 72sp (`@dimen/text_value_odo`), status komponen memakai `BarProgres` 6dp.
+- `BarProgres` — `set(0..1, warna)`, warna mengikuti status.
+- Hapus sepeda/komponen lewat tekan lama + dialog konfirmasi (bukan tombol di kartu).
+- String di `values/strings.xml` dan `values-en/strings.xml`, parity 374/374.
+
+### Sudah diverifikasi
+
+- Kompilasi tiap commit (main + test) terhadap `android-all` API 33 di mesin pengembang.
+- 151 unit test lulus (144 lama + 7 `KomponenTest`).
+
+### BELUM diverifikasi (harus di perangkat)
+
+1. Upgrade v1.1.2 → v1.2 **tanpa uninstall** (migrasi DB v4→v5; riwayat harus utuh).
+2. Backfill sepeda pertama: odometer memuat seluruh riwayat lama.
+3. Garasi di 720×1600 dan 360×640 dengan font 1,3× (odometer 6 digit mengecil, tidak terpotong).
+4. Status komponen turun setelah gowes terkait dihapus.
+5. Tekan lama untuk menghapus — kalau terasa terlalu samar, pertimbangkan tombol titik-tiga.
+
+### Berikutnya
+
+Roadmap v1.3 navigasi (bagian 12), menunggu umpan balik uji perangkat v1.2.
