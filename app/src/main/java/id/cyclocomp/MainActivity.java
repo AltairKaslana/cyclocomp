@@ -281,15 +281,41 @@ public class MainActivity extends Activity implements RideService.Listener {
             pageViews[i].setVisibility(i == 0 ? View.VISIBLE : View.GONE);
         }
         page = 0;
-        if (App.recovered) {
-            App.recovered = false;
-            Toast.makeText(this, R.string.recovered_msg, Toast.LENGTH_LONG).show();
-        }
         buildDots();
         paintDots();
         refresh();
         showLastCrash();
+        tungguPemulihan();
     }
+
+    /**
+     * Pemberitahuan "rekaman sebelumnya diselamatkan".
+     *
+     * Dulu dibaca langsung dari App.recovered di onCreate(). Sekarang
+     * penyelamatan jalan di thread pekerja (lihat App.kerjaLambat), jadi
+     * hasilnya mungkin belum ada saat layar ini dibuat - dan kalau layar
+     * memeriksa sekali lalu lupa, pemberitahuannya tidak pernah muncul.
+     *
+     * Karena itu diperiksa beberapa kali selama beberapa detik pertama:
+     * selama itu penyelamatan sudah hampir pasti selesai, dan yang penting
+     * pemberitahuannya TIDAK hilang.
+     */
+    private void tungguPemulihan() {
+        final android.os.Handler h = new android.os.Handler();
+        h.postDelayed(new Runnable() {
+            @Override public void run() {
+                if (App.recovered) {
+                    App.recovered = false;
+                    Toast.makeText(MainActivity.this, R.string.recovered_msg,
+                            Toast.LENGTH_LONG).show();
+                    return;                 // sudah dapat, berhenti
+                }
+                if (++percobaanPemulihan < 10) h.postDelayed(this, 500);
+            }
+        }, 500);
+    }
+
+    private int percobaanPemulihan;
 
     /**
      * Paksa penanda mode gelap/terang SEBELUM resource apa pun dibaca.

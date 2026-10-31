@@ -12,7 +12,6 @@
     <string name="unit_bpm">bpm</string>
     <string name="unit_w">W</string>
     <string name="hint_hold">HOLD</string>
-    <string name="history_title">History</string>
     <!-- T-11: three-step guide in the Advanced subsection. Numbered, not a
          paragraph: blocks of text do not get read, numbered lists do. -->
     <string name="strava_guide">1. Create an app at strava.com/settings/api, then copy its Client ID and Client Secret.\n2. Enter both below.\n3. Tap Connect Strava, then allow access in the browser.</string>
@@ -52,15 +51,11 @@
     <!-- status -->
     <string name="status_idle">Ready to ride</string>
     <string name="status_paused">Paused</string>
-    <string name="status_autopaused">Auto-paused</string>
     <!-- T-07: the lock replaces History/Settings while recording -->
     <string name="lock_locked">Locked while recording</string>
-    <string name="lock_hint">Finish or stop the ride first</string>
 
     <!-- halaman data -->
     <string name="page_detail">DETAIL</string>
-    <string name="page_glance">GLANCE</string>
-    <string name="page_lap">LAP</string>
     <string name="lap_current">CURRENT LAP</string>
     <string name="lap_done">LAP DONE</string>
     <string name="lap_none">No laps yet. Press LAP to mark one.</string>
@@ -91,7 +86,6 @@
 <string name="route_live_desc">Map of the route ridden</string>
 <string name="map_recenter">Back to me</string>
     <string name="route_none">Route unavailable</string>
-    <string name="route_offline">Map not ready yet — the route is still drawn</string>
     <string name="btn_share_gpx">SHARE GPX</string>
     <string name="summary_title">RIDE DONE</string>
 
@@ -142,7 +136,6 @@
     <string name="settings_manual">Manual only</string>
     <string name="settings_by_distance">By distance</string>
     <string name="settings_by_time">By time</string>
-    <string name="settings_none">Off</string>
     <string name="settings_seconds">%d sec</string>
     <string name="settings_minutes">%d min</string>
     <string name="settings_km">%.1f km</string>
@@ -272,23 +265,18 @@
     <string name="label_clock">CLOCK</string>
     <string name="label_battery">PHONE BATTERY</string>
     <string name="unit_rpm">rpm</string>
-    <string name="label_avg_power">AVG POWER</string>
     <string name="label_kcal_est">CALORIES\n(ESTIMATE)</string>
     <string name="label_power_est">AVG POWER\n(ESTIMATE)</string>
-    <string name="summary_hr_none">No heart rate data</string>
 
     <!-- commute -->
     <string name="label_commute">Commute</string>
-    <string name="sum_commute">Round-trip ride</string>
     <string name="row_commute"> • commute</string>
 
     <!-- RPE (perceived exertion): 1-10, rated AFTER the ride -->
     <string name="rpe_title">How hard was it?</string>
     <string name="rpe_sum">Rate this ride, 1 (easy) to 10 (maximal)</string>
-    <string name="rpe_none">Not rated</string>
     <string name="rpe_clear">Clear rating</string>
     <string name="rpe_saved">Rating saved</string>
-    <string name="rpe_hint">Tap a number to rate</string>
 
     <!-- rider weight (used to estimate calories) -->
     <string name="settings_weight">Body weight</string>
@@ -297,9 +285,8 @@
 
     <!-- layar utama -->
     <string name="recovered_msg">Previous recording was recovered into History</string>
+    <string name="record_stopped_storage">Recording stopped: the route file could not be written. Check free storage.</string>
     <string name="crash_title">Previous crash report</string>
-    <string name="lap_toast">Lap %1$d  •  %2$s km</string>
-    <string name="ride_prefix">Ride </string>
 
     <!-- notifikasi & toast layar utama -->
     <string name="notif_line">%1$s km/h  |  %2$s km  |  %3$s</string>
@@ -319,14 +306,10 @@
     <string name="card_footer">Zylo</string>
     <string name="card_note">route &amp; stats from the ride recorder</string>
     <string name="card_failed">Could not create the share image</string>
-    <string name="card_share_title">Share ride card</string>
-    <string name="card_share_subject">Ride card %1$s</string>
-    <string name="card_pick_title">Which card format?</string>
     <string name="card_variant_map">Card 4:5 - includes the route map</string>
     <string name="card_variant_overlay">Card 4:5 transparent - paste on top of a photo</string>
     <string name="card_variant_story">Story card 9:16 - big numbers, black background</string>
     <string name="card_variant_story_overlay">Story 9:16 transparent - paste on top of a photo</string>
-    <string name="card_variant_clear">Clear stamp - can be pasted on photos</string>
     <string name="card_variant_sticker">Route + core numbers stamp - paste on top of a photo</string>
 
     <!-- v0.9.31: three new templates from the Strava template list -->
@@ -336,7 +319,6 @@
     <string name="receipt_title">RIDE RECEIPT</string>
     <string name="receipt_thanks">THANK YOU FOR RIDING</string>
     <string name="receipt_total">TOTAL</string>
-    <string name="receipt_item">ITEM</string>
     <string name="capsule_title">SUMMARY</string>
     <string name="wallpaper_mark">Zylo</string>
     <string name="share_pager_title">Share card</string>
@@ -351,14 +333,8 @@
     <string name="share_btn_copy">Copy</string>
     <string name="share_btn_gpx">GPX</string>
 
-    <string name="share_action_save">Save to gallery</string>
-    <string name="share_action_share">Share</string>
-    <string name="share_action_copy">Copy image</string>
-    <string name="share_action_gpx">Share GPX</string>
     <string name="copy_done">Image copied to clipboard</string>
     <string name="copy_failed">Could not copy the image</string>
-    <string name="btn_save_gallery">Save card to gallery</string>
-    <string name="save_pick_title">Save which card to gallery?</string>
     <string name="save_done">Saved to Gallery/Pictures/Zylo</string>
     <string name="save_failed_gallery">Failed to save to gallery</string>
     <string name="save_need_permission">Storage permission required to save the card</string>

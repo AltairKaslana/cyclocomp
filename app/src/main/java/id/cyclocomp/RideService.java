@@ -57,6 +57,31 @@ public class RideService extends Service implements LocationListener {
     }
 
     private final IBinder binder = new LocalBinder();
+    /** Laju GPS saat MEREKAM: 1 fix/detik. Sama dengan laju refresh dasbor. */
+    private static final long RECORDING_INTERVAL_MS = 1000L;
+
+    /**
+     * Laju GPS saat JEDA: 1 fix tiap 10 detik.
+     *
+     * Selama jeda, GPS cuma perlu menjawab satu pertanyaan - "pengendara sudah
+     * bergerak lagi?" - dan pertanyaan itu tidak perlu dijawab 1x/detik.
+     * Sepuluh detik masih terasa responsif (pengendara yang mengayuh lagi
+     * tidak menunggu lama), sementara biaya baterainya sepersepuluh.
+     */
+    private static final long PAUSED_INTERVAL_MS = 10_000L;
+
+    /**
+     * Berapa kali menulis GPX boleh gagal berturut-turut sebelum ride dihentikan.
+     *
+     * Tiga, bukan satu: satu kegagalan bisa sesaat (kartu SD terlepas lalu
+     * masuk lagi, berkas sedang dipindah). Tiga berturut-turut berarti ada yang
+     * salah secara sistemik.
+     */
+    private static final int BATAS_GAGAL_TULIS = 3;
+
+    /** Hitungan kegagalan tulis GPX berturut-turut. */
+    private int gagalTulis;
+
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     private LocationManager lm;
@@ -203,7 +228,7 @@ public class RideService extends Service implements LocationListener {
                     getString(R.string.gpx_creator) + " " + stamp);
             stats = new RideStats();
             lastFixElapsed = 0;
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, this);
+            daftarkanGps(RECORDING_INTERVAL_MS);
         } catch (Exception e) { // SecurityException, IOException, IllegalArgumentException
             Log.e(TAG, "start failed", e);
             Toast.makeText(this, R.string.start_failed, Toast.LENGTH_LONG).show();
@@ -233,12 +258,41 @@ public class RideService extends Service implements LocationListener {
         notifyUi();
     }
 
+    /**
+     * Daftarkan (ulang) GPS dengan laju tertentu.
+     *
+     * Dipisah supaya laju MEREKAM dan laju JEDA terlihat sebagai dua angka yang
+     * berbeda, bukan angka ajaib yang muncul di tiga tempat.
+     *
+     * @param intervalMs jeda minimum antar fix, milidetik
+     */
+    private void daftarkanGps(long intervalMs) {
+        // minDistance 0: yang membatasi laju adalah interval. Jarak minimum
+        // justru membuat fix terlewat kalau pengendara lambat.
+        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, intervalMs, 0f, this);
+    }
+
     private void pauseRide() {
         if (state != State.RECORDING) return;
-        lm.removeUpdates(this);
+        // GPS TIDAK dicabut lagi.
+        //
+        // Dulu di sini ada lm.removeUpdates(this), dan itu membuat auto-resume
+        // MATI: checkAutoResume() cuma dipanggil dari onLocationChanged(), yang
+        // tidak akan pernah terpicu lagi kalau updates sudah dicabut. Akibatnya
+        // pengendara berhenti di lampu merah, ride jeda sendiri, GPS mati, lalu
+        // pengendara mengayuh lagi - dan ride tetap diam sampai dia sadar dan
+        // menekan resume manual. Waktu dan jarak ride under-count tanpa ada
+        // tanda apa pun.
+        //
+        // Sekarang GPS tetap terdaftar tapi diperlambat: 1 fix tiap beberapa
+        // detik cukup untuk mendeteksi "sudah bergerak lagi", dan biaya baterai
+        // jauh lebih kecil daripada 1 Hz. onLocationChanged() yang memutuskan
+        // apa yang dilakukan dengan fix itu - selama JEDA, fix hanya dipakai
+        // untuk mendeteksi gerakan, tidak untuk mencatat jarak.
         pauseStart = SystemClock.elapsedRealtime();
         stats.resetLast();
         state = State.PAUSED;
+        daftarkanGps(PAUSED_INTERVAL_MS);
         updateNotification();
         notifyUi();
     }
@@ -246,7 +300,7 @@ public class RideService extends Service implements LocationListener {
     private void resumeRide() {
         if (state != State.PAUSED) return;
         try {
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, this);
+            daftarkanGps(RECORDING_INTERVAL_MS);
         } catch (Exception e) {
             Log.e(TAG, "resume failed", e);
             return;
@@ -390,17 +444,35 @@ public class RideService extends Service implements LocationListener {
      */
     private void checkAutoPause() {
         if (!Settings.autoPause(this) || lowSpeedSince == 0) return;
-        long berhenti = SystemClock.elapsedRealtime() - lowSpeedSince;
-        if (berhenti >= Settings.autoPauseDelayMs(this)) {
+        if (AutoJeda.harusJeda(stats.currentSpeedMs, Settings.autoPauseSpeedMs(this),
+                lowSpeedSince, Settings.autoPauseDelayMs(this),
+                SystemClock.elapsedRealtime())) {
             lowSpeedSince = 0;
             pauseRide();
             toast(R.string.autopause_on);
         }
     }
 
-    private void checkAutoResume() {
+    /**
+     * Periksa apakah pengendara sudah bergerak lagi, supaya ride lanjut sendiri.
+     *
+     * @param loc fix GPS terbaru selama JEDA
+     */
+    private void checkAutoResume(Location loc) {
         if (!Settings.autoPause(this) || state != State.PAUSED) return;
-        if (stats.currentSpeedMs >= Settings.autoPauseSpeedMs(this)) {
+        // loc bisa null kalau sistem mengirim callback kosong; jangan sampai
+        // itu membuat service mati di tengah ride.
+        if (loc == null) return;
+        // Kecepatan dihitung dari fix JEDA sendiri, BUKAN dari stats.
+        //
+        // Selama jeda stats sengaja tidak diperbarui (lihat
+        // onLocationChanged: fix JEDA tidak dicatat ke jarak), dan
+        // pauseRide() memanggil stats.resetLast() yang mengosongkan
+        // currentSpeedMs. Kalau tetap membaca stats.currentSpeedMs di sini,
+        // nilainya akan selalu 0 dan auto-resume tidak akan pernah menyala -
+        // persis bug yang sedang diperbaiki, hanya pindah tempat.
+        float v = AutoJeda.kecepatanDari(loc.hasSpeed(), loc.getSpeed());
+        if (AutoJeda.harusLanjut(v, Settings.autoPauseSpeedMs(this))) {
             resumeRide();
             toast(R.string.autopause_off);
         }
@@ -530,16 +602,23 @@ public class RideService extends Service implements LocationListener {
     public void onLocationChanged(Location loc) {
         if (state != State.RECORDING && state != State.PAUSED) return;
         lastFixElapsed = SystemClock.elapsedRealtime();
+
+        if (state == State.PAUSED) {
+            // Selama JEDA fix GPS hanya dipakai untuk mendeteksi "sudah
+            // bergerak lagi". TIDAK dicatat ke jarak, TIDAK ditulis ke GPX:
+            // masa jeda bukan bagian dari rute, dan rute yang menampilkan
+            // pengendara "meluncur" saat dia sedang berhenti di lampu merah
+            // salah.
+            checkAutoResume(loc);
+            return;
+        }
+
         // Penanda kecepatan rendah di sini (bukan di ticker) supaya responsif:
         // fix GPS datang 1x/detik, jadi tidak perlu menunggu tick berikutnya.
-        if (state == State.RECORDING) {
-            if (stats.currentSpeedMs < Settings.autoPauseSpeedMs(this)) {
-                if (lowSpeedSince == 0) lowSpeedSince = SystemClock.elapsedRealtime();
-            } else {
-                lowSpeedSince = 0;
-            }
-        } else if (state == State.PAUSED) {
-            checkAutoResume();
+        if (stats.currentSpeedMs < Settings.autoPauseSpeedMs(this)) {
+            if (lowSpeedSince == 0) lowSpeedSince = SystemClock.elapsedRealtime();
+        } else {
+            lowSpeedSince = 0;
         }
         lastAccuracy = loc.hasAccuracy() ? loc.getAccuracy() : 0f;
         // Barometer lebih halus daripada altitude GPS: pakai bila tersedia & terkalibrasi
@@ -551,11 +630,39 @@ public class RideService extends Service implements LocationListener {
         if (stats.onLocation(loc) && gpx != null) {
             try {
                 gpx.add(loc, stats.hr);
+                gagalTulis = 0;              // berhasil, hitungan gagal diulang
             } catch (Exception e) {
                 Log.e(TAG, "gpx write failed", e);
+                gagalTulisGpx();
             }
         }
         notifyUi();
+    }
+
+    /**
+     * Catat satu kegagalan menulis GPX, dan hentikan ride kalau ternyata
+     * berulang.
+     *
+     * Dulu kegagalan di sini cuma masuk Log.e. Akibatnya paling buruk: kalau
+     * penyimpanan penuh, SETIAP titik gagal ditulis - pengendara gowes satu
+     * jam penuh dengan angka yang tampak normal (statistik dihitung di memori,
+     * bukan dari berkas), lalu saat selesai rutenya kosong atau terpotus. DB
+     * tetap dapat statistik, jadi riwayat menampilkan ride tanpa rute - dan
+     * pengendara baru tahu setelah semuanya selesai.
+     *
+     * Sekarang kegagalan dihitung. Beberapa kegagalan berturut-turut berarti
+     * ada yang salah secara sistemik, bukan sesaat, dan ride dihentikan
+     * dengan penjelasan - lebih baik ride berakhir dengan jujur daripada
+     * menghasilkan rekaman yang kelihatan utuh tapi rutenya hilang.
+     */
+    private void gagalTulisGpx() {
+        if (++gagalTulis < BATAS_GAGAL_TULIS) return;
+        // Jangan berulang kali memicu penghentian untuk masalah yang sama.
+        gagalTulis = 0;
+        Log.e(TAG, "gpx gagal ditulis " + BATAS_GAGAL_TULIS
+                + "x berturut-turut, rekaman dihentikan");
+        toast(R.string.record_stopped_storage);
+        stopRide();
     }
 
     // onStatusChanged sudah usang dan dikeluarkan dari LocationListener sejak API 30:

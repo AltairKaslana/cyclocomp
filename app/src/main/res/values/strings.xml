@@ -10,7 +10,6 @@
 <string name="unit_bpm">bpm</string>
 <string name="unit_w">W</string>
 <string name="hint_hold">TAHAN</string>
-<string name="history_title">Riwayat</string>
     <!-- T-11: panduan tiga langkah di subbagian Lanjutan. Ditulis bernomor,
          bukan satu paragraf: blok teks tidak dibaca, daftar bernomor dibaca. -->
 <string name="strava_guide">1. Buat aplikasi di strava.com/settings/api, lalu salin Client ID dan Client Secret.\n2. Isi keduanya di bawah ini.\n3. Ketuk Sambungkan Strava, lalu izinkan akses di browser.</string>
@@ -54,15 +53,11 @@
     <!-- status -->
     <string name="status_idle">Siap gowes</string>
     <string name="status_paused">Dijeda</string>
-    <string name="status_autopaused">Dijeda otomatis</string>
     <!-- T-07: gembok menggantikan Riwayat/Pengaturan saat merekam -->
     <string name="lock_locked">Terkunci saat merekam</string>
-    <string name="lock_hint">Selesaikan atau hentikan gowes dulu</string>
 
     <!-- halaman data -->
     <string name="page_detail">DETAIL</string>
-    <string name="page_glance">SEKILAS</string>
-    <string name="page_lap">LAP</string>
     <string name="lap_current">LAP SEKARANG</string>
     <string name="lap_done">LAP SELESAI</string>
     <string name="lap_none">Belum ada lap. Tekan LAP untuk menandai.</string>
@@ -91,7 +86,6 @@
 
     <!-- peta -->
     <string name="route_none">Rute tidak tersedia</string>
-    <string name="route_offline">Peta belum siap — rute tetap tergambar</string>
     <string name="route_live_desc">Peta rute yang sudah dilalui</string>
     <string name="map_recenter">Ke posisi ku</string>
     <string name="btn_share_gpx">BAGIKAN GPX</string>
@@ -144,7 +138,6 @@
     <string name="settings_manual">Manual saja</string>
     <string name="settings_by_distance">Per jarak</string>
     <string name="settings_by_time">Per waktu</string>
-    <string name="settings_none">Mati</string>
     <string name="settings_seconds">%d detik</string>
     <string name="settings_minutes">%d menit</string>
     <string name="settings_km">%.1f km</string>
@@ -277,7 +270,6 @@
     <string name="label_clock">JAM</string>
     <string name="label_battery">BATERAI HP</string>
     <string name="unit_rpm">rpm</string>
-    <string name="label_avg_power">DAYA RATA-RATA</string>
     <!-- v1.0 R-07: kalori & daya adalah PERKIRAAN (dihitung dari fisika, bukan
          sensor). Label di aplikasi kini mengatakannya; kartu bagikan sengaja
          tetap memakai label pendek (label_kcal / label_avg_power) karena di sana
@@ -288,20 +280,16 @@
          0,14 (~169sp) - teksnya akan terpotong, bukan mengecil. -->
     <string name="label_kcal_est">KALORI\n(PERKIRAAN)</string>
     <string name="label_power_est">DAYA RATA-RATA\n(PERKIRAAN)</string>
-    <string name="summary_hr_none">Tidak ada data detak jantung</string>
 
     <!-- komuter -->
     <string name="label_commute">Komuter</string>
-    <string name="sum_commute">Perjalanan pulang-pergi</string>
     <string name="row_commute"> • komuter</string>
 
     <!-- RPE (perceived exertion): skala 1-10, dinilai SETELAH gowes -->
     <string name="rpe_title">Seberapa berat?</string>
     <string name="rpe_sum">Nilai usaha gowes ini, 1 (ringan) sampai 10 (maksimal)</string>
-    <string name="rpe_none">Belum dinilai</string>
     <string name="rpe_clear">Hapus nilai</string>
     <string name="rpe_saved">Nilai tersimpan</string>
-    <string name="rpe_hint">Ketuk angka untuk menilai</string>
 
     <!-- massa pengendara (dipakai memperkira kalori) -->
     <string name="settings_weight">Massa badan</string>
@@ -310,9 +298,8 @@
 
     <!-- layar utama -->
     <string name="recovered_msg">Rekaman sebelumnya dipulihkan ke Riwayat</string>
+    <string name="record_stopped_storage">Rekaman dihentikan: berkas rute gagal ditulis. Periksa sisa penyimpanan.</string>
     <string name="crash_title">Laporan crash sebelumnya</string>
-    <string name="lap_toast">Lap %1$d  •  %2$s km</string>
-    <string name="ride_prefix">Ride </string>
 
     <!-- notifikasi & toast layar utama -->
     <string name="notif_line">%1$s km/jam  |  %2$s km  |  %3$s</string>
@@ -333,14 +320,10 @@
     <string name="card_footer">Zylo</string>
     <string name="card_note">rute &amp; angka dari pencatat gowes</string>
     <string name="card_failed">Gambar kartu gagal dibuat</string>
-    <string name="card_share_title">Bagikan kartu gowes</string>
-    <string name="card_share_subject">Kartu gowes %1$s</string>
-    <string name="card_pick_title">Bentuk kartu mana?</string>
     <string name="card_variant_map">Kartu 4:5 - ada peta rute</string>
     <string name="card_variant_overlay">Kartu 4:5 transparan - tempel di atas foto</string>
     <string name="card_variant_story">Kartu Story 9:16 - angka besar, latar hitam</string>
     <string name="card_variant_story_overlay">Story 9:16 transparan - tempel di atas foto</string>
-    <string name="card_variant_clear">Stempel transparan - bisa ditempel di atas foto</string>
     <string name="card_variant_sticker">Stempel rute + angka inti - tempel di atas foto</string>
 
     <!-- v0.9.31: tiga template baru dari daftar template Strava -->
@@ -350,7 +333,6 @@
     <string name="receipt_title">STRUK GOWES</string>
     <string name="receipt_thanks">TERIMA KASIH SUDAH GOWES</string>
     <string name="receipt_total">TOTAL</string>
-    <string name="receipt_item">JENIS</string>
     <string name="capsule_title">RINGKASAN</string>
     <string name="wallpaper_mark">Zylo</string>
     <string name="share_pager_title">Bagikan kartu</string>
@@ -365,14 +347,8 @@
     <string name="share_btn_copy">Salin</string>
     <string name="share_btn_gpx">GPX</string>
 
-    <string name="share_action_save">Simpan ke galeri</string>
-    <string name="share_action_share">Bagikan</string>
-    <string name="share_action_copy">Salin gambar</string>
-    <string name="share_action_gpx">Bagikan GPX</string>
     <string name="copy_done">Gambar disalin ke clipboard</string>
     <string name="copy_failed">Gagal menyalin gambar</string>
-    <string name="btn_save_gallery">Simpan kartu ke galeri</string>
-    <string name="save_pick_title">Simpan kartu mana ke galeri?</string>
     <string name="save_done">Tersimpan di Galeri/Pictures/Zylo</string>
     <string name="save_failed_gallery">Gagal menyimpan ke galeri</string>
     <string name="save_need_permission">Izin penyimpanan diperlukan untuk menyimpan kartu</string>

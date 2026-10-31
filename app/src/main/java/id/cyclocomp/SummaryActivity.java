@@ -318,6 +318,10 @@ public class SummaryActivity extends Activity {
     private void bindDetak(List<GpxReader.P> track) {
         View hrRow = findViewById(R.id.hrRow);
         if (hrRow == null) return;
+        // Pemisah di atas baris ini ikut disembunyikan. Kalau tidak, garis
+        // pembatas akan terlihat sendirian di atas ruang kosong - dan itu
+        // membuat kartu metrik terlihat rusak, bukan sekadar kosong.
+        View hrDivider = findViewById(R.id.hrDivider);
 
         int sum = 0, count = 0, max = 0;
         if (track != null) {
@@ -329,11 +333,10 @@ public class SummaryActivity extends Activity {
                 }
             }
         }
-        if (count == 0) {
-            hrRow.setVisibility(View.GONE);
-            return;
-        }
-        hrRow.setVisibility(View.VISIBLE);
+        int tampil = count == 0 ? View.GONE : View.VISIBLE;
+        hrRow.setVisibility(tampil);
+        if (hrDivider != null) hrDivider.setVisibility(tampil);
+        if (count == 0) return;
         ((TextView) findViewById(R.id.tvHrAvg)).setText(
                 String.valueOf(Math.round((float) sum / count)));
         ((TextView) findViewById(R.id.tvHrMax)).setText(String.valueOf(max));
