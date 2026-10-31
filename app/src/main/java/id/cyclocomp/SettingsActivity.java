@@ -38,6 +38,7 @@ public class SettingsActivity extends Activity {
     private static final int R_MAP = 13;
     private static final int R_WEIGHT = 14;
     private static final int R_THEME = 15;
+    private static final int R_ATUR_LAYAR = 16;
 
     private static final int REQ_BLE = 71;
 
@@ -115,6 +116,9 @@ public class SettingsActivity extends Activity {
         // setelan peta hanya menyentuh satu bagian di layar Ringkasan.
         group(getString(R.string.group_display));
         switchRow(R_THEME, R.string.settings_theme, getString(R.string.sum_theme));
+        // Atur layar diletakkan di kelompok TAMPILAN, tepat di bawah sakelar
+        // tema: keduanya mengubah rupa dashboard, bukan isi perekaman.
+        valueRow(R_ATUR_LAYAR, R.string.settings_atur_layar, getString(R.string.sum_atur_layar));
 
         group(getString(R.string.group_map));
         switchRow(R_MAP, R.string.settings_map, getString(R.string.sum_map));
@@ -587,6 +591,9 @@ public class SettingsActivity extends Activity {
             case R_STRAVA_LINK:
                 if (StravaStore.connected(this)) unlinkStrava();
                 else linkStrava();
+                break;
+            case R_ATUR_LAYAR:
+                startActivity(new Intent(this, AturLayarActivity.class));
                 break;
             case R_RESET:
                 new AlertDialog.Builder(this)

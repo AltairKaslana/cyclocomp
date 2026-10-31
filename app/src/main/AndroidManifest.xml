@@ -69,6 +69,11 @@
           dari luar aplikasi, jadi exported=false dan portrait.
         -->
         <activity
+            android:name=".AturLayarActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".OnboardingActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

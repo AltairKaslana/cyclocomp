@@ -77,7 +77,7 @@
             android:gravity="center"
             android:orientation="vertical">
             <TextView style="@style/Label" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="@string/label_speed" />
+                android:layout_height="wrap_content" android:id="@+id/lblD0" android:text="@string/label_speed" />
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -87,7 +87,7 @@
                 android:baselineAligned="false">
                 <TextView android:id="@+id/tvSpeed2" style="@style/ValueBig"
                     android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,0"/>
-                <TextView style="@style/ValueUnit"
+                <TextView android:id="@+id/unD0" style="@style/ValueUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingLeft="@dimen/gap_tight"
@@ -106,7 +106,7 @@
             android:gravity="center"
             android:orientation="vertical">
             <TextView style="@style/Label" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="@string/label_avg" />
+                android:layout_height="wrap_content" android:id="@+id/lblD1" android:text="@string/label_avg" />
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -116,7 +116,7 @@
                 android:baselineAligned="false">
                 <TextView android:id="@+id/tvAvg2" style="@style/ValueBig"
                     android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,0"/>
-                <TextView style="@style/ValueUnit"
+                <TextView android:id="@+id/unD1" style="@style/ValueUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingLeft="@dimen/gap_tight"
@@ -144,7 +144,7 @@
             android:gravity="center"
             android:orientation="vertical">
             <TextView style="@style/Label" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="@string/label_max" />
+                android:layout_height="wrap_content" android:id="@+id/lblD2" android:text="@string/label_max" />
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -154,7 +154,7 @@
                 android:baselineAligned="false">
                 <TextView android:id="@+id/tvMax2" style="@style/ValueBig"
                     android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,0"/>
-                <TextView style="@style/ValueUnit"
+                <TextView android:id="@+id/unD2" style="@style/ValueUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingLeft="@dimen/gap_tight"
@@ -173,7 +173,7 @@
             android:gravity="center"
             android:orientation="vertical">
             <TextView style="@style/Label" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="@string/label_distance" />
+                android:layout_height="wrap_content" android:id="@+id/lblD3" android:text="@string/label_distance" />
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -183,7 +183,7 @@
                 android:baselineAligned="false">
                 <TextView android:id="@+id/tvDist2" style="@style/ValueBig"
                     android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,00"/>
-                <TextView style="@style/ValueUnit"
+                <TextView android:id="@+id/unD3" style="@style/ValueUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingLeft="@dimen/gap_tight"
@@ -211,10 +211,15 @@
             android:gravity="center"
             android:orientation="vertical">
             <TextView style="@style/Label" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="@string/label_moving" />
+                android:layout_height="wrap_content" android:id="@+id/lblD4" android:text="@string/label_moving" />
             <TextView android:id="@+id/tvMoving" style="@style/ValueBig"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00:00" />
+                <TextView android:id="@+id/unD4" style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:visibility="gone" />
         </LinearLayout>
 
         <View android:layout_width="@dimen/hairline" android:layout_height="match_parent"
@@ -228,10 +233,15 @@
             android:gravity="center"
             android:orientation="vertical">
             <TextView style="@style/Label" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="@string/label_total" />
+                android:layout_height="wrap_content" android:id="@+id/lblD5" android:text="@string/label_total" />
             <TextView android:id="@+id/tvTotal" style="@style/ValueBig"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00:00" />
+                <TextView android:id="@+id/unD5" style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:visibility="gone" />
         </LinearLayout>
 
     </LinearLayout>
@@ -254,7 +264,7 @@
             android:gravity="center"
             android:orientation="vertical">
             <TextView style="@style/Label" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="@string/label_elev" />
+                android:layout_height="wrap_content" android:id="@+id/lblD6" android:text="@string/label_elev" />
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -264,7 +274,7 @@
                 android:baselineAligned="false">
                 <TextView android:id="@+id/tvElev2" style="@style/ValueBig"
                     android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0"/>
-                <TextView style="@style/ValueUnit"
+                <TextView android:id="@+id/unD6" style="@style/ValueUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingLeft="@dimen/gap_tight"
@@ -283,7 +293,7 @@
             android:gravity="center"
             android:orientation="vertical">
             <TextView style="@style/Label" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="@string/label_alt" />
+                android:layout_height="wrap_content" android:id="@+id/lblD7" android:text="@string/label_alt" />
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -293,7 +303,7 @@
                 android:baselineAligned="false">
                 <TextView android:id="@+id/tvAlt2" style="@style/ValueBig"
                     android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="--"/>
-                <TextView style="@style/ValueUnit"
+                <TextView android:id="@+id/unD7" style="@style/ValueUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingLeft="@dimen/gap_tight"
@@ -321,7 +331,7 @@
             android:gravity="center"
             android:orientation="vertical">
             <TextView style="@style/Label" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="@string/label_kcal_est" />
+                android:layout_height="wrap_content" android:id="@+id/lblD8" android:text="@string/label_kcal_est" />
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -331,7 +341,7 @@
                 android:baselineAligned="false">
                 <TextView android:id="@+id/tvKcal2" style="@style/ValueBig"
                     android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0"/>
-                <TextView style="@style/ValueUnit"
+                <TextView android:id="@+id/unD8" style="@style/ValueUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingLeft="@dimen/gap_tight"
@@ -350,7 +360,7 @@
             android:gravity="center"
             android:orientation="vertical">
             <TextView style="@style/Label" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="@string/label_hr" />
+                android:layout_height="wrap_content" android:id="@+id/lblD9" android:text="@string/label_hr" />
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -360,7 +370,7 @@
                 android:baselineAligned="false">
                 <TextView android:id="@+id/tvHr2" style="@style/ValueBig"
                     android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="-"/>
-                <TextView style="@style/ValueUnit"
+                <TextView android:id="@+id/unD9" style="@style/ValueUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingLeft="@dimen/gap_tight"

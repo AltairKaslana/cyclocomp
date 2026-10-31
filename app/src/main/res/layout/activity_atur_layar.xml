@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Atur layar (rancangan UI/UX 5.3).
+
+  Tiga tab - SEKILAS, DETAIL, LAP - masing-masing menampilkan kisi halaman itu
+  APA ADANYA di atas, dan daftar 15 bidang sebagai chip di bawah. Ketuk sel ->
+  panel chip muncul; pilih chip -> sel itu berubah.
+
+  Pratinjaun dibangun dari kode (AturLayarActivity), bukan tiga layout XML:
+  jumlah sel tiap halaman berbeda (3, 10, 4) dan bidang tiap sel berganti saat
+  dipilih - layout statis hanya akan menduplikasi apa yang sudah dilakukan kode.
+
+  Kedalaman view maksimal 5 tingkat, di bawah batas 7.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:orientation="vertical">
+
+    <!-- ===== baris atas: kembali + judul ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_bar_h"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/gap_snug"
+        android:paddingRight="@dimen/screen_edge">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            style="@style/IconBtn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="@string/back"
+            android:src="@drawable/ic_back" />
+
+        <TextView
+            style="@style/StatusBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/gap_snug"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="@string/atur_layar_title" />
+    </LinearLayout>
+
+    <!-- ===== tab halaman =====
+         Chip 44dp tinggi, radius 22 - bentuk chip menurut bahasa desain. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/screen_edge"
+        android:paddingRight="@dimen/screen_edge">
+
+        <Button
+            android:id="@+id/tabGlance"
+            style="@style/TinyBtn"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="44dp"
+            android:layout_marginRight="@dimen/gap_tight"
+            android:text="@string/atur_tab_glance" />
+
+        <Button
+            android:id="@+id/tabDetail"
+            style="@style/TinyBtn"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="44dp"
+            android:layout_marginRight="@dimen/gap_tight"
+            android:text="@string/atur_tab_detail" />
+
+        <Button
+            android:id="@+id/tabLap"
+            style="@style/TinyBtn"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="44dp"
+            android:text="@string/atur_tab_lap" />
+    </LinearLayout>
+
+    <!-- ===== petunjuk ===== -->
+    <TextView
+        android:id="@+id/tvHint"
+        style="@style/Label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/screen_edge"
+        android:paddingRight="@dimen/screen_edge"
+        android:paddingTop="@dimen/gap_loose"
+        android:paddingBottom="@dimen/gap_snug"
+        android:text="@string/atur_hint" />
+
+    <!-- ===== pratinjau ===== -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:paddingLeft="@dimen/screen_edge"
+        android:paddingRight="@dimen/screen_edge">
+
+        <LinearLayout
+            android:id="@+id/preview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
+
+    <!-- ===== panel chip ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/card"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/gap_loose"
+        android:paddingBottom="@dimen/gap_loose">
+
+        <TextView
+            style="@style/SectionLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/screen_edge"
+            android:paddingRight="@dimen/screen_edge"
+            android:paddingBottom="@dimen/gap_snug"
+            android:text="@string/atur_fields" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/screen_edge"
+            android:paddingRight="@dimen/screen_edge">
+
+            <LinearLayout
+                android:id="@+id/chips"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
+    </LinearLayout>
+
+    <!-- ===== aksi ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/screen_edge"
+        android:paddingRight="@dimen/screen_edge"
+        android:paddingBottom="@dimen/gap_wide">
+
+        <Button
+            android:id="@+id/btnReset"
+            style="@style/ActionBtn"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/btn_action_h"
+            android:text="@string/atur_reset" />
+
+        <Button
+            android:id="@+id/btnSave"
+            style="@style/ActionBtnPrimary"
+            android:layout_width="0dp"
+            android:layout_weight="1.5"
+            android:layout_height="@dimen/btn_action_h"
+            android:layout_marginLeft="@dimen/gap_loose"
+            android:text="@string/atur_save" />
+    </LinearLayout>
+</LinearLayout>

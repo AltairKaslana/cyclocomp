@@ -32,6 +32,7 @@ final class Settings {
     private static final String K_WEIGHT      = "weight";        // kg, dipakai hitung kalori
     private static final String K_THEME       = "theme_light";   // tema siang?
     private static final String K_ONBOARDING  = "onboarding_done"; // 3 langkah pertama sudah dilewati?
+    private static final String K_FIELDS      = "fields_";        // + nomor halaman: susunan bidang
 
     // mode lap
     public static final int LAP_MANUAL = 0, LAP_DISTANCE = 1, LAP_TIME = 2;
@@ -154,5 +155,43 @@ final class Settings {
     public static boolean onboardingDone(Context c) { return sp(c).getBoolean(K_ONBOARDING, false); }
     public static void setOnboardingDone(Context c, boolean v) {
         sp(c).edit().putBoolean(K_ONBOARDING, v).apply();
+    }
+
+    // ---------- bidang per halaman (Atur layar) ----------
+
+    /**
+     * Susunan bidang di satu halaman dashboard. Disimpan sebagai daftar angka
+     * dipisah koma ("3,4,1"), bukan JSON: tanpa dependency, dan lebih mudah
+     * dibaca saat mengeluarkan berkas pengaturan.
+     *
+     * Kalau isinya rusak atau dari versi yang belum mengenali bidang baru,
+     * kembalikan susunan bawaan - dashboard tidak boleh pernah kosong.
+     */
+    public static int[] pageFields(Context c, int halaman) {
+        String raw = sp(c).getString(K_FIELDS + halaman, "");
+        if (raw == null || raw.isEmpty()) return Bidang.bawaan(halaman);
+        String[] p = raw.split(",");
+        int[] out = new int[p.length];
+        try {
+            for (int i = 0; i < p.length; i++) out[i] = Integer.parseInt(p[i].trim());
+        } catch (NumberFormatException e) {
+            return Bidang.bawaan(halaman);
+        }
+        return Bidang.sah(halaman, out) ? out : Bidang.bawaan(halaman);
+    }
+
+    public static void setPageFields(Context c, int halaman, int[] urutan) {
+        if (!Bidang.sah(halaman, urutan)) return;   // jangan simpan yang tidak sah
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < urutan.length; i++) {
+            if (i > 0) sb.append(',');
+            sb.append(urutan[i]);
+        }
+        sp(c).edit().putString(K_FIELDS + halaman, sb.toString()).apply();
+    }
+
+    /** Kembalikan satu halaman ke susunan bawaan. */
+    public static void resetPageFields(Context c, int halaman) {
+        sp(c).edit().remove(K_FIELDS + halaman).apply();
     }
 }

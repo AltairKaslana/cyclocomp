@@ -251,6 +251,28 @@
          isinya daya rata-rata. Dua sel bertetangga dengan label sama tapi
          angka berbeda adalah label ganda - sekarang yang ini punya namanya
          sendiri. -->
+    <!-- ===== Atur layar (v1.1 N-02) ===== -->
+    <string name="atur_layar_title">Atur layar</string>
+    <string name="atur_tab_glance">SEKILAS</string>
+    <string name="atur_tab_detail">DETAIL</string>
+    <string name="atur_tab_lap">LAP</string>
+    <string name="atur_hint">Ketuk sel, lalu pilih bidang di bawah.</string>
+    <string name="atur_fields">BIDANG TERSEDIA</string>
+    <string name="atur_reset">Atur ulang</string>
+    <string name="atur_save">Simpan</string>
+    <string name="atur_saved">Susunan layar disimpan.</string>
+    <string name="atur_slot_count">slot</string>
+    <string name="atur_selected">terpilih</string>
+    <string name="atur_not_selected">tidak terpilih</string>
+    <string name="atur_slot_desc">Slot %1$d, %2$s, %3$s</string>
+    <string name="settings_atur_layar">Atur layar</string>
+    <string name="sum_atur_layar">Pilih bidang yang tampil di Sekilas, Detail, dan Lap</string>
+    <string name="label_cadence">KADENSI</string>
+    <string name="label_power">DAYA</string>
+    <string name="label_grade">KEMIRINGAN</string>
+    <string name="label_clock">JAM</string>
+    <string name="label_battery">BATERAI HP</string>
+    <string name="unit_rpm">rpm</string>
     <string name="label_avg_power">DAYA RATA-RATA</string>
     <!-- v1.0 R-07: kalori & daya adalah PERKIRAAN (dihitung dari fisika, bukan
          sensor). Label di aplikasi kini mengatakannya; kartu bagikan sengaja

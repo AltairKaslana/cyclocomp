@@ -150,7 +150,7 @@
                 style="@style/Label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/label_distance" />
+                android:id="@+id/lblS0" android:text="@string/label_distance" />
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -165,7 +165,7 @@
                     android:layout_height="wrap_content"
                     android:tag="num"
                     android:text="0,00" />
-                <TextView
+                <TextView android:id="@+id/unS0"
                     style="@style/ValueUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -190,7 +190,7 @@
                 style="@style/Label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/label_time" />
+                android:id="@+id/lblS1" android:text="@string/label_time" />
             <TextView
                 android:id="@+id/tvTime"
                 style="@style/ValueSmall"
@@ -199,6 +199,16 @@
                 android:layout_marginLeft="@dimen/gap_snug"
                 android:tag="num"
                 android:text="0:00:00" />
+            <!-- Satuan slot SEKILAS ke-2: GONE selama bidangnya waktu (tanpa
+                 satuan terpisah). Ada supaya struktur ketiga slot sama dan
+                 bidang bersatuan bisa dipindahkan ke sini kapan saja. -->
+            <TextView
+                android:id="@+id/unS1"
+                style="@style/ValueUnit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/gap_tight"
+                android:visibility="gone" />
         </LinearLayout>
 
         <View
@@ -217,7 +227,7 @@
                 style="@style/Label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/label_avg" />
+                android:id="@+id/lblS2" android:text="@string/label_avg" />
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -232,7 +242,7 @@
                     android:layout_height="wrap_content"
                     android:tag="num"
                     android:text="0,0" />
-                <TextView
+                <TextView android:id="@+id/unS2"
                     style="@style/ValueUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

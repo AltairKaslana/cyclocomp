@@ -63,6 +63,21 @@ public class MainActivity extends Activity implements RideService.Listener {
     private TextView tvMoving, tvTotal, tvLapDist, tvLapTime, tvLapAvg, tvLapMoving, tvLapTitle;
     private ListView lapList;
     private TextView lapEmpty;
+
+    // ---------- slot bidang (Atur layar) ----------
+    // Setiap slot = satu sel di dashboard: label, nilai, satuan. Bidang apa yang
+    // mengisinya ditentukan pengguna di layar Atur layar, bukan ditulis tetap di
+    // layout. Urutan bawaan = susunan yang sudah ada, supaya dashboard tidak
+    // berubah sendiri saat versi ini dipasang.
+    private static final class Slot {
+        final TextView label, value, unit;
+        Slot(TextView l, TextView v, TextView u) { label = l; value = v; unit = u; }
+    }
+
+    private int[] fieldsSekilas = Bidang.bawaan(Bidang.SEKILAS);
+    private int[] fieldsDetail = Bidang.bawaan(Bidang.DETAIL);
+    private int[] fieldsLap = Bidang.bawaan(Bidang.LAP);
+    private Slot[] slotSekilas, slotDetail, slotLap;
     private Button btnStartPause, btnStop, btnLap;
     private ViewGroup pages;
     private LinearLayout dots;
@@ -105,7 +120,7 @@ public class MainActivity extends Activity implements RideService.Listener {
         // ditanyakan (izin lokasi belum diberikan atau baterai belum
         // dikecualikan). Pengguna yang sudah melewatinya tidak akan melihatnya
         // lagi, dan yang semuanya sudah beres tidak diganggu sama sekali.
-        if (Onboarding.layakDitampilkan(Settings.onboardingDone(this),
+        if (Onboarding.layakDitampilkan(id.cyclocomp.Settings.onboardingDone(this),
                 checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                         == PackageManager.PERMISSION_GRANTED,
                 bateraiDikecualikan())) {
@@ -168,6 +183,7 @@ public class MainActivity extends Activity implements RideService.Listener {
         tvLapTime = (TextView) findViewById(R.id.tvLapTime);
         tvLapAvg = (TextView) findViewById(R.id.tvLapAvg);
         tvLapMoving = (TextView) findViewById(R.id.tvLapMoving);
+        muatSlot();
         lapList = (ListView) findViewById(R.id.lapList);
         lapEmpty = (TextView) findViewById(R.id.lapEmpty);
         lapCard = (LinearLayout) findViewById(R.id.lapCard);
@@ -402,6 +418,10 @@ public class MainActivity extends Activity implements RideService.Listener {
     protected void onStart() {
         super.onStart();
         bound = bindService(new Intent(this, RideService.class), conn, Context.BIND_AUTO_CREATE);
+        // Susunan bidang bisa berubah di layar Atur layar; onStart (bukan
+        // onCreate) supaya perubahan itu terlihat juga saat pengguna menekan
+        // tombol kembali, bukan hanya setelah aplikasi ditutup dan dibuka ulang.
+        muatSlot();
         refresh();
     }
 
@@ -555,9 +575,7 @@ public class MainActivity extends Activity implements RideService.Listener {
 
         // ---------- SEKILAS ----------
         tvSpeed.setText(Fmt.speed(s.currentSpeedMs));
-        tvDist.setText(Fmt.km(s.distanceM));
-        tvTime.setText(Fmt.duration(s.movingMs));
-        tvAvg.setText(Fmt.speed(s.avgSpeedMs()));
+        isiNilaiSlot(slotSekilas, fieldsSekilas, s, elapsed, null);
 
         // gradien: ruas jalan memberi ARAH dan KESAN besarannya, angka memberi nilai
         // persis. Dua hal berbeda, tidak salung ulang — itu sebabnya panah naik/turun
@@ -584,21 +602,7 @@ public class MainActivity extends Activity implements RideService.Listener {
         updateLiveMap(st);
 
         // ---------- DETAIL ----------
-        tvSpeed2.setText(Fmt.speed(s.currentSpeedMs));
-        tvDist2.setText(Fmt.km(s.distanceM));
-        tvAvg2.setText(Fmt.speed(s.avgSpeedMs()));
-        tvMax2.setText(Fmt.speed(s.maxSpeedMs));
-        tvMoving.setText(Fmt.duration(s.movingMs));
-        tvTotal.setText(Fmt.duration(elapsed));
-        tvElev2.setText(Fmt.meters(s.elevGainM));
-        tvAlt2.setText(Double.isNaN(s.altitudeM) ? "--" : Fmt.meters(s.altitudeM));
-        // Kalori dihitung dari daya perkiraan supaya tanjakan ikut terhitung.
-        // "Settings" di kelas ini berarti android.provider.Settings (dipakai untuk
-        // ACTION_LOCATION_SOURCE_SETTINGS), jadi perlu nama lengkap.
-        tvKcal2.setText(Fmt.kcal(Calories.estimate(s.distanceM, s.movingMs,
-                s.elevGainM, id.cyclocomp.Settings.weight(this))));
-        // "-" bukan "0" kalau belum ada sensor: nol terbaca seperti detak nol.
-        tvHr2.setText(s.hr > 0 ? String.valueOf(s.hr) : "-");
+        isiNilaiSlot(slotDetail, fieldsDetail, s, elapsed, null);
 
         // ---------- status ----------
         switch (st) {
@@ -698,17 +702,86 @@ public class MainActivity extends Activity implements RideService.Listener {
         }
     }
 
+    /**
+     * Baca susunan bidang dari pengaturan dan pasang ke sel dashboard.
+     *
+     * Dipanggil dari onCreate dan dari onResume: pengguna bisa saja baru
+     * mengubah susunan di layar Atur layar, dan dashboard yang tidak ikut berubah
+     * sampai aplikasi ditutup adalah bug yang paling membingungkan.
+     */
+    private void muatSlot() {
+        fieldsSekilas = id.cyclocomp.Settings.pageFields(this, Bidang.SEKILAS);
+        fieldsDetail = id.cyclocomp.Settings.pageFields(this, Bidang.DETAIL);
+        fieldsLap = id.cyclocomp.Settings.pageFields(this, Bidang.LAP);
+
+        slotSekilas = new Slot[]{
+                new Slot((TextView) findViewById(R.id.lblS0), tvDist, (TextView) findViewById(R.id.unS0)),
+                new Slot((TextView) findViewById(R.id.lblS1), tvTime, (TextView) findViewById(R.id.unS1)),
+                new Slot((TextView) findViewById(R.id.lblS2), tvAvg, (TextView) findViewById(R.id.unS2))
+        };
+        slotDetail = new Slot[]{
+                new Slot((TextView) findViewById(R.id.lblD0), tvSpeed2, (TextView) findViewById(R.id.unD0)),
+                new Slot((TextView) findViewById(R.id.lblD1), tvAvg2, (TextView) findViewById(R.id.unD1)),
+                new Slot((TextView) findViewById(R.id.lblD2), tvMax2, (TextView) findViewById(R.id.unD2)),
+                new Slot((TextView) findViewById(R.id.lblD3), tvDist2, (TextView) findViewById(R.id.unD3)),
+                new Slot((TextView) findViewById(R.id.lblD4), tvMoving, (TextView) findViewById(R.id.unD4)),
+                new Slot((TextView) findViewById(R.id.lblD5), tvTotal, (TextView) findViewById(R.id.unD5)),
+                new Slot((TextView) findViewById(R.id.lblD6), tvElev2, (TextView) findViewById(R.id.unD6)),
+                new Slot((TextView) findViewById(R.id.lblD7), tvAlt2, (TextView) findViewById(R.id.unD7)),
+                new Slot((TextView) findViewById(R.id.lblD8), tvKcal2, (TextView) findViewById(R.id.unD8)),
+                new Slot((TextView) findViewById(R.id.lblD9), tvHr2, (TextView) findViewById(R.id.unD9))
+        };
+        slotLap = new Slot[]{
+                new Slot((TextView) findViewById(R.id.lblL0), tvLapDist, (TextView) findViewById(R.id.unL0)),
+                new Slot((TextView) findViewById(R.id.lblL1), tvLapTime, (TextView) findViewById(R.id.unL1)),
+                new Slot((TextView) findViewById(R.id.lblL2), tvLapAvg, (TextView) findViewById(R.id.unL2)),
+                new Slot((TextView) findViewById(R.id.lblL3), tvLapMoving, (TextView) findViewById(R.id.unL3))
+        };
+        terapkanLabelSlot();
+    }
+
+    /**
+     * Label dan satuan dipasang sekali per perubahan susunan, bukan tiap detik:
+     * keduanya tidak berubah saat angka diperbarui, dan menyentuh TextView yang
+     * sama 1 Hz tanpa alasan hanya membuat layout diukur ulang.
+     */
+    private void terapkanLabelSlot() {
+        pasangLabel(slotSekilas, fieldsSekilas);
+        pasangLabel(slotDetail, fieldsDetail);
+        pasangLabel(slotLap, fieldsLap);
+    }
+
+    private void pasangLabel(Slot[] slots, int[] fields) {
+        for (int i = 0; i < slots.length; i++) {
+            slots[i].label.setText(Bidang.label(fields[i]));
+            int u = Bidang.unit(fields[i]);
+            if (u == 0) {
+                // Bidang tanpa satuan terpisah (waktu, jam, baterai) - TextView-nya
+                // GONE, bukan dibiarkan hampa: ruang kosong di sebelah angka
+                // terbaca sebagai satuan yang hilang.
+                slots[i].unit.setVisibility(View.GONE);
+            } else {
+                slots[i].unit.setVisibility(View.VISIBLE);
+                slots[i].unit.setText(u);
+            }
+        }
+    }
+
+    /** Isi nilai semua slot satu halaman. Dipanggil tiap refresh (1 Hz). */
+    private void isiNilaiSlot(Slot[] slots, int[] fields, RideStats s, long elapsed, Lap lap) {
+        for (int i = 0; i < slots.length; i++) {
+            slots[i].value.setText(BidangNilai.teks(this, fields[i], s, elapsed, lap));
+        }
+    }
+
     private void refreshLap(RideService.State st) {
         if (service == null || st == RideService.State.IDLE) {
             tvLapBadge.setVisibility(View.GONE);
             tvLapTitle.setText(R.string.lap_current);
-            tvLapDist.setText(Fmt.km(0));
-            // Lewat Fmt.duration, bukan "0:00" ditulis langsung: itu format
-            // kedua yang justru dibuang di T-04. Saat idle nilainya nol, tapi
-            // bentuknya harus sama dengan saat lap berjalan.
-            tvLapTime.setText(Fmt.duration(0));
-            tvLapAvg.setText(Fmt.speed(0));
-            tvLapMoving.setText(Fmt.duration(0));
+            // Slot lap diisi lewat BidangNilai yang sama dengan saat lap
+            // berjalan - bentuk angka (pemisah desimal, format waktu) karena itu
+            // persis sama, hanya nilainya nol.
+            isiNilaiSlot(slotLap, fieldsLap, new RideStats(), 0, null);
             lapList.setAdapter(null);
             applyLapCardMode(true);
             lapEmpty.setText(R.string.lap_none);
@@ -723,10 +796,8 @@ public class MainActivity extends Activity implements RideService.Listener {
         tvLapBadge.setVisibility(View.VISIBLE);
         tvLapBadge.setText(getString(R.string.lap_badge, idx));
         tvLapTitle.setText(getString(R.string.lap_current) + " " + idx);
-        tvLapDist.setText(Fmt.km(d));
-        tvLapTime.setText(Fmt.duration(cur == null ? 0 : cur.elapsedMs));
-        tvLapAvg.setText(Fmt.speed(mv > 0 ? (float) (d / (mv / 1000.0)) : 0f));
-        tvLapMoving.setText(Fmt.duration(mv));
+        isiNilaiSlot(slotLap, fieldsLap, service == null ? new RideStats() : service.getStats(),
+                elapsed, cur);
 
         List<Lap> done = service.getLaps();
         if (done.isEmpty()) {

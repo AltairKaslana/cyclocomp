@@ -190,7 +190,7 @@ public class OnboardingActivity extends Activity {
     }
 
     private void selesai() {
-        Settings.setOnboardingDone(this, true);
+        id.cyclocomp.Settings.setOnboardingDone(this, true);
         finish();
     }
 

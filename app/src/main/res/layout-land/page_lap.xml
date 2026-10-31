@@ -71,7 +71,7 @@
                         android:gravity="center"
                         android:orientation="vertical">
                         <TextView style="@style/Label" android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" android:text="@string/label_distance" />
+                            android:layout_height="wrap_content" android:id="@+id/lblL0" android:text="@string/label_distance" />
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -81,7 +81,7 @@
                             android:baselineAligned="false">
                             <TextView android:id="@+id/tvLapDist" style="@style/ValueBig"
                                 android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,00"/>
-                            <TextView style="@style/ValueUnit"
+                            <TextView android:id="@+id/unL0" style="@style/ValueUnit"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:paddingLeft="@dimen/gap_tight"
@@ -99,10 +99,15 @@
                         android:gravity="center"
                         android:orientation="vertical">
                         <TextView style="@style/Label" android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" android:text="@string/label_lap_time" />
+                            android:layout_height="wrap_content" android:id="@+id/lblL1" android:text="@string/label_lap_time" />
                         <TextView android:id="@+id/tvLapTime" style="@style/ValueBig"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00" />
+                <TextView android:id="@+id/unL1" style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:visibility="gone" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -124,7 +129,7 @@
                         android:gravity="center"
                         android:orientation="vertical">
                         <TextView style="@style/Label" android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" android:text="@string/label_lap_avg" />
+                            android:layout_height="wrap_content" android:id="@+id/lblL2" android:text="@string/label_lap_avg" />
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -134,7 +139,7 @@
                             android:baselineAligned="false">
                             <TextView android:id="@+id/tvLapAvg" style="@style/ValueSmall"
                                 android:layout_width="wrap_content" android:layout_height="wrap_content" android:tag="num" android:text="0,0"/>
-                            <TextView style="@style/ValueUnit"
+                            <TextView android:id="@+id/unL2" style="@style/ValueUnit"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:paddingLeft="@dimen/gap_tight"
@@ -152,10 +157,15 @@
                         android:gravity="center"
                         android:orientation="vertical">
                         <TextView style="@style/Label" android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" android:text="@string/label_lap_moving" />
+                            android:layout_height="wrap_content" android:id="@+id/lblL3" android:text="@string/label_lap_moving" />
                         <TextView android:id="@+id/tvLapMoving" style="@style/ValueSmall"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/gap_tight" android:tag="num" android:text="0:00" />
+                <TextView android:id="@+id/unL3" style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gap_tight"
+                    android:visibility="gone" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>

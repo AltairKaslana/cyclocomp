@@ -246,6 +246,28 @@
     <!-- T-09: this cell used to be labelled "CALORIES" too, while showing
          average power. Two neighbouring cells with the same label but
          different numbers is a duplicated label. -->
+    <!-- ===== Arrange screens (v1.1 N-02) ===== -->
+    <string name="atur_layar_title">Arrange screens</string>
+    <string name="atur_tab_glance">GLANCE</string>
+    <string name="atur_tab_detail">DETAIL</string>
+    <string name="atur_tab_lap">LAP</string>
+    <string name="atur_hint">Tap a cell, then pick a field below.</string>
+    <string name="atur_fields">AVAILABLE FIELDS</string>
+    <string name="atur_reset">Reset</string>
+    <string name="atur_save">Save</string>
+    <string name="atur_saved">Screen layout saved.</string>
+    <string name="atur_slot_count">cells</string>
+    <string name="atur_selected">selected</string>
+    <string name="atur_not_selected">not selected</string>
+    <string name="atur_slot_desc">Cell %1$d, %2$s, %3$s</string>
+    <string name="settings_atur_layar">Arrange screens</string>
+    <string name="sum_atur_layar">Choose which fields show on Glance, Detail, and Lap</string>
+    <string name="label_cadence">CADENCE</string>
+    <string name="label_power">POWER</string>
+    <string name="label_grade">GRADE</string>
+    <string name="label_clock">CLOCK</string>
+    <string name="label_battery">PHONE BATTERY</string>
+    <string name="unit_rpm">rpm</string>
     <string name="label_avg_power">AVG POWER</string>
     <string name="label_kcal_est">CALORIES\n(ESTIMATE)</string>
     <string name="label_power_est">AVG POWER\n(ESTIMATE)</string>
