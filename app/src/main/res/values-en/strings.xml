@@ -486,6 +486,8 @@
     <string name="nav_off_route">Off route</string>
     <string name="nav_wait">Waiting for GPS</string>
     <string name="nav_cd">%1$s, %2$s, %3$s km remaining</string>
+    <string name="nav_cd_wait">Waiting for GPS, %1$s km remaining</string>
+    <string name="nav_cd_off">Off route, %1$s km remaining</string>
     <string name="nav_route_desc">Route guide: travel direction always points up</string>
 
 </resources>

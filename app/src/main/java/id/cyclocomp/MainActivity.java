@@ -675,19 +675,25 @@ public class MainActivity extends Activity implements RideService.Listener {
         if (!adaFix) {
             navTurnDist.setText("—");
             navTurnDistUnit.setVisibility(View.GONE);
+            navRemain.setTextColor(getColor(R.color.label));
             navRemain.setText(R.string.nav_wait);
+            navCard.setContentDescription(getString(R.string.nav_cd_wait,
+                    Fmt.km(navSnap.remainM)));
         } else if (diLuar) {
             navTurnDist.setText("—");
             navTurnDistUnit.setVisibility(View.GONE);
+            navRemain.setTextColor(getColor(R.color.danger));
             navRemain.setText(R.string.nav_off_route);
+            navCard.setContentDescription(getString(R.string.nav_cd_off,
+                    Fmt.km(navSnap.remainM)));
         } else {
             isiJarakBelokan(navSnap.toTurnM);
+            navRemain.setTextColor(getColor(R.color.label));
             navRemain.setText(getString(R.string.nav_remain, Fmt.km(navSnap.remainM)));
+            navCard.setContentDescription(getString(R.string.nav_cd,
+                    arahBelokan(navSnap.turnDir), teksJarak(navSnap.toTurnM),
+                    Fmt.km(navSnap.remainM)));
         }
-
-        String jarak = (!adaFix || diLuar) ? "—" : teksJarak(navSnap.toTurnM);
-        navCard.setContentDescription(getString(R.string.nav_cd,
-                arahBelokan(navSnap.turnDir), jarak, Fmt.km(navSnap.remainM)));
         navRibbon.setSnap(navRoute, navSnap, diLuar);
     }
 

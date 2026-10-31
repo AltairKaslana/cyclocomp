@@ -184,7 +184,12 @@
 
     <!-- N-10: panduan rute impor. Muncul hanya saat gowes berjalan DAN ada rute;
          selama tampil, peta live di bawahnya disembunyikan - dua panel rute
-         sekaligus memakan ruang kecepatan tanpa menambah informasi. -->
+         sekaligus memakan ruang kecepatan tanpa menambah informasi.
+
+         AKSESIBILITAS: kartu ini diberi SATU kalimat lengkap lewat
+         contentDescription di MainActivity.updateNav, jadi semua anaknya
+         ditandai importantForAccessibility="no". Tanpa itu TalkBack membaca
+         kalimat itu lalu mengulang potongannya ("120", "m", "Sisa 8.50 km"). -->
     <LinearLayout
         android:id="@+id/navCard"
         android:layout_width="match_parent"
@@ -204,7 +209,8 @@
             <id.cyclocomp.TurnArrow
                 android:id="@+id/navArrow"
                 android:layout_width="@dimen/nav_arrow"
-                android:layout_height="@dimen/nav_arrow" />
+                android:layout_height="@dimen/nav_arrow"
+                android:importantForAccessibility="no" />
 
             <TextView
                 android:id="@+id/navTurnDist"
@@ -212,6 +218,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/gap_normal"
                 android:includeFontPadding="false"
+                android:importantForAccessibility="no"
+                android:maxLines="1"
                 android:tag="num"
                 android:textColor="@color/value"
                 android:textSize="@dimen/text_value_s" />
@@ -222,6 +230,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/gap_tight"
+                android:importantForAccessibility="no"
                 android:text="@string/unit_m"
                 android:visibility="gone" />
 
@@ -230,11 +239,17 @@
                 android:layout_height="1dp"
                 android:layout_weight="1" />
 
+            <!-- Warna teks berubah merah saat di luar rute (diatur di kode);
+                 bentuk/warna bukan satu-satunya penanda karena kalimatnya juga
+                 berubah jadi "Di luar rute". -->
             <TextView
                 android:id="@+id/navRemain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:importantForAccessibility="no"
                 android:includeFontPadding="false"
+                android:maxLines="1"
                 android:textColor="@color/label"
                 android:textSize="@dimen/text_caption" />
         </LinearLayout>
@@ -244,7 +259,8 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/glance_nav_h"
             android:layout_marginTop="@dimen/gap_normal"
-            android:contentDescription="@string/nav_route_desc" />
+            android:contentDescription="@string/nav_route_desc"
+            android:importantForAccessibility="no" />
     </LinearLayout>
 
     <!-- Peta live: rute yang sudah dilalui, di bawah kartu metrik (angka km).

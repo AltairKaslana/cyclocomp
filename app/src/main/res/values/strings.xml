@@ -500,6 +500,8 @@
     <string name="nav_off_route">Di luar rute</string>
     <string name="nav_wait">Mencari GPS</string>
     <string name="nav_cd">%1$s, %2$s, sisa %3$s km</string>
+    <string name="nav_cd_wait">Mencari GPS, sisa %1$s km</string>
+    <string name="nav_cd_off">Di luar rute, sisa %1$s km</string>
     <string name="nav_route_desc">Panduan rute: arah maju selalu ke atas</string>
 
 </resources>
