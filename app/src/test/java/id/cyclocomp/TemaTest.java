@@ -116,22 +116,21 @@ public class TemaTest {
     /**
      * Yang sempat rusak di lapangan: pilihan tersimpan tidak berubah walau
      * pengguna memilih yang lain, jadi palet mengikuti pilihan lama di kedua
-     * arah dan tema terasa macet. Tes ini menjaga jalur simpan-baca itu:
-     * apa pun yang ditulis HARUS terbaca kembali.
+     * arah dan tema terasa macet.
+     *
+     * Penulisan tema sekarang mengembalikan keputusan "berhasil atau tidak"
+     * lewat {@link Tema#tulisBerhasil}, dan itu yang diuji di sini - murni,
+     * tanpa perangkat. commit() yang gagal tidak boleh dianggap berhasil:
+     * dulu nilai baliknya diabaikan, sehingga pilihan yang gagal ditulis
+     * terlihat sama dengan yang berhasil.
      */
     @Test
-    public void pilihanTersimpanHarusTerbacaKembali() {
-        android.content.Context c = new android.content.Context();
-
-        Settings.setTheme(c, false);
-        assertFalse("pilih gelap harus tersimpan", Settings.theme(c));
-
-        Settings.setTheme(c, true);
-        assertTrue("pilih siang harus tersimpan", Settings.theme(c));
-
-        Settings.setTheme(c, false);
-        assertFalse("kembali ke gelap harus tersimpan - arah ini yang dulu macet",
-                Settings.theme(c));
+    public void penulisanYangGagalTidakDianggapBerhasil() {
+        assertTrue(Tema.tulisBerhasil(true, true));
+        assertFalse("commit() gagal = belum tersimpan", Tema.tulisBerhasil(false, true));
+        assertFalse("commit() 'berhasil' tapi tak terbaca = belum tersimpan",
+                Tema.tulisBerhasil(true, false));
+        assertFalse(Tema.tulisBerhasil(false, false));
     }
 
     /** Palet mengikuti pilihan, di KEDUA arah - tidak ada arah yang diistimewakan. */

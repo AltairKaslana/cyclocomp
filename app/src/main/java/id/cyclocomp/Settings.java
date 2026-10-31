@@ -156,8 +156,8 @@ final class Settings {
         // yang menentukan bukan "semoga berhasil", tapi apa yang benar-benar
         // terbaca sesudahnya.
         for (int i = 0; i < 2; i++) {
-            if (sp(c).edit().putBoolean(K_THEME, v).commit()
-                    && sp(c).getBoolean(K_THEME, !v) == v) {
+            if (Tema.tulisBerhasil(sp(c).edit().putBoolean(K_THEME, v).commit(),
+                    sp(c).getBoolean(K_THEME, !v) == v)) {
                 return;
             }
         }

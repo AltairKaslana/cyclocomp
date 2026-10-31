@@ -139,6 +139,22 @@ final class Tema {
 
     private static int pasangUlangProses;
 
+    /**
+     * Keputusan murni: penulisan pilihan tema ini boleh dianggap berhasil?
+     *
+     * commit() mengembalikan false kalau penulisan gagal, dan bisa juga
+     * "berhasil" tapi nilainya tidak terbaca kembali. Dulu nilai baliknya
+     * diabaikan, sehingga pilihan yang gagal ditulis terlihat sama dengan
+     * yang berhasil: pengguna menekan "Gelap", layar dibangun ulang, temanya
+     * tetap siang - tanpa ada penjelasan di mana pun.
+     *
+     * Dipisah dari {@link Settings#setTheme} supaya bisa diuji tanpa
+     * perangkat: yang diuji di sini cuma keputusan, bukan penyimpanan.
+     */
+    static boolean tulisBerhasil(boolean commitOk, boolean terbacaSesuai) {
+        return commitOk && terbacaSesuai;
+    }
+
     /** Bungkus konteks dasar sebuah aktivitas supaya warnanya sesuai pilihan. */
     static Context bungkus(Context base) {
         if (base == null) return null;
