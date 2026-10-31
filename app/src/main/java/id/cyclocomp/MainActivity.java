@@ -426,6 +426,8 @@ public class MainActivity extends Activity implements RideService.Listener {
         // menekan kembali, layar ini (yang masih hidup) ikut palet baru. Lihat
         // Tema.perbaikiKalauPerlu.
         Tema.perbaikiKalauPerlu(this);
+        // SEMENTARA - diagnosa tema, sama seperti di layar Pengaturan.
+        android.widget.Toast.makeText(this, Tema.diagnostik(this), android.widget.Toast.LENGTH_LONG).show();
         bound = bindService(new Intent(this, RideService.class), conn, Context.BIND_AUTO_CREATE);
         // Susunan bidang bisa berubah di layar Atur layar; onStart (bukan
         // onCreate) supaya perubahan itu terlihat juga saat pengguna menekan

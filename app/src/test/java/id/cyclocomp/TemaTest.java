@@ -97,30 +97,17 @@ public class TemaTest {
         assertFalse(Tema.perluPasangUlang(false, false));
     }
 
-    // ---------- "sekali saja" supaya tidak jadi loop ----------
+    // ---------- batas pemasangan ulang supaya tidak jadi loop ----------
 
     @Test
-    public void perbaikanHanyaSekaliPerLayar() {
-        Tema.Sekali sekali = new Tema.Sekali();
-        Object layar = new Object();
-
-        assertTrue("pemanggilan pertama boleh", sekali.boleh(layar));
-        assertFalse("pemanggilan kedua tidak boleh - kalau tidak, loop tanpa akhir",
-                sekali.boleh(layar));
-        assertFalse(sekali.boleh(layar));
-    }
-
-    @Test
-    public void layarBerbedaDihitungTerpisah() {
-        Tema.Sekali sekali = new Tema.Sekali();
-        assertTrue(sekali.boleh(new Object()));
-        assertTrue(sekali.boleh(new Object()));
-    }
-
-    @Test
-    public void kunciKosongTidakMemblokir() {
-        Tema.Sekali sekali = new Tema.Sekali();
-        assertTrue(sekali.boleh(null));
-        assertTrue(sekali.boleh(null));
+    public void pemasanganUlangTerbatasPerProses() {
+        // Percobaan lama memakai kunci objek aktivitas. Itu tidak menahan apa
+        // pun: recreate() menghasilkan aktivitas BARU, jadi kuncinya baru dan
+        // "sekali" tidak lagi sekali. Batas harus dihitung per proses.
+        assertTrue(Tema.bolehPasangUlag(0));
+        assertTrue(Tema.bolehPasangUlag(Tema.MAKS_PASANG_ULANG - 1));
+        assertFalse("setelah batas, jangan berkedip tanpa berhenti",
+                Tema.bolehPasangUlag(Tema.MAKS_PASANG_ULANG));
+        assertFalse(Tema.bolehPasangUlag(Tema.MAKS_PASANG_ULANG + 5));
     }
 }

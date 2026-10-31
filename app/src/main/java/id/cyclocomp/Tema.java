@@ -57,9 +57,6 @@ final class Tema {
      */
     private static Boolean pilihanProses;
 
-    /** Layar yang sudah pernah dibangun ulang karena paletnya tidak cocok. */
-    private static final Sekali sudahPasangUlang = new Sekali();
-
     private Tema(){}
 
     /**
@@ -104,21 +101,41 @@ final class Tema {
      * Kalau palet yang terpasang pada layar ini tidak sama dengan pilihan
      * tersimpan, bangun ulang layar SEKALI.
      *
-     * Dipakai dari onStart layar utama. Dua hal yang dijaga:
+     * Dipakai dari onStart. Dua hal yang dijaga:
      *   1. Layar yang masih hidup di tumpukan belakang ikut palet baru.
      *   2. Kalau recreate() di sebagian perangkat tidak memasang ulang konteks,
      *      palet tetap akhirnya mengikuti pilihan pengguna.
      *
-     * Sekali saja per layar (lihat {@link Sekali}): kalau pemasangan palet gagal
-     * sama sekali, perbaikan tidak boleh jadi pengulangan tanpa akhir - satu
-     * recreate per kunjungan sudah cukup, dan aplikasi tetap bisa dipakai.
+     * BATAS JUMLAH, BUKAN SEKALI PER LAYAR. Percobaan pertama memakai kunci
+     * berupa objek aktivitas, dan itu tidak menahan apa pun: recreate()
+     * menghasilkan aktivitas BARU, jadi kuncinya baru dan "sekali" tidak lagi
+     * sekali. Kalau palet sama sekali tidak bisa dipasang, hasilnya bukan
+     * perbaikan tapi layar yang berkedip tanpa berhenti. Karena itu
+     * dibatasi per PROSES: paling banyak dua kali per palet yang berubah -
+     * cukup untuk memperbaiki layar di tumpukan belakang, dan tidak mungkin
+     * jadi pengulangan tanpa akhir.
      */
     static void perbaikiKalauPerlu(Activity a) {
         if (a == null || a.isFinishing()) return;
         if (!perluPasangUlang(sedangTerang(a), Settings.theme(a))) return;
-        if (!sudahPasangUlang.boleh(a)) return;
+        if (!bolehPasangUlag(pasangUlangProses)) return;
+        pasangUlangProses++;
         a.recreate();
     }
+
+    /**
+     * Keputusan murni: bolehkah memasang ulang lagi, kalau sudah sebanyak ini.
+     * Dipisah dari {@link #perbaikiKalauPerlu} supaya batasnya bisa diuji
+     * tanpa perangkat.
+     */
+    static boolean bolehPasangUlag(int sudahBerapa) {
+        return sudahBerapa < MAKS_PASANG_ULANG;
+    }
+
+    /** Batas keras pemasangan ulang otomatis per proses. Lihat di atas. */
+    static final int MAKS_PASANG_ULANG = 2;
+
+    private static int pasangUlangProses;
 
     /** Bungkus konteks dasar sebuah aktivitas supaya warnanya sesuai pilihan. */
     static Context bungkus(Context base) {
@@ -182,6 +199,23 @@ final class Tema {
             // aplikasi tidak boleh mati karena urusan warna.
             android.content.res.Resources res = c.getResources();
             res.updateConfiguration(cfg, null);
+
+            // LAPIS KEDUA: Resources milik PROSES.
+            //
+            // Di beberapa perangkat Resources yang dipakai layar BUKAN yang
+            // dikembalikan konteks di atas, melainkan milik proses - sehingga
+            // memaksa konteksnya saja tidak mengubah apa pun. Aplikasi ini
+            // cuma punya SATU palet untuk seluruh layar, jadi memaksa konteks
+            // proses bukan efek samping yang meruginkan: justru yang
+            // diinginkan. Kegagalan di sini diabaikan diam-diam.
+            try {
+                Context app = base.getApplicationContext();
+                if (app != null && app != base) {
+                    app.getResources().updateConfiguration(cfg, null);
+                }
+            } catch (Throwable diabaikan) {
+                // Sengaja kosong: lapis ini cadangan, bukan syarat.
+            }
             return c;
         } catch (Throwable t) {
             // Lihat catatan kelas: gagal lembut, jangan sampai aplikasi mati.
@@ -190,21 +224,30 @@ final class Tema {
     }
 
     /**
-     * "Sekali saja per kunci."
+     * Kalimat ringkas berisi apa yang BENAR-BENAR terpasang pada sebuah layar -
+     * bukan pilihan tersimpan.
      *
-     * Kuncinya objek apa pun (dipakai: aktivitas), dan tidak ditahan kuat -
-     * WeakHashMap supaya aktivitas yang sudah ditutup bisa dibuang. Dipisah
-     * dari Activity supaya aturannya bisa diuji tanpa perangkat.
+     * Dipakai untuk mencari sebab masalah lapangan. Kalau palet tidak berganti
+     * padahal pilihan sudah benar, kalimat ini menunjukkan tepat di lapisan
+     * mana putusnya:
+     *   - pilih dan pasang BERBEDA = pilihan tersimpan tidak terbaca saat
+     *     layar dibangun;
+     *   - pasang dan bg BERBEDA = layar tidak memakai Resources yang dipaksa;
+     *   - keduanya sama tapi layar tetap salah = warnanya bukan dari berkas
+     *     warna, dan pencariannya pindah ke layout/drawable.
      */
-    static final class Sekali {
-        private final WeakHashMap<Object, Boolean> tanda = new WeakHashMap<Object, Boolean>();
-
-        /** true = belum pernah dicoba untuk kunci ini (dan mulai sekarang sudah). */
-        boolean boleh(Object kunci) {
-            if (kunci == null) return true;
-            if (Boolean.TRUE.equals(tanda.get(kunci))) return false;
-            tanda.put(kunci, Boolean.TRUE);
-            return true;
+    static String diagnostik(Context c) {
+        if (c == null) return "layar=null";
+        StringBuilder sb = new StringBuilder("TEMA pilih=");
+        sb.append(Settings.theme(c) ? "SIANG" : "GELAP");
+        sb.append(" pasang=").append(sedangTerang(c) ? "SIANG" : "GELAP");
+        sb.append(" uiMode=0x").append(Integer.toHexString(c.getResources().getConfiguration().uiMode));
+        try {
+            sb.append(" bg=#").append(Integer.toHexString(c.getResources().getColor(R.color.bg) & 0xFFFFFF));
+        } catch (Throwable diabaikan) {
+            // Sengaja kosong: kalimat diagnostik tidak boleh bikin crash.
         }
+        return sb.toString();
     }
+
 }

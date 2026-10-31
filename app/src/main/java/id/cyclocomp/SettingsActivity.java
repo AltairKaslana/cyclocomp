@@ -66,6 +66,11 @@ public class SettingsActivity extends Activity {
     protected void onStart() {
         super.onStart();
         Tema.perbaikiKalauPerlu(this);
+        // SEMENTARA - diagnosa tema. Kalimat ini menunjukkan apa yang
+        // BENAR-BENAR terpasang, bukan pilihan tersimpan, supaya kalau palet
+        // tidak berganti kita tahu tepat di lapisan mana putusnya. Dibuang lagi
+        // sesudah penyebabnya ditemukan.
+        android.widget.Toast.makeText(this, Tema.diagnostik(this), android.widget.Toast.LENGTH_LONG).show();
     }
 
     /**
