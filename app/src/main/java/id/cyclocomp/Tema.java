@@ -28,37 +28,37 @@ import java.util.WeakHashMap;
  * yang berbeda. Jadi setiap aktivitas membungkus konteks dasarnya supaya
  * penanda malam-nya DIPAKSA, apa pun yang diatur perangkat.
  *
+ * KENAPA PALET JUGA DIPERIKSA ULANG DI onStart
+ * Menekan sakelar tema saja tidak cukup. Aktivitas yang masih hidup di tumpukan
+ * belakang (mis. layar utama saat pengguna menekan kembali dari Pengaturan)
+ * tidak ikut berganti, dan di sebagian perangkat recreate() tidak memasang
+ * ulang konteks seperti yang diharapkan. Gejalanya di lapangan halus dan
+ * membingungkan: sakelar tema terasa MACET - pilih siang bisa, balik ke gelap
+ * tidak kelihatan. Karena itu pilihan pengguna selalu yang menang: kalau palet
+ * yang terpasang berbeda dengan pilihan tersimpan, layar dibangun ulang. Lihat
+ * {@link #perbaikiKalauPerlu}.
+ *
  * KALAU MEKANISME INI GAGAL
  * Semua dibungkus try/catch dan gagal dengan LEMBUT: aplikasi tetap terbuka
  * dengan palet bawaan perangkat. Tema yang tidak berubah jauh lebih baik
- * daripada aplikasi yang tidak mau terbuka sama sekali. Konsekuensinya kalau
- * mekanismenya tidak jalan di perangkat tertentu, sakelar "Tema terang" terasa
- * tidak melakukan apa-apa - dan itu memang yang terjadi, bukan aplikasi yang
- * rusak.
+ * daripada aplikasi yang tidak mau terbuka sama sekali.
  */
 final class Tema {
     /**
-     * Pilihan tema yang sedang berlaku di proses ini.
-     *
-     * Diisi saat layar memasang palet (lihat {@link #bungkus}), dan diganti
-     * seketika saat pengguna menekan sakelar (lihat {@link #terapkan}).
+     * Pilihan tema yang diubah di proses ini, atau null kalau belum ada yang
+     * mengubah.
      *
      * Kenapa ikut disimpan di memori dan tidak cukup dari SharedPreferences:
-     * penulisan SharedPreferences dengan apply() berjalan di thread lain, dan
-     * sebagian perangkat mengembalikan nilai LAMA sesaat sesudah itu. Kalau
-     * layar baru membaca pilihan tepat di attachBaseContext dan kebetulan
-     * mendapat nilai lama, layar itu terbangun dengan palet yang salah -
-     * gejalanya persis sakelar tema yang "macet": pilih terang bisa, tapi balik
-     * ke gelap tidak terlihat. Penanda ini selalu nilai terbaru.
+     * penulisan preferensi bisa berjalan di thread lain, dan sebagian perangkat
+     * masih mengembalikan nilai LAMA sesaat sesudahnya. Kalau layar baru
+     * membaca pilihan tepat di attachBaseContext dan kebetulan mendapat nilai
+     * lama, layar itu terbangun dengan palet yang salah. Penanda ini dibuat
+     * seketika saat sakelar ditekan, jadi tidak mungkin tertinggal.
      */
-    private static boolean terangTerpasang;
+    private static Boolean pilihanProses;
 
-    /**
-     * Layar yang sudah pernah dipasang ulang karena paletnya tidak cocok.
-     * WeakHashMap supaya tidak menahan aktivitas yang sudah ditutup.
-     */
-    private static final WeakHashMap<Activity, Boolean> sudahPasangUlang =
-            new WeakHashMap<Activity, Boolean>();
+    /** Layar yang sudah pernah dibangun ulang karena paletnya tidak cocok. */
+    private static final Sekali sudahPasangUlang = new Sekali();
 
     private Tema(){}
 
@@ -70,19 +70,34 @@ final class Tema {
      * memakai palet baru, tidak peduli apa yang masih tertulis di disk.
      */
     static void terapkan(Context c, boolean terang) {
-        terangTerpasang = terang;
+        pilihanProses = Boolean.valueOf(terang);
         Settings.setTheme(c, terang);
     }
 
-    /**
-     * Palet yang BENAR-BENAR terpasang pada konteks ini - bukan pilihan
-     * tersimpan. Bedanya penting: kalau pemasangan ulang gagal, keduanya
-     * berbeda, dan itu yang harus diperbaiki (lihat
-     * {@link #perbaikiKalauPerlu}), bukan disembunyikan.
-     */
+    /** Palet yang BENAR-BENAR terpasang pada konteks ini - bukan pilihan tersimpan. */
     static boolean sedangTerang(Context c) {
-        int malam = c.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        return malam == Configuration.UI_MODE_NIGHT_NO;
+        return terangDariPenanda(c.getResources().getConfiguration().uiMode);
+    }
+
+    /**
+     * Penanda malam pada Configuration dikodekan di bit 4-5. Yang dipakai hanya
+     * dua bit itu; bit lain (tipe layar, kerapatan) tidak boleh mengubah
+     * hasilnya. Dipisah dari {@link #sedangTerang} supaya bisa diuji tanpa
+     * perangkat.
+     */
+    static boolean terangDariPenanda(int uiMode) {
+        return (uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO;
+    }
+
+    /**
+     * Keputusan murni: palet yang terpasang vs pilihan tersimpan. Berbeda =
+     * layar harus dibangun ulang. Sengaja diekspresikan sebagai "tidak sama",
+     * bukan "kalau gelap paksa gelap": yang diperbaiki adalah KETIDAKSESUAIAN,
+     * jadi tidak ada arah yang diistimewakan - macet ke siang dan macet ke
+     * gelap sama-sama tertangkap.
+     */
+    static boolean perluPasangUlang(boolean terpasangTerang, boolean pilihanTerang) {
+        return terpasangTerang != pilihanTerang;
     }
 
     /**
@@ -90,28 +105,26 @@ final class Tema {
      * tersimpan, bangun ulang layar SEKALI.
      *
      * Dipakai dari onStart layar utama. Dua hal yang dijaga:
-     *   1. Layar yang masih hidup di tumpukan belakang (mis. layar utama saat
-     *      pengguna menekan kembali dari Pengaturan) ikut palet baru.
+     *   1. Layar yang masih hidup di tumpukan belakang ikut palet baru.
      *   2. Kalau recreate() di sebagian perangkat tidak memasang ulang konteks,
      *      palet tetap akhirnya mengikuti pilihan pengguna.
      *
-     * Sekali saja per layar (sudahPasangUlang): kalau pemasangan palet gagal
+     * Sekali saja per layar (lihat {@link Sekali}): kalau pemasangan palet gagal
      * sama sekali, perbaikan tidak boleh jadi pengulangan tanpa akhir - satu
      * recreate per kunjungan sudah cukup, dan aplikasi tetap bisa dipakai.
      */
     static void perbaikiKalauPerlu(Activity a) {
         if (a == null || a.isFinishing()) return;
-        if (sedangTerang(a) == Settings.theme(a)) return;
-        if (Boolean.TRUE.equals(sudahPasangUlang.get(a))) return;
-        sudahPasangUlang.put(a, Boolean.TRUE);
+        if (!perluPasangUlang(sedangTerang(a), Settings.theme(a))) return;
+        if (!sudahPasangUlang.boleh(a)) return;
         a.recreate();
     }
 
     /** Bungkus konteks dasar sebuah aktivitas supaya warnanya sesuai pilihan. */
     static Context bungkus(Context base) {
         if (base == null) return null;
-        terangTerpasang = Settings.theme(base);
-        return paksa(base, terangTerpasang);
+        boolean terang = pilihanProses != null ? pilihanProses.booleanValue() : Settings.theme(base);
+        return paksa(base, terang);
     }
 
     /**
@@ -137,6 +150,25 @@ final class Tema {
         } catch (Throwable t) {
             // Lihat catatan kelas: gagal lembut, jangan sampai aplikasi mati.
             return base;
+        }
+    }
+
+    /**
+     * "Sekali saja per kunci."
+     *
+     * Kuncinya objek apa pun (dipakai: aktivitas), dan tidak ditahan kuat -
+     * WeakHashMap supaya aktivitas yang sudah ditutup bisa dibuang. Dipisah
+     * dari Activity supaya aturannya bisa diuji tanpa perangkat.
+     */
+    static final class Sekali {
+        private final WeakHashMap<Object, Boolean> tanda = new WeakHashMap<Object, Boolean>();
+
+        /** true = belum pernah dicoba untuk kunci ini (dan mulai sekarang sudah). */
+        boolean boleh(Object kunci) {
+            if (kunci == null) return true;
+            if (Boolean.TRUE.equals(tanda.get(kunci))) return false;
+            tanda.put(kunci, Boolean.TRUE);
+            return true;
         }
     }
 }

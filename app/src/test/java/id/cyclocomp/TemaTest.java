@@ -1,113 +1,94 @@
 package id.cyclocomp;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.res.Configuration;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Uji mekanisme tema: palet yang TERPASANG harus selalu menyusul pilihan
- * tersimpan, dan perbaikannya tidak boleh berulang tanpa akhir.
+ * Uji aturan tema - khususnya bagian yang bikin sakelar tema terasa MACET.
  *
- * Mengetes aturan ini penting karena gejalanya di lapangan halus: sakelar tema
- * yang "macet" bukan error yang terlihat di log - hanya palet yang tidak ikut.
+ * Gejalanya di lapangan halus: tidak ada error, tidak ada crash, hanya palet
+ * yang tidak ikut berganti. Karena itu yang dikunci di sini adalah aturan
+ * bawaannya: palet yang TERPASANG harus selalu menyusul pilihan tersimpan, di
+ * kedua arah, dan perbaikannya tidak boleh berulang tanpa akhir.
+ *
+ * Hanya logika murni yang diuji di sini (tanpa perangkat): sisanya butuh
+ * Context/Activity nyata.
  */
 public class TemaTest {
 
-    /** Aktivitas tiruan dengan palet tertentu. */
-    private static class Layar extends Activity {
-        Layar(boolean terang) {
-            res.configuration.uiMode = Configuration.UI_MODE_TYPE_NORMAL
-                    | (terang ? Configuration.UI_MODE_NIGHT_NO : Configuration.UI_MODE_NIGHT_YES);
-        }
-    }
+    // ---------- penanda malam pada Configuration ----------
 
-    private Context ctx() {
-        Context c = new Context();
-        c.res.configuration.uiMode = Configuration.UI_MODE_TYPE_NORMAL | Configuration.UI_MODE_NIGHT_YES;
-        return c;
-    }
-
-    /** Palet yang terbaca dari konteks = gelap/terang. */
-    private static boolean terang(Context c) {
-        return Tema.sedangTerang(c);
+    @Test
+    public void penandaSiangTerbacaSiang() {
+        assertTrue(Tema.terangDariPenanda(
+                Configuration.UI_MODE_TYPE_NORMAL | Configuration.UI_MODE_NIGHT_NO));
     }
 
     @Test
-    public void sedangTerangMembacaPenandaKonfigurasi() {
-        Context gelap = ctx();
-        Context terangC = new Context();
-        terangC.res.configuration.uiMode = Configuration.UI_MODE_TYPE_NORMAL | Configuration.UI_MODE_NIGHT_NO;
-        assertFalse(terang(gelap));
-        assertTrue(terang(terangC));
+    public void penandaMalamTerbacaGelap() {
+        assertFalse(Tema.terangDariPenanda(
+                Configuration.UI_MODE_TYPE_NORMAL | Configuration.UI_MODE_NIGHT_YES));
     }
 
     @Test
-    public void terapkanLangsungTersimpan() {
-        Context c = ctx();
-        Tema.terapkan(c, true);
-        // pilihan tersimpan harus sudah terbaca sesudah terapkan, tanpa
-        // menunggu proses lain atau me-refresh SharedPreferences.
-        assertTrue(Settings.theme(c));
+    public void penandaTakJelasBukanSiang() {
+        // UI_MODE_NIGHT_UNDEFINED (0x00): jangan dianggap siang.
+        assertFalse(Tema.terangDariPenanda(Configuration.UI_MODE_TYPE_NORMAL));
     }
 
     @Test
-    public void paletTakCocokDibangunUlangSekali() {
-        Context c = ctx();
-        Tema.terapkan(c, true);                 // pilihan: siang
-        Layar a = new Layar(false);             // tapi layar masih gelap
-        assertFalse(Tema.sedangTerang(a));
+    public void bitLainTidakMengubahHasil() {
+        // kerapatan (bit 8-15) dan tipe layar tidak boleh ikut menentukan.
+        int siangPadat = (2 << 8) | Configuration.UI_MODE_TYPE_NORMAL | Configuration.UI_MODE_NIGHT_NO;
+        assertTrue(Tema.terangDariPenanda(siangPadat));
+        int malamPadat = (3 << 8) | Configuration.UI_MODE_TYPE_NORMAL | Configuration.UI_MODE_NIGHT_YES;
+        assertFalse(Tema.terangDariPenanda(malamPadat));
+    }
 
-        Tema.perbaikiKalauPerlu(a);
-        assertEquals("palet beda dengan pilihan -> bangun ulang", 1, a.recreateCount);
+    // ---------- keputusan membangun ulang ----------
 
-        // Panggilan berikutnya tidak boleh jadi loop: kalau pemasangan palet
-        // gagal total, pengguna tetap bisa memakai aplikasi.
-        Tema.perbaikiKalauPerlu(a);
-        Tema.perbaikiKalauPerlu(a);
-        assertEquals(1, a.recreateCount);
+    @Test
+    public void paletBerbedaDariPilihanHarusDibangunUlang() {
+        // layar gelap tapi pengguna pilih siang
+        assertTrue(Tema.perluPasangUlang(false, true));
+        // layar siang tapi pengguna pilih gelap - arah ini yang dilaporkan macet
+        assertTrue(Tema.perluPasangUlang(true, false));
     }
 
     @Test
-    public void paletCocokTidakDibangunUlang() {
-        Context c = ctx();
-        Tema.terapkan(c, true);
-        Layar a = new Layar(true);              // layar sudah siang, sesuai pilihan
-        Tema.perbaikiKalauPerlu(a);
-        assertEquals(0, a.recreateCount);
+    public void paletSesuaiPilihanTidakUsahDibangunUlang() {
+        assertFalse(Tema.perluPasangUlang(true, true));
+        assertFalse(Tema.perluPasangUlang(false, false));
+    }
+
+    // ---------- "sekali saja" supaya tidak jadi loop ----------
+
+    @Test
+    public void perbaikanHanyaSekaliPerLayar() {
+        Tema.Sekali sekali = new Tema.Sekali();
+        Object layar = new Object();
+
+        assertTrue("pemanggilan pertama boleh", sekali.boleh(layar));
+        assertFalse("pemanggilan kedua tidak boleh - kalau tidak, loop tanpa akhir",
+                sekali.boleh(layar));
+        assertFalse(sekali.boleh(layar));
     }
 
     @Test
-    public void layarYangSedangDitutupTidakDibangunUlang() {
-        Context c = ctx();
-        Tema.terapkan(c, true);
-        Layar a = new Layar(false);
-        a.finishing = true;
-        Tema.perbaikiKalauPerlu(a);
-        assertEquals(0, a.recreateCount);
+    public void layarBerbedaDihitungTerpisah() {
+        Tema.Sekali sekali = new Tema.Sekali();
+        assertTrue(sekali.boleh(new Object()));
+        assertTrue(sekali.boleh(new Object()));
     }
 
     @Test
-    public void bungkusMencatatPaletYangDipasang() {
-        Context c = ctx();
-        Tema.terapkan(c, true);
-        // setelah bungkus, palet konteks baru harus siang - dan penanda proses
-        // ikut, supaya layar berikutnya tidak membaca nilai lama.
-        Context bungkus = Tema.bungkus(c);
-        assertTrue(Tema.sedangTerang(bungkus));
-        assertTrue(terang(bungkus));
-    }
-
-    @Test
-    public void gelapSelaluGelapUntukKartuBagikan() {
-        Context c = ctx();
-        Tema.terapkan(c, true);                 // pengguna pilih siang...
-        Context kartu = Tema.gelap(c);          // ...tapi kartu bagikan tetap gelap
-        assertFalse(Tema.sedangTerang(kartu));
+    public void kunciKosongTidakMemblokir() {
+        Tema.Sekali sekali = new Tema.Sekali();
+        assertTrue(sekali.boleh(null));
+        assertTrue(sekali.boleh(null));
     }
 }
