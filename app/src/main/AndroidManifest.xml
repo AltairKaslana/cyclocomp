@@ -63,6 +63,16 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <!--
+          Onboarding 3 langkah (lokasi, baterai, sensor). Dijalankan dari
+          MainActivity saat pertama kali dibuka; tidak pernah jadi layar tujuan
+          dari luar aplikasi, jadi exported=false dan portrait.
+        -->
+        <activity
+            android:name=".OnboardingActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".SummaryActivity"
             android:exported="false"

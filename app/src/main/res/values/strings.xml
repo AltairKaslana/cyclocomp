@@ -106,6 +106,22 @@
     <string name="batt_title">Biarkan aplikasi merekam terus</string>
     <string name="batt_msg">Android bisa menghentikan perekaman di latar belakang untuk menghemat baterai.\n\nPilih "Buka pengaturan" lalu setel Zylo menjadi "Tidak dibatasi" (atau "Jangan optimalkan"). Kalau dilewati, rekaman tetap jalan tapi berisiko terhenti sendiri.</string>
     <string name="batt_open">Buka pengaturan</string>
+    <!-- ===== onboarding 3 langkah (v1.1 N-01) ===== -->
+    <string name="onb_lewati">Lewati</string>
+    <string name="onb_kembali">Kembali</string>
+    <string name="onb_lanjut">Lanjut</string>
+    <string name="onb_izinkan_lokasi">Izinkan lokasi</string>
+    <string name="onb_buka_pengaturan">Buka pengaturan baterai</string>
+    <string name="onb_mulai">Mulai gowes</string>
+    <string name="onb_lokasi_judul">Satu izin, satu kali</string>
+    <string name="onb_lokasi_isi">Zylo memakai GPS untuk mengukur jarak, kecepatan, dan tanjakan. Lokasi hanya dipakai saat kamu menekan MULAI - tidak ada pengiriman ke mana pun.</string>
+    <string name="onb_baterai_judul">Agar rekaman tidak dihentikan sistem</string>
+    <string name="onb_baterai_isi">Izinkan Zylo berjalan tanpa pembatasan baterai. Kalau dilewati, Android bisa menghentikan perekaman di tengah jalan.</string>
+    <string name="onb_sensor_judul">Punya sensor detak atau kadensi?</string>
+    <string name="onb_sensor_isi">Boleh nanti - hubungkan kapan saja lewat Pengaturan. Tanpa sensor pun kecepatan, jarak, dan waktu tetap tercatat dari GPS.</string>
+    <string name="onb_lokasi_ikon">Ikon lokasi</string>
+    <string name="onb_baterai_ikon">Ikon baterai</string>
+    <string name="onb_sensor_ikon">Ikon sensor</string>
     <string name="batt_skip">Lewati</string>
 
     <!-- pengaturan -->

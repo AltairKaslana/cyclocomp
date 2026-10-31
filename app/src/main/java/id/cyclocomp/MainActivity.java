@@ -100,6 +100,18 @@ public class MainActivity extends Activity implements RideService.Listener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Onboarding 3 langkah: hanya sekali, hanya kalau memang ada yang perlu
+        // ditanyakan (izin lokasi belum diberikan atau baterai belum
+        // dikecualikan). Pengguna yang sudah melewatinya tidak akan melihatnya
+        // lagi, dan yang semuanya sudah beres tidak diganggu sama sekali.
+        if (Onboarding.layakDitampilkan(Settings.onboardingDone(this),
+                checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED,
+                bateraiDikecualikan())) {
+            startActivity(new Intent(this, OnboardingActivity.class));
+        }
+
         setContentView(R.layout.activity_main);
 
         // Dibuat di onCreate, BUKAN di konstruktor: konstruktor Activity jalan sebelum

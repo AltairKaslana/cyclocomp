@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Langkah 1: izin lokasi. Tanpa ini aplikasi tidak bisa merekam apa pun. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="320dp"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="@string/onb_lokasi_ikon"
+            android:src="@drawable/ic_onb_location" />
+
+        <TextView
+            style="@style/ValueBig"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/gap_roomy"
+            android:gravity="center"
+            android:text="@string/onb_lokasi_judul"
+            android:textAlignment="center" />
+
+        <TextView
+            style="@style/Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/gap_snug"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:text="@string/onb_lokasi_isi"
+            android:textAlignment="center"
+            android:textSize="15sp" />
+    </LinearLayout>
+</ScrollView>

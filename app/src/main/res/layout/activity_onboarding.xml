@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Onboarding 3 langkah (rancangan UI/UX 5.2).
+
+  Sengaja TANPA ViewPager: proyek ini tanpa dependency selain junit, dan
+  ViewPager itu androidx. Geser antar langkah ditangani GestureDetector di
+  OnboardingActivity - tiga halaman statis, jadi itu sudah lebih dari cukup.
+
+  Kedalaman view di sini 6 tingkat (root > baris > wadah > kartu > kolom > teks),
+  masih di bawah batas 7 per layar.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:orientation="vertical">
+
+    <!-- ===== baris atas: lewati ===== -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_bar_h"
+        android:paddingLeft="@dimen/gap_snug"
+        android:paddingRight="@dimen/screen_edge">
+
+        <ImageButton
+            android:id="@+id/btnSkip"
+            style="@style/IconBtn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical|right"
+            android:contentDescription="@string/onb_lewati"
+            android:src="@drawable/ic_close" />
+    </FrameLayout>
+
+    <!-- ===== isi: tiga halaman, satu terlihat ===== -->
+    <FrameLayout
+        android:id="@+id/onbPages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingLeft="@dimen/screen_edge"
+        android:paddingRight="@dimen/screen_edge">
+
+        <include
+            android:id="@+id/onbPage0"
+            layout="@layout/page_onb_location"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <include
+            android:id="@+id/onbPage1"
+            layout="@layout/page_onb_battery"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <include
+            android:id="@+id/onbPage2"
+            layout="@layout/page_onb_sensor"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <!-- ===== indikator langkah =====
+         Pola sama dengan indikator halaman di dashboard: titik yang bisa
+         diketuk (48dp) dengan garis 3dp di tengahnya. -->
+    <LinearLayout
+        android:id="@+id/onbDots"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" />
+
+    <!-- ===== baris aksi ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/screen_edge"
+        android:paddingRight="@dimen/screen_edge"
+        android:paddingBottom="@dimen/gap_wide">
+
+        <Button
+            android:id="@+id/btnBack"
+            style="@style/ActionBtn"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/btn_action_h"
+            android:text="@string/onb_kembali" />
+
+        <Button
+            android:id="@+id/btnNext"
+            style="@style/ActionBtnPrimary"
+            android:layout_width="0dp"
+            android:layout_weight="1.5"
+            android:layout_height="@dimen/btn_action_h"
+            android:layout_marginLeft="@dimen/gap_loose"
+            android:text="@string/onb_izinkan_lokasi" />
+    </LinearLayout>
+</LinearLayout>

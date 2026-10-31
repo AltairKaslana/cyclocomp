@@ -104,6 +104,22 @@
     <string name="batt_title">Let the app keep recording</string>
     <string name="batt_msg">Android may stop background recording to save battery.\\n\\nChoose \\u0022Open settings\\u0022 and set Zylo to \\u0022Unrestricted\\u0022 (or \\u0022Don\'t optimize\\u0022). If you skip it, recording still runs but may stop on its own.</string>
     <string name="batt_open">Open settings</string>
+    <!-- ===== onboarding 3 steps (v1.1 N-01) ===== -->
+    <string name="onb_lewati">Skip</string>
+    <string name="onb_kembali">Back</string>
+    <string name="onb_lanjut">Next</string>
+    <string name="onb_izinkan_lokasi">Allow location</string>
+    <string name="onb_buka_pengaturan">Open battery settings</string>
+    <string name="onb_mulai">Start riding</string>
+    <string name="onb_lokasi_judul">One permission, once</string>
+    <string name="onb_lokasi_isi">Zylo uses GPS for distance, speed, and elevation. Location is only used while you press START - nothing is sent anywhere.</string>
+    <string name="onb_baterai_judul">So the system won't stop your ride</string>
+    <string name="onb_baterai_isi">Let Zylo run without battery restrictions. If skipped, Android may stop recording mid-ride.</string>
+    <string name="onb_sensor_judul">Have a heart rate or cadence sensor?</string>
+    <string name="onb_sensor_isi">That's fine later - connect it any time from Settings. Without sensors, speed, distance, and time still record from GPS.</string>
+    <string name="onb_lokasi_ikon">Location icon</string>
+    <string name="onb_baterai_ikon">Battery icon</string>
+    <string name="onb_sensor_ikon">Sensor icon</string>
     <string name="batt_skip">Skip</string>
 
     <!-- pengaturan -->

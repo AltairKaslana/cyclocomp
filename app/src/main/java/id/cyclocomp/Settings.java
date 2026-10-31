@@ -31,6 +31,7 @@ final class Settings {
     private static final String K_MAP         = "map";           // peta ubin di Ringkasan
     private static final String K_WEIGHT      = "weight";        // kg, dipakai hitung kalori
     private static final String K_THEME       = "theme_light";   // tema siang?
+    private static final String K_ONBOARDING  = "onboarding_done"; // 3 langkah pertama sudah dilewati?
 
     // mode lap
     public static final int LAP_MANUAL = 0, LAP_DISTANCE = 1, LAP_TIME = 2;
@@ -140,5 +141,18 @@ final class Settings {
     public static boolean theme(Context c) { return sp(c).getBoolean(K_THEME, false); }
     public static void setTheme(Context c, boolean v) {
         sp(c).edit().putBoolean(K_THEME, v).apply();
+    }
+
+    // ---------- onboarding ----------
+
+    /**
+     * Onboarding 3 langkah (lokasi, baterai, sensor) sudah pernah ditutup?
+     * Ditandai selesai juga saat pengguna melewatinya - paksanya bukan gaya
+     * aplikasi ini. Yang membuat onboarding TIDAK muncul lagi bukan hanya tanda
+     * ini, tapi juga keadaan izin (lihat {@link Onboarding#layakDitampilkan}).
+     */
+    public static boolean onboardingDone(Context c) { return sp(c).getBoolean(K_ONBOARDING, false); }
+    public static void setOnboardingDone(Context c, boolean v) {
+        sp(c).edit().putBoolean(K_ONBOARDING, v).apply();
     }
 }
