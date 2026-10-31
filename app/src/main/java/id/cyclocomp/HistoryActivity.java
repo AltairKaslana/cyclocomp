@@ -41,6 +41,7 @@ public class HistoryActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+                Tema.pasangPada(this);   // palet benar SEBELUM layout dibaca
         setContentView(R.layout.activity_history);
         Ui.fonts(getWindow().getDecorView(), this);
         db = new RideDb(this);

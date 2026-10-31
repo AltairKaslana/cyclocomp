@@ -52,6 +52,7 @@ public class AturLayarActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+                Tema.pasangPada(this);   // palet benar SEBELUM layout dibaca
         setContentView(R.layout.activity_atur_layar);
 
         preview = (LinearLayout) findViewById(R.id.preview);

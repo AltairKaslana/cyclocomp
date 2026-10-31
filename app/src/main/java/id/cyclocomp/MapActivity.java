@@ -56,6 +56,7 @@ public class MapActivity extends Activity implements RideService.Listener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+                Tema.pasangPada(this);   // palet benar SEBELUM layout dibaca
         setContentView(R.layout.activity_map);
 
         // font dibundel: samakan tipografi dengan layar lain

@@ -145,6 +145,36 @@ final class Tema {
     }
 
     /**
+     * Paksa penanda malam pada Resources yang AKAN dipakai layar ini.
+     *
+     * Kenapa ada metode ini, selain {@link #bungkus}: membungkus konteks
+     * dasar HANYA berpengaruh kalau layar benar-benar membaca resource dari
+     * konteks itu. Di sebagian perangkat (dan di sebagian versi Android)
+     * aktivitas memegang Resources sendiri - hasil kerja ActivityThread -
+     * sehingga membungkus konteks dasarnya tidak mengubah apa pun: layar
+     * tetap memakai berkas warna yang lama, dan sakelar tema terasa macet.
+     *
+     * Metode ini mengambil Resources yang BENAR-BENAR dipakai layar ini
+     * ({@code a.getResources()}) dan memaksa konfigurasinya di sana. Harus
+     * dipanggil di onCreate SEBELUM setContentView: view dibuat sekali, saat
+     * inflate, jadi warna harus sudah benar sebelum layout dibaca.
+     *
+     * Sama seperti lapis lain di kelas ini: gagal lembut, tidak boleh membuat
+     * aplikasi mati karena urusan warna.
+     */
+    static void pasangPada(Activity a) {
+        if (a == null) return;
+        try {
+            boolean terang = pilihanProses != null ? pilihanProses.booleanValue() : Settings.theme(a);
+            Configuration cfg = new Configuration(a.getResources().getConfiguration());
+            cfg.uiMode = bitMalam(cfg.uiMode, terang);
+            a.getResources().updateConfiguration(cfg, null);
+        } catch (Throwable diabaikan) {
+            // Sengaja kosong: lihat catatan kelas.
+        }
+    }
+
+    /**
      * Konteks yang SELALU memakai palet gelap, apa pun pilihan pengguna.
      *
      * Dipakai {@link ShareCard}: kartu bagikan digambar ke Bitmap di luar

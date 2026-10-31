@@ -49,6 +49,7 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+                Tema.pasangPada(this);   // palet benar SEBELUM layout dibaca
         setContentView(R.layout.activity_settings);
         Ui.fonts(getWindow().getDecorView(), this);
         groups = (LinearLayout) findViewById(R.id.groups);
@@ -134,7 +135,7 @@ public class SettingsActivity extends Activity {
         // dengan peta: pilihan ini mengubah seluruh layar sekaligus, sementara
         // setelan peta hanya menyentuh satu bagian di layar Ringkasan.
         group(getString(R.string.group_display));
-        switchRow(R_THEME, R.string.settings_theme, getString(R.string.sum_theme));
+        switchRow(R_THEME, R.string.settings_theme, keteranganTema());
         // Atur layar diletakkan di kelompok TAMPILAN, tepat di bawah sakelar
         // tema: keduanya mengubah rupa dashboard, bukan isi perekaman.
         valueRow(R_ATUR_LAYAR, R.string.settings_atur_layar, getString(R.string.sum_atur_layar));
@@ -255,6 +256,22 @@ public class SettingsActivity extends Activity {
         });
         Ui.fonts(v, this);
         addRow(v);
+    }
+
+    /**
+     * SEMENTARA - keterangan baris tema ikut membawa versi terpasang dan
+     * apa yang benar-benar terpasang. Supaya kalau tema tidak berganti,
+     * keterangan ini menjawab "apakah HP benar-benar menjalankan APK yang
+     * aku kirim" dan "lapisan mana yang putus" dalam satu bacaan, tanpa
+     * perlu menangkap Toast yang hilang sendiri. Dibuang lagi sesudah
+     * penyebabnya ditemukan.
+     */
+    private String keteranganTema() {
+        String versi = "?";
+        try {
+            versi = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (Throwable diabaikan) { /* versi saja */ }
+        return getString(R.string.sum_theme) + "  ·  v" + versi + "  ·  " + Tema.diagnostik(this);
     }
 
     private void switchRow(final int id, int titleRes, String summary) {
