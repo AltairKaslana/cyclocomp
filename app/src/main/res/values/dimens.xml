@@ -45,6 +45,10 @@
     <dimen name="glance_nav_h">76dp</dimen>
     <dimen name="nav_arrow">40dp</dimen>
 
+    <!-- Varian landscape: kolom kiri hanya selebar sepertiga layar dan tinggi
+         halaman tinggal ±130dp, jadi panahnya lebih kecil daripada portrait. -->
+    <dimen name="nav_arrow_s">30dp</dimen>
+
     <!-- pembatas vertikal antar kolom metrik -->
     <dimen name="divider_short">34dp</dimen>
     <dimen name="divider_lap">42dp</dimen>

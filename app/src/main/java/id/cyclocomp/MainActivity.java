@@ -694,7 +694,9 @@ public class MainActivity extends Activity implements RideService.Listener {
                     arahBelokan(navSnap.turnDir), teksJarak(navSnap.toTurnM),
                     Fmt.km(navSnap.remainM)));
         }
-        navRibbon.setSnap(navRoute, navSnap, diLuar);
+        // Landscape sengaja tidak punya pita (lihat layout-land/page_glance.xml):
+        // panah dan jaraknya tetap tampil di baris kompak kolom kiri.
+        if (navRibbon != null) navRibbon.setSnap(navRoute, navSnap, diLuar);
     }
 
     /** Angka besar dibulatkan ke 10 m; di atas 1 km memakai satu desimal. */

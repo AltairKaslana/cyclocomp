@@ -20,6 +20,12 @@
   SEMUA id dan tag "num" harus sama dengan page_glance.xml versi portrait —
   MainActivity memanggil findViewById() tanpa memeriksa null. Kalau satu id
   hilang di sini, aplikasi akan NPE tepat saat layar diputar.
+
+  PENGECUALIAN (N-12): navRibbon sengaja TIDAK ada di landscape. Tinggi
+  halaman landscape tinggal ±130dp; pita rute 76dp akan menelan ruang angka
+  kecepatan. Yang wajib terbaca saat mengayuh - panah belokan berikutnya dan
+  jaraknya - tetap ada dalam baris kompak di bawah pil tanjakan. MainActivity
+  memeriksa navRibbon null sebelum menggambar.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -92,6 +98,66 @@
                 android:tag="num"
                 android:text="0"
                 android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Panduan rute kompak (N-12). Tanpa latar kartu dan tanpa pita:
+             ruang vertikal di sini paling mahal. Satu kalimat aksesibilitas
+             diisi MainActivity; anak-anaknya disembunyikan dari TalkBack. -->
+        <LinearLayout
+            android:id="@+id/navCard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/gap_normal"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <id.cyclocomp.TurnArrow
+                    android:id="@+id/navArrow"
+                    android:layout_width="@dimen/nav_arrow_s"
+                    android:layout_height="@dimen/nav_arrow_s"
+                    android:importantForAccessibility="no" />
+
+                <TextView
+                    android:id="@+id/navTurnDist"
+                    style="@style/ValueSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/gap_snug"
+                    android:importantForAccessibility="no"
+                    android:maxLines="1"
+                    android:tag="num"
+                    android:text="0" />
+
+                <TextView
+                    android:id="@+id/navTurnDistUnit"
+                    style="@style/ValueUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/gap_tight"
+                    android:importantForAccessibility="no"
+                    android:text="@string/unit_m"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/navRemain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gap_tight"
+                android:ellipsize="end"
+                android:importantForAccessibility="no"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:textColor="@color/label"
+                android:textSize="@dimen/text_caption" />
         </LinearLayout>
     </LinearLayout>
 
