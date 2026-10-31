@@ -464,4 +464,20 @@
     <string name="garage_reminder_one">Maintenance: %1$s %2$s</string>
     <string name="garage_reminder_more">Maintenance: %1$s %2$s · +%3$d more</string>
 
+    <!-- Navigation (v1.3) -->
+    <string name="group_nav">NAVIGATION</string>
+    <string name="settings_nav_route">Navigation route</string>
+    <string name="sum_nav_route">Import a GPX to follow on the Glance screen</string>
+    <string name="settings_nav_clear">Remove route</string>
+    <string name="sum_nav_clear">Glance goes back to the ridden-track map</string>
+    <string name="nav_none">None yet</string>
+    <string name="nav_pick_error">No file app available to pick a GPX</string>
+    <string name="nav_importing">Reading route…</string>
+    <string name="nav_import_empty">The GPX contains no route points</string>
+    <string name="nav_import_failed">Could not read the GPX file</string>
+    <string name="nav_imported">Route loaded: %1$s</string>
+    <string name="nav_clear_title">Remove navigation route?</string>
+    <string name="nav_clear_msg">The imported route is removed from this device. Recorded rides are not deleted.</string>
+    <string name="nav_removed">Navigation route removed</string>
+
 </resources>

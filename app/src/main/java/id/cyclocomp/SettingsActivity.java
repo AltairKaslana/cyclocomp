@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,8 +40,10 @@ public class SettingsActivity extends Activity {
     private static final int R_SENSOR = 18;
     private static final int R_MAP_CACHE = 19;
     private static final int R_SUMMARY_MAP = 20;
+    private static final int R_NAV = 24, R_NAV_CLEAR = 25;
 
     private static final int REQ_SENSOR = 81;
+    private static final int REQ_GPX = 82;
 
     private LinearLayout groups;
     private LinearLayout lastCard;
@@ -77,6 +80,9 @@ public class SettingsActivity extends Activity {
     protected void onActivityResult(int req, int res, Intent data) {
         super.onActivityResult(req, res, data);
         if (req == REQ_SENSOR && res == RESULT_OK) paint();
+        if (req == REQ_GPX && res == RESULT_OK && data != null && data.getData() != null) {
+            imporGpx(data.getData());
+        }
     }
 
     /**
@@ -160,6 +166,14 @@ public class SettingsActivity extends Activity {
         // yang terpakai dan memberi jalan membersihkannya tanpa menunggu
         // pemangkasan otomatis.
         valueRow(R_MAP_CACHE, R.string.settings_map_cache, getString(R.string.sum_map_cache));
+
+        // Navigasi berdiri sendiri di kelompoknya: ini bukan setelan peta, dan
+        // bukan setelan perekaman - satu berkas rute yang dipakai layar Sekilas.
+        group(getString(R.string.group_nav));
+        valueRow(R_NAV, R.string.settings_nav_route, getString(R.string.sum_nav_route));
+        if (NavStore.exists(this)) {
+            valueRow(R_NAV_CLEAR, R.string.settings_nav_clear, getString(R.string.sum_nav_clear));
+        }
 
         group(getString(R.string.group_strava));
 
@@ -380,6 +394,10 @@ public class SettingsActivity extends Activity {
             case R_MAP:       return onOff(Settings.map(this));
             case R_SUMMARY_MAP: return onOff(Settings.summaryMap(this));
             case R_MAP_CACHE: return Fmt.size(TileMapView.cacheSize(this));
+            case R_NAV: {
+                String n = NavStore.name(this);
+                return n.isEmpty() ? getString(R.string.nav_none) : n;
+            }
             case R_SENSOR:    return sensorTersimpan();
             case R_STRAVA_ID:
                 String cid = StravaStore.clientId(this);
@@ -531,6 +549,24 @@ public class SettingsActivity extends Activity {
             case R_SENSOR:
                 startActivityForResult(new Intent(this, SensorActivity.class), REQ_SENSOR);
                 break;
+            case R_NAV:
+                pilihGpx();
+                break;
+            case R_NAV_CLEAR:
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.nav_clear_title)
+                        .setMessage(R.string.nav_clear_msg)
+                        .setNegativeButton(R.string.cancel, null)
+                        .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+                            @Override public void onClick(DialogInterface d, int w) {
+                                NavStore.clear(SettingsActivity.this);
+                                paint();
+                                Toast.makeText(SettingsActivity.this, R.string.nav_removed,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .show();
+                break;
             case R_WEIGHT: {
                 // Langkah 1 kg dari 40 sampai 120: cukup rapat untuk orang normal,
                 // cukup sedikit supaya dialog tidak perlu digulir di layar 320dp.
@@ -622,6 +658,74 @@ public class SettingsActivity extends Activity {
     private interface Pick { void set(int index); }
 
     private interface Text { void set(String value); }
+
+    // ---------- impor rute GPX ----------
+
+    private void pilihGpx() {
+        // */* dengan OPEN_DOCUMENT: berkas GPX sering bertipe text/plain atau
+        // application/octet-stream tergantung aplikasi pengunduh, jadi filter
+        // MIME yang ketat justru menyembunyikan berkas yang benar.
+        Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.setType("*/*");
+        try {
+            startActivityForResult(i, REQ_GPX);
+        } catch (Throwable t) {
+            Toast.makeText(this, R.string.nav_pick_error, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * Baca dan simpan rute di thread latar: berkas GPX beberapa MB bisa
+     * memakan satu-dua detik, dan membekukan layar Pengaturan selama itu
+     * terasa seperti aplikasi rusak.
+     */
+    private void imporGpx(final Uri uri) {
+        final android.app.ProgressDialog pd = new android.app.ProgressDialog(this);
+        pd.setMessage(getString(R.string.nav_importing));
+        pd.setCancelable(false);
+        pd.show();
+
+        final Context app = getApplicationContext();
+        new Thread(new Runnable() {
+            @Override public void run() {
+                String err = null;
+                String nama = null;
+                try {
+                    java.io.InputStream in = getContentResolver().openInputStream(uri);
+                    if (in == null) throw new java.io.IOException("stream null");
+                    double[][] raw;
+                    try {
+                        raw = GpxImport.read(in);
+                    } finally {
+                        in.close();
+                    }
+                    double[][] pts = GpxImport.simplify(raw);
+                    NavRoute route = NavRoute.build(pts);
+                    if (route == null || route.lengthM() < 10) {
+                        err = getString(R.string.nav_import_empty);
+                    } else {
+                        nama = NavStore.nameFromUri(SettingsActivity.this, uri);
+                        if (!NavStore.save(app, nama, route)) {
+                            err = getString(R.string.nav_import_failed);
+                        }
+                    }
+                } catch (Throwable t) {
+                    err = getString(R.string.nav_import_failed);
+                }
+                final String fErr = err, fNama = nama;
+                runOnUiThread(new Runnable() {
+                    @Override public void run() {
+                        pd.dismiss();
+                        paint();
+                        Toast.makeText(SettingsActivity.this,
+                                fErr != null ? fErr : getString(R.string.nav_imported, fNama),
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        }).start();
+    }
 
     // ---------- Strava ----------
 

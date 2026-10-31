@@ -478,4 +478,20 @@
     <string name="garage_reminder_one">Perawatan: %1$s %2$s</string>
     <string name="garage_reminder_more">Perawatan: %1$s %2$s · +%3$d lagi</string>
 
+    <!-- Navigasi (v1.3) -->
+    <string name="group_nav">NAVIGASI</string>
+    <string name="settings_nav_route">Rute navigasi</string>
+    <string name="sum_nav_route">Impor GPX untuk dipandu di Sekilas</string>
+    <string name="settings_nav_clear">Hapus rute</string>
+    <string name="sum_nav_clear">Sekilas kembali memakai peta rute yang dilalui</string>
+    <string name="nav_none">Belum ada</string>
+    <string name="nav_pick_error">Tidak ada aplikasi berkas untuk memilih GPX</string>
+    <string name="nav_importing">Membaca rute…</string>
+    <string name="nav_import_empty">GPX tidak berisi titik rute</string>
+    <string name="nav_import_failed">Berkas GPX gagal dibaca</string>
+    <string name="nav_imported">Rute dimuat: %1$s</string>
+    <string name="nav_clear_title">Hapus rute navigasi?</string>
+    <string name="nav_clear_msg">Rute impor dihapus dari perangkat. Rekaman gowes tidak terhapus.</string>
+    <string name="nav_removed">Rute navigasi dihapus</string>
+
 </resources>
