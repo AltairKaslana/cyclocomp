@@ -3,9 +3,9 @@
 Dokumen serah-terima untuk developer / sesi AI berikutnya. Baca ini dulu sebelum mengubah kode.
 Versi kerangka: 0.1.0 · Bahasa UI: Indonesia · Bahasa kode/komentar: Java + komentar Indonesia.
 
-> **Status terbaru (31 Okt 2026): v1.3 "Navigasi" (impor GPX) sudah ada di `main`, versionCode 80.**
+> **Status terbaru (31 Okt 2026): v1.3.1 polish navigasi ada di `main`, versionCode 81.**
 > Bagian 2 di bawah masih menggambarkan kerangka v0.1.0 dan sudah usang; status mutakhir,
-> skema DB v5, aturan Garasi, dan aturan navigasi ada di **bagian 17** dan **bagian 18**.
+> skema DB v5, aturan Garasi, navigasi, dan hasil polish ada di **bagian 17–19**.
 
 ---
 
@@ -590,3 +590,58 @@ Rilis GitHub: tag `v1.3.0`, aset `app-release.apk`.
 ### Berikutnya
 
 Menunggu umpan balik uji perangkat v1.3; kandidat lanjutan ada di roadmap bagian 12.
+
+---
+
+## 19. Status v1.3.1 — polish panduan rute (31 Okt 2026)
+
+Rilis kecil khusus UI/UX setelah v1.3.0 dipasang pemilik. Tidak ada perubahan pada perekaman,
+geometri `NavRoute`, maupun format GPX.
+
+| Commit | Isi |
+|---|---|
+| `e9a8403` | N-11 aksesibilitas kartu panduan: satu kalimat, status menunggu GPS / di luar rute, warna danger |
+| `2d81d02` | N-12 panduan kompak di landscape saat layar diputar |
+| `7410487` | rilis 1.3.1 (versionCode 81) |
+
+CI `build-apk` run `41219333422` lulus. Hasil: `Zylo-v1.3.1.apk`, 472.177 byte,
+`versionCode 81`, `versionName 1.3.1`, sha256
+`0df9fcd5e4d681730aecd854c92cb7a1a1280f7929c260339fd653ce1239ba2d`.
+Rilis GitHub: tag `v1.3.1`, aset `app-release.apk`.
+
+### Aturan baru yang harus dipertahankan
+
+- **Kartu panduan berbicara satu kali.** `navCard` diberi satu `contentDescription` utuh di
+  `updateNav`; semua anaknya (`navArrow`, `navTurnDist`, `navTurnDistUnit`, `navRemain`,
+  `navRibbon`) bertanda `importantForAccessibility="no"`. Kalau menambah anak baru di kartu,
+  ikut tandai `no` — kalau tidak, TalkBack mengulang potongan angkanya.
+- Tiga bentuk kalimat: normal (`nav_cd`), menunggu GPS (`nav_cd_wait`), di luar rute
+  (`nav_cd_off`). Jarak tidak lagi dikirim sebagai "—" ke pembaca layar.
+- Teks sisa rute berubah `@color/danger` saat `NAV_OFF_M`, dan kalimatnya juga berubah:
+  warna bukan satu-satunya penanda (aturan aksesibilitas bagian 8).
+- **`navRibbon` sengaja tidak ada di `layout-land/page_glance.xml`.** Tinggi halaman landscape
+  tinggal ±130dp; pita 76dp akan menelan ruang angka kecepatan. Yang tampil hanya baris kompak
+  panah + jarak + sisa di bawah pil tanjakan (`nav_arrow_s` 30dp). `MainActivity.updateNav`
+  memeriksa `navRibbon != null`; jangan hapus pemeriksaan itu.
+- `navCard` ada di kedua varian layout; `navArrow`/`navTurnDist`/`navTurnDistUnit`/`navRemain`
+  wajib ada di keduanya, karena `updateNav` memakai semuanya tanpa null-check.
+
+### Sudah diverifikasi
+
+- Kompilasi main + test, 167 unit test lulus (tidak ada hitungan baru; perubahan murni UI).
+- Manifest APK: paket `id.cyclocomp`, `versionName 1.3.1`; tanda tangan ada.
+
+### BELUM diverifikasi (harus di perangkat)
+
+1. TalkBack membacakan kartu sebagai satu kalimat dan tidak mengulang angka.
+2. Putar layar saat merekam dengan rute aktif: baris kompak muncul di landscape, tidak ada NPE,
+   dan angka kecepatan tidak terpotong.
+3. Tampilan landscape 640×360 (dan portrait 360×640) dengan font 1,3×: panah + jarak + sisa
+   masih muat di kolom kiri.
+4. Warna merah teks sisa rute terbaca di tema gelap dan tema siang saat di luar rute.
+
+### Berikutnya
+
+Menunggu umpan balik uji perangkat v1.3.1. Kandidat fitur berikutnya masih sama:
+navigasi lanjutan (peringatan belokan, profil elevasi), sensor daya BLE, atau item v2.0
+(satuan mil, ekspor FIT, cadangan data).
