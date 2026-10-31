@@ -101,6 +101,13 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <!-- Garasi (N-07): daftar sepeda & perawatan, portrait seperti
+             layar pengaturan lain yang bukan dipakai sambil mengayuh. -->
+        <activity
+            android:name=".GarageActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <!-- Peta layar penuh: posisi + rute + geser/zoom. Orientasi tak dikunci
              (mengikuti perangkat) supaya bisa dipakai sambil gowes. -->
         <activity

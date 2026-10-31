@@ -26,6 +26,17 @@ final class Fmt {
         return String.format(Locale.US, "%.0f", m);
     }
 
+    /**
+     * Odometer: meter -> km BULAT dengan pemisah ribuan.
+     *
+     * Beda dengan {@link #km}: odometer adalah angka besar yang dibaca sekilas,
+     * jadi dua desimal hanya menambah derau ("12.345,67"). Pemisah mengikuti
+     * locale perangkat supaya ribuan terbaca wajar di region pengguna.
+     */
+    static String odoKm(double meters) {
+        return String.format(Locale.getDefault(), "%,.0f", Math.max(0, meters) / 1000.0);
+    }
+
     /** Gradien persen. */
     static String grade(double percent) {
         return String.format(Locale.US, "%.1f", percent);

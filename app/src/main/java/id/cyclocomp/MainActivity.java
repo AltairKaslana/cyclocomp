@@ -51,7 +51,7 @@ public class MainActivity extends Activity implements RideService.Listener {
 
     private TextView tvStatus, tvLapBadge;
     private View vRec;
-    private ImageButton btnHistory, btnSettings, btnLock, btnMap;
+    private ImageButton btnHistory, btnSettings, btnGarage, btnLock, btnMap;
     private View vStopProgress;
     private LinearLayout lapCard;
     private TextView tvSpeed, tvDist, tvTime, tvAvg, tvMax, tvElev, tvAlt, tvGrade;
@@ -197,6 +197,7 @@ public class MainActivity extends Activity implements RideService.Listener {
         btnLap = (Button) findViewById(R.id.btnLap);
         btnHistory = (ImageButton) findViewById(R.id.btnHistory);
         btnSettings = (ImageButton) findViewById(R.id.btnSettings);
+        btnGarage = (ImageButton) findViewById(R.id.btnGarage);
         btnLock = (ImageButton) findViewById(R.id.btnLock);
         btnMap = (ImageButton) findViewById(R.id.btnMap);
         vStopProgress = findViewById(R.id.vStopProgress);
@@ -260,6 +261,11 @@ public class MainActivity extends Activity implements RideService.Listener {
         btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 Nav.open(MainActivity.this, SettingsActivity.class);
+            }
+        });
+        btnGarage.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Nav.open(MainActivity.this, GarageActivity.class);
             }
         });
         // Tombol peta juga tidak ada di layout landscape (peta dibuka dari
@@ -707,6 +713,7 @@ public class MainActivity extends Activity implements RideService.Listener {
         // yang mengubah tempat data gowes berikutnya dikirim.
         boolean locked = st == RideService.State.RECORDING || st == RideService.State.PAUSED;
         if (btnHistory != null) btnHistory.setVisibility(locked ? View.GONE : View.VISIBLE);
+        if (btnGarage != null) btnGarage.setVisibility(locked ? View.GONE : View.VISIBLE);
         if (btnSettings != null) btnSettings.setVisibility(locked ? View.GONE : View.VISIBLE);
         if (btnLock != null) btnLock.setVisibility(locked ? View.VISIBLE : View.GONE);
 

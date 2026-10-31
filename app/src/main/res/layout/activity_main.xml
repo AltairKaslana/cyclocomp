@@ -70,6 +70,15 @@
             android:contentDescription="@string/btn_history"
             android:src="@drawable/ic_history" />
 
+        <!-- Garasi (v1.2): di antara Riwayat dan Pengaturan, sesuai urutan
+             navigasi rancangan 4. -->
+        <ImageButton
+            android:id="@+id/btnGarage"
+            style="@style/IconBtn"
+            android:layout_marginLeft="@dimen/gap_tight"
+            android:contentDescription="@string/garage_title"
+            android:src="@drawable/ic_garage" />
+
         <ImageButton
             android:id="@+id/btnSettings"
             style="@style/IconBtn"

@@ -448,4 +448,32 @@
 <string name="history_week_sub">%1$d gowes  ·  bergerak %2$s</string>
 <string name="history_week_cd">Tujuh hari terakhir: %1$s km dalam %2$d gowes, bergerak %3$s</string>
 
+    <!-- Garasi (v1.2) -->
+    <string name="garage_title">Garasi</string>
+    <string name="garage_empty_title">Belum ada sepeda</string>
+    <string name="garage_empty_msg">Tambahkan sepeda untuk mencatat odometer dan perawatan.</string>
+    <string name="garage_add_bike">TAMBAH SEPEDA</string>
+    <string name="garage_bike_name">Nama sepeda</string>
+    <string name="garage_bike_type">Jenis (opsional)</string>
+    <string name="garage_bike_offset">Odometer awal (km)</string>
+    <string name="garage_odometer">ODOMETER</string>
+    <string name="garage_stats">Waktu gerak %1$s · %2$d gowes</string>
+    <string name="garage_maintenance">PERAWATAN</string>
+    <string name="garage_no_components">Belum ada komponen. Tambahkan rantai, ban, atau oli.</string>
+    <string name="garage_add_component">TAMBAH KOMPONEN</string>
+    <string name="garage_comp_name">Nama komponen</string>
+    <string name="garage_comp_limit">Batas jarak (km)</string>
+    <string name="garage_comp_start">Dihitung dari odometer (km)</string>
+    <string name="garage_comp_used">%1$s / %2$s km</string>
+    <string name="garage_status_ok">BAIK</string>
+    <string name="garage_status_soon">SEGERA</string>
+    <string name="garage_status_over">LEWAT %1$s km</string>
+    <string name="garage_status_pct">%1$s · %2$d%%</string>
+    <string name="garage_delete_bike">Hapus sepeda?</string>
+    <string name="garage_delete_bike_msg">Gowes yang memakai sepeda ini tetap ada, tetapi tidak lagi terhubung ke sepeda. Komponen perawatannya ikut dihapus.</string>
+    <string name="garage_delete_comp">Hapus komponen?</string>
+    <string name="garage_delete_comp_msg">Komponen ini akan dihapus dari daftar perawatan.</string>
+    <string name="garage_invalid_name">Nama tidak boleh kosong</string>
+    <string name="garage_invalid_limit">Batas harus lebih dari 0</string>
+
 </resources>

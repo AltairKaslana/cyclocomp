@@ -105,6 +105,7 @@
     <!-- N-05: jarak di puncak layar Ringkasan. Satu tingkat di atas nilai besar:
          angka ini dibaca dari jarak satu tangan, dan hanya ada satu di layar. -->
     <dimen name="text_value_hero">56sp</dimen>
+    <dimen name="text_value_odo">72sp</dimen>  <!-- odometer Garasi: angka paling besar di aplikasi -->
     <dimen name="text_speed">176sp</dimen>     <!-- angka kecepatan dominan -->
 
     <!-- Titik indikator halaman (layar Bagikan). Sebelumnya ukuran dan celahnya

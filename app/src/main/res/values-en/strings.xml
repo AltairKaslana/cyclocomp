@@ -434,4 +434,32 @@
 <string name="history_week_sub">%1$d rides  ·  %2$s moving</string>
 <string name="history_week_cd">Last seven days: %1$s km over %2$d rides, %3$s moving</string>
 
+    <!-- Garage (v1.2) -->
+    <string name="garage_title">Garage</string>
+    <string name="garage_empty_title">No bikes yet</string>
+    <string name="garage_empty_msg">Add a bike to track odometer and maintenance.</string>
+    <string name="garage_add_bike">ADD BIKE</string>
+    <string name="garage_bike_name">Bike name</string>
+    <string name="garage_bike_type">Type (optional)</string>
+    <string name="garage_bike_offset">Starting odometer (km)</string>
+    <string name="garage_odometer">ODOMETER</string>
+    <string name="garage_stats">%1$s moving · %2$d rides</string>
+    <string name="garage_maintenance">MAINTENANCE</string>
+    <string name="garage_no_components">No components yet. Add a chain, tire, or oil.</string>
+    <string name="garage_add_component">ADD COMPONENT</string>
+    <string name="garage_comp_name">Component name</string>
+    <string name="garage_comp_limit">Limit (km)</string>
+    <string name="garage_comp_start">Counted from odometer (km)</string>
+    <string name="garage_comp_used">%1$s / %2$s km</string>
+    <string name="garage_status_ok">OK</string>
+    <string name="garage_status_soon">DUE SOON</string>
+    <string name="garage_status_over">OVER BY %1$s km</string>
+    <string name="garage_status_pct">%1$s · %2$d%%</string>
+    <string name="garage_delete_bike">Delete bike?</string>
+    <string name="garage_delete_bike_msg">Rides on this bike stay, but are no longer linked to it. Its maintenance components are deleted.</string>
+    <string name="garage_delete_comp">Delete component?</string>
+    <string name="garage_delete_comp_msg">This component will be removed from maintenance.</string>
+    <string name="garage_invalid_name">Name cannot be empty</string>
+    <string name="garage_invalid_limit">Limit must be more than 0</string>
+
 </resources>
