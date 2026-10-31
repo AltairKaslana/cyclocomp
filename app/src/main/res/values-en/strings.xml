@@ -461,5 +461,7 @@
     <string name="garage_delete_comp_msg">This component will be removed from maintenance.</string>
     <string name="garage_invalid_name">Name cannot be empty</string>
     <string name="garage_invalid_limit">Limit must be more than 0</string>
+    <string name="garage_reminder_one">Maintenance: %1$s %2$s</string>
+    <string name="garage_reminder_more">Maintenance: %1$s %2$s · +%3$d more</string>
 
 </resources>

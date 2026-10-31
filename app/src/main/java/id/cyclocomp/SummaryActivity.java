@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -177,6 +179,8 @@ public class SummaryActivity extends Activity {
             Log.e("Summary", "rute gagal ditampilkan", t);
         }
 
+        bindPerawatan();
+
         // lap
         List<Lap> laps;
         try {
@@ -225,6 +229,54 @@ public class SummaryActivity extends Activity {
         Button share = (Button) findViewById(R.id.btnShare);
         share.setEnabled(adaGpx);
         share.setAlpha(adaGpx ? 1f : 0.4f);
+    }
+
+    /**
+     * N-08: satu baris pengingat perawatan di atas aksi, hanya kalau ada
+     * komponen SEGERA/LEWAT. Sengaja baris, bukan kartu: ini pengingat, bukan
+     * bagian hasil gowes, dan tidak boleh menenggelamkan angka utama.
+     *
+     * Yang ditampilkan komponen paling mendesak (LEWAT dulu, lalu persentase
+     * terbesar); jumlah sisanya ditambahkan supaya daftar panjang tidak hilang
+     * diam-diam. Ketuk membuka Garasi.
+     */
+    private void bindPerawatan() {
+        final TextView baris = (TextView) findViewById(R.id.tvService);
+        if (baris == null) return;
+
+        long bikeId = row.bikeId > 0 ? row.bikeId : Settings.lastBikeId(this);
+        List<Komponen> perlu = GarasiStore.perluPerhatian(this, bikeId);
+        if (perlu.isEmpty()) {
+            baris.setVisibility(View.GONE);
+            return;
+        }
+
+        final double odo = GarasiStore.odoM(this, bikeId);
+        Collections.sort(perlu, new Comparator<Komponen>() {
+            @Override public int compare(Komponen a, Komponen b) {
+                int sa = a.status(odo), sb = b.status(odo);
+                if (sa != sb) return sb - sa;
+                return b.persen(odo) - a.persen(odo);
+            }
+        });
+
+        Komponen k = perlu.get(0);
+        boolean lewat = k.status(odo) == Komponen.LEWAT;
+        String statusTeks = lewat
+                ? getString(R.string.garage_status_over, Fmt.odoKm(k.lebihM(odo)))
+                : getString(R.string.garage_status_pct,
+                        getString(R.string.garage_status_soon), k.persen(odo));
+        baris.setText(perlu.size() == 1
+                ? getString(R.string.garage_reminder_one, k.name, statusTeks)
+                : getString(R.string.garage_reminder_more, k.name, statusTeks,
+                        perlu.size() - 1));
+        baris.setTextColor(getResources().getColor(lewat ? R.color.danger : R.color.warn));
+        baris.setVisibility(View.VISIBLE);
+        baris.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Nav.open(SummaryActivity.this, GarageActivity.class);
+            }
+        });
     }
 
     /**

@@ -529,6 +529,21 @@
             android:buttonTint="@color/checkbox_tint" />
     </LinearLayout>
 
+    <!-- N-08: pengingat perawatan dari Garasi. Satu baris, hanya muncul kalau
+         ada komponen SEGERA/LEWAT; ketuk untuk membuka Garasi. -->
+    <TextView
+        android:id="@+id/tvService"
+        style="@style/EmptyText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/gap_loose"
+        android:background="@drawable/bg_card"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/touch_target_min"
+        android:paddingLeft="@dimen/gap_roomy"
+        android:paddingRight="@dimen/gap_roomy"
+        android:visibility="gone" />
+
     <!-- Kartu gambar adalah jalur utama (paling sering dipakai untuk dibagikan),
          jadi dapat baris sendiri selebar penuh. GPX dan Tutup di baris berikutnya. -->
     <Button

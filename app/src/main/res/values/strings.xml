@@ -475,5 +475,7 @@
     <string name="garage_delete_comp_msg">Komponen ini akan dihapus dari daftar perawatan.</string>
     <string name="garage_invalid_name">Nama tidak boleh kosong</string>
     <string name="garage_invalid_limit">Batas harus lebih dari 0</string>
+    <string name="garage_reminder_one">Perawatan: %1$s %2$s</string>
+    <string name="garage_reminder_more">Perawatan: %1$s %2$s · +%3$d lagi</string>
 
 </resources>
